@@ -1,23 +1,44 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from .booking import scrape_booking
 from attractions.models import City
+
 # Create your views here.
 
-#目前測試要加上這兩行才能爬取Booking 
-from django.views.decorators.csrf import csrf_exempt
-@csrf_exempt
 def booking(request):
-    hotels = []
-    TAIWAN_CITIES = City.objects.all()
     if request.method == 'POST':
         city = request.POST.get('city')
         checkin = request.POST.get('checkin')
         checkout = request.POST.get('checkout')
         adults = request.POST.get('adults')
         children = request.POST.get('children')
-        hotels = scrape_booking(city, checkin, checkout, adults, children)
-        return render(request,'showhotel.html',{"hotels": hotels})
-    return render(request,'booking.html',{"cities": TAIWAN_CITIES,"hotels": hotels})
+
+        # **馬上跳轉到 showhotel.html，不等待爬蟲完成**
+        return redirect(f'/showhotel/?city={city}&checkin={checkin}&checkout={checkout}&adults={adults}&children={children}')
+    
+    return render(request, 'booking.html', {"cities": City.objects.all()})
+
+
+from django.http import StreamingHttpResponse
+import json
+
+
+def stream_hotels(request):
+    city = request.GET.get('city')
+    checkin = request.GET.get('checkin')
+    checkout = request.GET.get('checkout')
+    adults = request.GET.get('adults')
+    children = request.GET.get('children')
+
+    def event_stream():
+        for hotel in scrape_booking(city, checkin, checkout, adults, children):
+            json_data = json.dumps(hotel)
+            yield f"data: {json_data}\n\n"
+
+    return StreamingHttpResponse(event_stream(), content_type='text/event-stream')
+
+def showhotel(request):
+    return render(request, 'showhotel.html')
+
 
 #住宿管理頁面
 def lodging(request):

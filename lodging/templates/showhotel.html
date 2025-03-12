@@ -38,6 +38,9 @@
 
     <!-- ======= 修改位置 Start: 新增自訂 CSS 控制圖片尺寸 ======= -->
     <style>
+        #hotels-container {
+            min-height: 400px; /* 讓這個區塊至少有 300px 高度 */
+        }                 
         .destination_image {
             width: 100%;
             height: 250px; /* 控制卡片內圖片的固定高度 */
@@ -55,7 +58,9 @@
             top: 0;
             left: 0;
         }
-        
+        .footer_area {
+            margin-top: auto;
+        }   
     </style>
     <!-- ======= 修改位置 End ======= -->
 </head>
@@ -145,58 +150,99 @@
 
     <!--====== HEADER PART ENDS ======-->
 
-
-    <!--====== DESTINATION PART START ======-->
-    <section id="packges" class="destination_area pt-130 pb-130">
-        <div class="container">
-            <div class="row justify-content-center">
-                <div class="col-lg-6">
-                    <div class="section_title text-center pb-25">
-                        <h3 class="title">飯店查詢結果如下</h3>
-                        <p>Hotel search results are as follows.</p>
-                    </div>
+ <!--====== DESTINATION PART START ======-->
+ <section id="packges" class="destination_area pt-130 pb-130">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-6">
+                <div class="section_title text-center pb-25">
+                    <h3 class="title" id="hotel-title">正在載入飯店資料請稍候...</h3> <!-- 初始標題 -->
+                    <p id="hotel-subtitle">Loading hotel search results...</p>
                 </div>
             </div>
-    
-            {% if hotels %}
-            <div class="row">
-                <div class="col-12 text-center"></div>
-            </div>
-    
-            <div class="row">
-                {% for hotel in hotels %}
-                <div class="col-lg-4 col-md-6">
-                    <div class="single_destination mt-30 wow fadeIn" data-wow-duration="1.3s" data-wow-delay="0.2s">
-                        <div class="destination_image">
-                            <!-- 修改位置：移除原 inline style，直接使用 CSS 控制圖片尺寸 -->
-                            <a href="{{ hotel.連結 }}">
-                                <img src="{{ hotel.圖片 }}" alt="Destination">  
-                            </a>
-                        </div>
-                        <div class="destination_content">
-                            <h4 class="title">
-                                <a href="{{ hotel.連結 }}"><strong>{{ hotel.名稱 }}</strong></a>
-                            </h4>
-                            <p class="price">{{ hotel.地址 }}</p>
-                            <p >{{ hotel.價格 }}</p>
-                            {% if request.user.is_authenticated %}
-                                <a href="javascript:void(0)" class="main-btn">預訂</a>
-                            {% endif %}
-                            <a class="more" href="{{ hotel.連結 }}"><i class="lni lni-chevron-right"></i></a>
-                        </div>
-                    </div>
-                </div>
-                {% endfor %}
-            </div>
-            {% endif %}
         </div>
-        <!-- 新增的再次查詢按鈕，置底 & 置中 -->
+
+        <!-- 動態插入飯店結果 -->
+        <div class="row" id="hotels-container">
+            <p id="loading-message">努力加載中...</p> <!-- 初始 Loading 訊息 -->
+        </div>
+
+        <!-- 再次查詢按鈕 -->
         <div class="row">
             <div class="col-12 text-center mt-4">
                 <a href="/booking" class="main-btn">再次查詢</a>
             </div>
         </div>
-    </section>
+
+    </div>
+</section>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        let eventSource = new EventSource("/stream-hotels" + window.location.search);
+        let resultContainer = document.getElementById("hotels-container");
+        let hotelTitle = document.getElementById("hotel-title");
+        let hotelSubtitle = document.getElementById("hotel-subtitle");
+        let loadingMessage = document.getElementById("loading-message");
+
+        let firstDataReceived = false; // 標記是否收到第一筆資料
+
+        eventSource.onmessage = function(event) {
+            let hotel = JSON.parse(event.data);
+
+            // **收到第一筆資料時，更新標題**
+            if (!firstDataReceived) {
+                document.title = "飯店查詢結果"; // 更新瀏覽器標題
+                hotelTitle.innerText = "飯店查詢結果如下"; // 更新主標題
+                hotelSubtitle.innerText = "Hotel search results are as follows."; // 更新副標題
+                firstDataReceived = true;
+
+                // 移除載入中訊息
+                if (loadingMessage) {
+                    loadingMessage.remove();
+                }
+            }
+
+            let hotelItem = document.createElement("div");
+            hotelItem.classList.add("col-lg-4", "col-md-6", "wow", "fadeIn");
+            hotelItem.setAttribute("data-wow-duration", "1.3s");
+            hotelItem.setAttribute("data-wow-delay", "0.2s");
+
+            hotelItem.innerHTML = `
+                <div class="single_destination mt-30">
+                    <div class="destination_image">
+                        <a href="${hotel.連結}">
+                            <img src="${hotel.圖片}" alt="Destination">
+                        </a>
+                    </div>
+                    <div class="destination_content">
+                        <h4 class="title">
+                            <a href="${hotel.連結}"><strong>${hotel.名稱}</strong></a>
+                        </h4>
+                        <p class="price">${hotel.地址}</p>
+                        <p>${hotel.價格}</p>
+                        {% if request.user.is_authenticated %}
+                            <a href="javascript:void(0)" class="main-btn">預訂</a>
+                        {% endif %}
+                        <a class="more" href="${hotel.連結}"><i class="lni lni-chevron-right"></i></a>
+                    </div>
+                </div>
+            `;
+
+            resultContainer.appendChild(hotelItem);
+
+            // **只對新元素應用 WOW.js，不影響整個版面**
+            let wow = new WOW({ live: false });
+            wow.sync();
+        };
+
+        eventSource.onerror = function() {
+            console.error("SSE 連線錯誤");
+            eventSource.close();
+        };
+    });
+</script>
+            
     <!--====== DESTINATION PART ENDS ======-->
   
  
