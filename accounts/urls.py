@@ -11,4 +11,5 @@ urlpatterns = [
     path('email_verification_notice/',views.email_verification_notice_view, name='email_verification_notice'), # 提醒前往信箱驗證
     path("verify/<str:token>/", views.verify_email, name="verify_email"), # 顯示驗證確認頁面
     path("api/user-status/", views.user_status, name="user_status"),
+    path("updatepassword/", views.updatepassword, name="updatepassword"),
 ]

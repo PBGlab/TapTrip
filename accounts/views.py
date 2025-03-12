@@ -36,11 +36,52 @@ def login_view(request):
     # ✅ GET 請求時回傳 `login.html`
     return render(request, 'login.html')
 
+#更改密碼功能
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.hashers import check_password
+from django.http import JsonResponse
+from django.shortcuts import render
+
+@login_required
+def updatepassword(request):
+    if request.method == 'POST':
+        currentpassword = request.POST.get('currentpassword')
+        newpassword = request.POST.get('password')
+        confirm_password = request.POST.get('confirm_password')
+
+        user = request.user
+        errors = {}
+
+        # 驗證舊密碼
+        if not check_password(currentpassword, user.password):
+            errors['currentpassword'] = "舊密碼不正確"
+
+        # 確保新密碼與確認密碼相同
+        if newpassword != confirm_password:
+            errors['confirm_password'] = "新密碼與確認密碼不一致"
+
+        # 如果有錯誤，回傳 JSON 給前端
+        if errors:
+            return JsonResponse({'success': False, 'errors': errors}, status=400)
+
+        # 更新密碼
+        user.set_password(newpassword)
+        user.save()
+
+        # **強制登出使用者**
+        logout(request)
+
+        return JsonResponse({'success': True, 'redirect_url': '/login/'})  # 成功後導向登入頁面
+
+    return render(request, 'updatepassword.html')
+
 #傳遞username
 def user_status(request):
     if request.user.is_authenticated:
         return JsonResponse({"is_authenticated": True, "username": request.user.username})
     return JsonResponse({"is_authenticated": False})
+
+
 
 from .utils import send_verification_email
 @csrf_exempt  # 開發測試用，正式環境請移除
@@ -90,6 +131,7 @@ def register_view(request):
         # return render(request, 'email_verification_notice.html', {'email': email})
     return render(request, 'register.html')
 
+
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_POST
 @login_required  # ✅ 只有登入的使用者能登出
@@ -119,3 +161,5 @@ def verify_email(request, token):
     user.email_verification_token = ""  # 清除 Token
     user.save()
     return render(request, "email_verification_success.html")  # 成功頁面
+
+
