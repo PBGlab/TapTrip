@@ -36,6 +36,7 @@ def login_view(request):
     # ✅ GET 請求時回傳 `login.html`
     return render(request, 'login.html')
 
+#傳遞username
 def user_status(request):
     if request.user.is_authenticated:
         return JsonResponse({"is_authenticated": True, "username": request.user.username})
@@ -118,8 +119,3 @@ def verify_email(request, token):
     user.email_verification_token = ""  # 清除 Token
     user.save()
     return render(request, "email_verification_success.html")  # 成功頁面
-
-
-
-
-
