@@ -159,11 +159,14 @@
                     <div class="col-lg-6">
                         <div class="buttons text-center">
                             <!-- 確認登出，發送 POST 請求到 /logout-confirm/ -->
-                            <button class="main-btn confirm-btn" onclick="confirmLogout()">登出</button>
-    
+                            <button class="main-btn confirm-btn" onclick="confirmLogout()">帳號登出</button>
+                            
+                            <!-- 更改密碼，導向 /updatepassword -->
+                            <button class="main-btn password-btn" onclick="window.location.href='/updatepassword'">更改密碼</button>
+
                             <!-- 取消登出，回到 /home -->
-                            <button class="main-btn cancel-btn" onclick="window.location.href='/home'">取消</button>
-                        </div>
+                            <button class="main-btn cancel-btn" onclick="window.location.href='/home'">返回首頁</button>
+                        </div>                        
                     </div>
                 </div>
             </div> <!-- contact_form -->
