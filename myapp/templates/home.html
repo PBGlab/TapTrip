@@ -1,0 +1,484 @@
+<head>
+    <meta charset="utf-8">
+    
+    <!--====== Title ======-->
+    <title>TapTrip 旅遊一指通</title>
+    
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!--====== Favicon Icon ======-->
+    <link rel="shortcut icon" href="/static/assets/images/favicon.png" type="image/png">
+    
+    <link rel="stylesheet" href="/static/assets/css/magnific-popup.css">
+    <link rel="stylesheet" href="/static/assets/css/slick.css">
+        
+    <!--====== Animate CSS ======-->
+    <link rel="stylesheet" href="/static/assets/css/animate.css">
+        
+    <!--====== Nice Select CSS ======-->
+    <link rel="stylesheet" href="/static/assets/css/nice-select.css">
+        
+    <!--====== Line Icons CSS ======-->
+    <link rel="stylesheet" href="/static/assets/css/LineIcons.2.0.css">
+        
+    <!--====== Bootstrap CSS ======-->
+    <link rel="stylesheet" href="/static/assets/css/bootstrap.4.5.2.min.css">
+    
+    <!--====== Default CSS ======-->
+    <link rel="stylesheet" href="/static/assets/css/default.css">
+    
+    <!--====== Style CSS ======-->
+    <link rel="stylesheet" href="/static/assets/css/style.css">
+    
+    <!--====== 自訂樣式 ======-->
+    <style>
+        .fixed-size-image {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+        }
+    </style>
+    <style>
+        .destination_content {
+            min-height: 120px; /* 設定固定的最小高度 */
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between; /* 讓標籤 & 按鈕對齊 */
+        }
+
+        .destination_content p {
+            flex-grow: 1; /* 讓 hashtag 撐開區塊 */
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        .step-container {
+            text-align: center; /* 讓 Step 標籤置中 */
+            margin-bottom: 10px; /* 調整 Step 與卡片之間的距離 */
+        }
+        
+        .step-label {
+            font-size: 22px;
+            font-weight: bold;
+            color: #EEC41E; /* 土黃色 */
+            text-transform: uppercase; /* ✅ 讓字母變大寫（可選） */
+        }
+        html, body {
+            height: 100%;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .footer_area {
+            margin-top: auto; /* 讓 footer 貼到底部 */
+        }        
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+</head>
+
+
+<body>
+
+    <!--====== PRELOADER PART START ======-->
+
+    <div class="preloader">
+        <div class="loader">
+            <div class="ytp-spinner">
+                <div class="ytp-spinner-container">
+                    <div class="ytp-spinner-rotator">
+                        <div class="ytp-spinner-left">
+                            <div class="ytp-spinner-circle"></div>
+                        </div>
+                        <div class="ytp-spinner-right">
+                            <div class="ytp-spinner-circle"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!--====== PRELOADER PART ENDS ======-->
+
+    <!--====== HEADER PART START ======-->
+
+    <section class="header_area">
+        <div class="header_navbar">
+            <div class="container">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <nav class="navbar navbar-expand-lg">
+                            <a class="navbar-brand" href="#home">
+                                <img src="/static/assets/images/logo.png" alt="Logo">
+                            </a>
+                            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                                <span class="toggler-icon"></span>
+                                <span class="toggler-icon"></span>
+                                <span class="toggler-icon"></span>
+                                </button>
+                                    {% comment %} 首頁功能選單請勿變更 {% endcomment %}
+                            <div class="collapse navbar-collapse sub-menu-bar" id="navbarSupportedContent">
+                                <ul id="nav" class="navbar-nav ml-auto">
+                                    {% comment %} 首頁功能選單請勿變更 {% endcomment %}
+                                    <li class="nav-item active">
+                                        <a class="page-scroll" href="#home">首頁</a>
+                                    </li>
+                                    {% comment %} 首頁功能選單請勿變更 {% endcomment %}
+                                    <li class="nav-item">
+                                        <a class="page-scroll" href="{% if request.user.is_authenticated %}/home#about{% else %}/#about{% endif %}">關於我們</a>
+                                    </li>
+                                    {% comment %} 首頁功能選單請勿變更 {% endcomment %}
+                                    <li class="nav-item">
+                                        <a class="page-scroll" href="#attractions">尋找景點</a>
+                                    </li>
+                                    {% comment %} 首頁功能選單請勿變更 {% endcomment %}
+                                    <li class="nav-item">
+                                        <a class="page-scroll" href="#services">規劃行程</a>
+                                    </li>
+                                    {% comment %} 首頁功能選單請勿變更 {% endcomment %}
+                                    <li class="nav-item">
+                                        <a class="page-scroll" href="#booking">住宿管理</a>
+                                    </li>
+                                    {% comment %} 首頁功能選單請勿變更 {% endcomment %}
+                                    <li class="nav-item" id="user-menu">
+                                        <a class="page-scroll" href="/login/">登入</a>
+                                    </li>
+                                    
+                                    <script>
+                                        document.addEventListener("DOMContentLoaded", function () {
+                                            fetch("/api/user-status/", { credentials: "include" })  // 確保傳送 cookies
+                                                .then(response => response.json())
+                                                .then(data => {
+                                                    let userMenu = document.getElementById("user-menu");
+                                                    if (data.is_authenticated) {
+                                                        userMenu.innerHTML = `<a href="/logout/">${data.username}（登出）</a>`;
+                                                    }
+                                                });
+                                        });
+                                    </script>   
+                                </ul>
+                            </div> <!-- navbar collapse -->
+                        </nav> <!-- navbar -->
+                    </div>
+                </div> <!-- row -->
+            </div> <!-- container -->
+        </div> <!-- header navbar -->
+
+        <div id="home" class="header_slider">
+            <div class="single_slider bg_cover d-flex align-items-center" style="background-image: url(static/assets/images/taipei.jpg)">
+                <div class="container">
+                    <div class="row">
+                        <div class="col-lg-6 col-md-8">
+                            <div class="slider_content">
+                                <h2 class="slider_title wow fadeInLeftBig" data-wow-duration="1.3s" data-wow-delay="0.2s">Hi ! <strong>{{ request.user.username }}</strong></h2>
+                                <h2 class="slider_title wow fadeInLeftBig" data-wow-duration="1.3s" data-wow-delay="0.2s">準備好和<span>TapTrip</span><br>一起探索了嗎 ?</h2>
+                                <p class="wow fadeInLeftBig" data-wow-duration="1.3s" data-wow-delay="0.5s">Hello !  Welcome to TapTrip </p>
+                                <p class="wow fadeInLeftBig" data-wow-duration="1.3s" data-wow-delay="0.5s">– Your Next Adventure Starts Here!</p>
+                                <a href="javascript:void(0)" class="main-btn wow fadeInLeftBig" data-wow-duration="1.3s" data-wow-delay="0.8s">立即規劃</a>
+                            </div> <!-- slider content -->
+                        </div>
+                    </div> <!-- row -->
+                </div> <!-- container -->
+            </div> <!-- single slider -->
+        </div> <!-- header slider -->
+    </section>
+
+    <!--====== HEADER PART ENDS ======-->
+    
+    <!--====== ABOUT PART START ======-->
+
+    <section id="about" class="about_area pt-130 pb-130">
+        <div class="about_wrapper">
+            <div class="about_image bg_cover" style="background-image: url(static/assets/images/about.jpg)"></div> <!-- about image -->
+            <div class="container">
+                <div class="row justify-content-end">
+                    <div class="col-lg-6">
+                        <div class="about_content">
+                            <div class="section_title">
+                                <h3 class="title">關於我們<br> About <span>TapTrip</span></h3>
+                                <p><strong>TapTrip – 你的智能自駕遊行程規劃平台</strong></p>
+                                <p>TapTrip 致力於提供高效、直覺且安全的旅遊規劃體驗，讓每位自駕旅客都能根據個人需求輕鬆打造理想行程。不論是週末短途旅行，還是跨縣市的深度探索，我們都為你提供最靈活、便捷的規劃方式。</p>
+                                <p>我們的系統整合多項實用功能，包括行程規劃、天氣預報、住宿推薦及視覺化地圖導航，幫助旅客快速制定最合適的旅行計畫。透過 Google Maps API 讓路線視覺化，結合即時天氣資訊與住宿平台推薦，確保用戶在規劃旅程時擁有最完整的資訊，讓每一趟旅程都更安心順利。</p>
+
+                                <p><strong>Our Mission｜願景</strong></p>
+                                <p>我們的目標是透過科技提升國內自駕旅遊的便利性與安全性，讓用戶都能無憂無慮地探索台灣。TapTrip 不只是行程規劃工具，更是一個全方位的智能旅遊平台，讓旅行變得更加輕鬆、個人化且富有樂趣。</p>
+                                <!-- 隱藏的內容區域 -->
+                                <div id="more-content" style="display: none;">
+                                    <p><strong>Key Features｜核心功能</strong></p>
+                                    <p><strong></strong></p>
+                                    <ul class="about_features">
+                                        <li><strong>行程規劃：</strong> 自由設定目的地，輕鬆安排專屬行程，讓旅程順暢且高效。</li>
+                                        <li><strong>即時天氣：</strong> 根據行程日期與地點提供天氣預報與警示。</li>
+                                        <li><strong>住宿預覽：</strong> 整合訂房平台，快速篩選與預覽飯店資訊。</li>
+                                        <li><strong>路線視覺化：</strong> 透過地圖技術呈現行程動線，清晰顯示景點之間的距離。</li>
+                                        <li><strong>個人化管理：</strong> 在過往行程，快速複製、編輯，並輕鬆分享給旅伴或朋友。</li>
+                                    </ul>
+                                
+                                    <p><strong>Join Us｜開啟您的旅程</strong></p>
+                                    <p>無論是獨自探險、與好友同行，或是規劃家庭度假，TapTrip 提供全面的行程規劃解決方案，幫助您輕鬆規劃每一次旅行，確保旅途順利，體驗更高效的旅遊方式。</p>
+                                </div>
+                            </div> <!-- section title -->
+                            <button id="toggle-btn" class="main-btn" onclick="toggleReadMore()">查看更多</button>
+                        </div>
+                    </div> <!-- row -->
+                </div> <!-- container -->
+            </div> <!-- about wrapper -->
+        </section>
+
+
+
+    <script>
+    function toggleReadMore() {
+        var content = document.getElementById("more-content");
+        var button = document.getElementById("toggle-btn");
+
+        if (content.style.display === "none") {
+            content.style.display = "block";
+            button.textContent = "收起"; // 展開後按鈕改成 "Read Less"
+        } else {
+            content.style.display = "none";
+            button.textContent = "查看更多"; // 收起時按鈕回復 "Read More"
+        }
+    }
+    </script>
+
+    <!--====== ABOUT PART ENDS ======-->
+
+    <!--====== DESTINATION PART START ======-->
+    <section id="attractions" class="destination_area pt-130 pb-130">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-lg-6">
+                    <div class="section_title text-center pb-25">
+                        <h3 class="title">景點預覽</h3>
+                        <p>探索台灣美景，來場難忘的旅遊體驗！</p>
+                    </div>
+                </div>
+            </div>
+    
+            {% if attractions %}
+            <div class="row">
+                {% for attraction in attractions %}
+                <div class="col-lg-4 col-md-6">
+                    <div class="single_destination mt-30 wow fadeIn" data-wow-duration="1.3s" data-wow-delay="0.2s">
+                        <div class="destination_image"> 
+                            <img src="{{ attraction.image_url }}" alt="Destination" class="fixed-size-image">
+                        </div>
+                        <div class="destination_content"> 
+                            <h2 class="title" style="font-weight: bold;">
+                                <a href="{{ attraction.link }}" target="_blank"><h5>{{ attraction.name }}</h5></a>
+                            </h2>
+                            <p class="price">{{ attraction.hashtag }}</p>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+    
+            <!-- 新增的查看更多按鈕，置底 & 置中 -->
+            <div class="row">
+                <div class="col-12 text-center mt-4">
+                    <a href="/findattractions" class="main-btn">查看更多</a>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </section>    
+
+    <!--====== DESTINATION PART ENDS ======-->
+    
+    <!--====== SERVICES PART START ======-->
+
+    <section id="services" class="services_area pt-120 pb-130" style="background-color: #f5f5f5;">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-lg-6">
+                    <div class="section_title text-center pb-25">
+                        <h3 class="title">規劃行程4步驟輕鬆搞定！</h3>
+                        <p>Planning your trip doesn’t have to be hard—just 4 steps and you’re good to go!</p>
+                    </div> <!-- section title -->
+                </div>
+            </div> <!-- row -->
+            <div class="row">
+                <!-- Step 1 -->
+                <div class="col-lg-3 col-sm-6">
+                    <div class="step-container">
+                        <p class="step-label">Step 1</p>
+                        <div class="single_service mt-30 text-center wow fadeInUpBig" data-wow-duration="1.3s" data-wow-delay="0.2s">
+                            <div class="services_icon">
+                                <i class="fa fa-calendar"></i> <!-- 📅 選擇日期 -->
+                            </div>
+                            <div class="services_content">
+                                <h4 class="title">選個日期</h4>
+                                <p>Choose Your Dates</p>
+                            </div>
+                        </div> <!-- single service -->
+                    </div>
+                </div>
+                <!-- Step 2 -->
+                <div class="col-lg-3 col-sm-6">
+                    <div class="step-container">
+                        <p class="step-label">Step 2</p>
+                        <div class="single_service mt-30 text-center wow fadeInUpBig" data-wow-duration="1.3s" data-wow-delay="0.4s">
+                            <div class="services_icon">
+                                <i class="fa fa-map-marker-alt"></i> <!-- 📍 選擇景點 -->
+                            </div>
+                            <div class="services_content">
+                                <h4 class="title">選些景點</h4>
+                                <p>Add Some Attractions</p>
+                            </div>
+                        </div> <!-- single service -->
+                    </div>
+                </div>
+                <!-- Step 3 -->
+                <div class="col-lg-3 col-sm-6">
+                    <div class="step-container">
+                        <p class="step-label">Step 3</p>
+                        <div class="single_service mt-30 text-center wow fadeInUpBig" data-wow-duration="1.3s" data-wow-delay="0.6s">
+                            <div class="services_icon">
+                                <i class="fa fa-bed"></i> <!-- 🛏️ 選擇住宿 -->
+                            </div>
+                            <div class="services_content">
+                                <h4 class="title">選擇住宿</h4>
+                                <p>Find a Place to Stay</p>
+                            </div>
+                        </div> <!-- single service -->
+                    </div>
+                </div>
+                <!-- Step 4 -->
+                <div class="col-lg-3 col-sm-6">
+                    <div class="step-container">
+                        <p class="step-label">Step 4</p>
+                        <div class="single_service mt-30 text-center wow fadeInUpBig" data-wow-duration="1.3s" data-wow-delay="0.8s">
+                            <div class="services_icon">
+                                <i class="fa fa-car-alt"></i> <!-- 🚗 出發旅遊 -->
+                            </div>
+                            <div class="services_content">
+                                <h4 class="title">出發旅遊</h4>
+                                <p>Let the Adventure Begin!</p>
+                            </div>
+                        </div> <!-- single service -->
+                    </div>
+                </div>
+            </div> <!-- row -->
+        </div> <!-- container -->
+            </section>
+
+    <!--====== SERVICES PART ENDS ======-->
+    
+<!--====== CONTACT PART START ======-->
+
+<section id="booking" class="contact_area pt-120 pb-130">
+    <div class="container">
+        <!-- 文字區域 -->
+        <div class="row justify-content-center">
+            <div class="col-lg-6">
+                <div class="section_title text-center pb-25">
+                    <h3 class="title">旅宿無憂，一指搞定！</h3>
+                    <h3>Manage Your Stay</h3>
+                    <p>若尚未預定飯店請先前往預定 !</p>
+                </div> <!-- section title -->
+            </div>
+        </div> <!-- row -->
+
+        <!-- 按鈕區域：並排置中 -->
+        <div class="row justify-content-center">
+            <div class="col-auto">
+              <a href="/booking/" class="main-btn">尋找飯店</a>
+            </div>
+            <div class="col-auto">
+              <a href="/register/" class="main-btn">管理住宿</a>
+            </div>
+          </div>          
+    </div> <!-- container -->
+</section>
+
+
+<!--====== CONTACT PART ENDS ======-->
+
+    
+    <!--====== FOOTER PART START ======-->
+
+    <section id="footer" class="footer_area">
+        <div class="footer_widget pt-50 pb-130">
+            <div class="container">
+                <div class="row">
+                    <div class="col-lg-4 col-md-6 order-md-1 order-lg-1">
+                        <div class="footer_about mt-50">
+                            <a href="{% if request.user.is_authenticated %}/home{% else %}/{% endif %}"><img src="/static/assets/images/logo.png" alt="logo"></a>
+                            <p>TapTrip 一站式智能旅遊規劃平台，結合行程安排、天氣提醒、地圖導航與住宿管理，讓自由行更輕鬆、高效、無憂！</p>
+                        </div> <!-- footer about -->
+                    </div>
+                    <div class="col-lg-4 col-md-12 order-md-3 order-lg-2">
+                        <div class="footer_link_wrapper d-flex flex-wrap">
+                            <div class="footer_link mt-45">
+                                <h4 class="footer_title"><strong>快捷連結</strong></h4>
+                                <ul class="link">
+                                    <li><a href="{% if request.user.is_authenticated %}/home{% else %}/{% endif %}">首頁</a></li>
+                                    <li><a href="{% if request.user.is_authenticated %}/home#about{% else %}/#about{% endif %}">關於我們</a></li>
+                                    <li><a href="{% if request.user.is_authenticated %}/home#attractions{% else %}/#attractions{% endif %}">景點</a></li>
+                                    <li><a href="{% if request.user.is_authenticated %}/home#services{% else %}/#services{% endif %}">住宿</a></li>
+                                    <li>
+                                        {% if request.user.is_authenticated %}
+                                            <a href="/logout">登出</a>
+                                        {% else %}
+                                            <a href="/login">登入</a>
+                                        {% endif %}
+                                    </li>          
+                                </ul>
+                            </div> <!-- footer link -->
+                        </div> <!-- footer link wrapper -->
+                    </div>
+                </div> <!-- row -->
+            </div> <!-- container -->
+        </div> <!-- footer widget -->
+    </section>
+
+    <!--====== FOOTER PART ENDS ======-->
+    
+    <!--====== BACK TOP TOP PART START ======-->
+
+    <a href="#" class="back-to-top"><i class="lni lni-chevron-up"></i></a>
+
+    <!--====== BACK TOP TOP PART ENDS ======-->
+
+
+
+
+
+    <!--====== Jquery js ======-->
+    <script src="/static/assets/js/vendor/jquery-1.12.4.min.js"></script>
+    <script src="/static/assets/js/vendor/modernizr-3.7.1.min.js"></script>
+    
+    <!--====== Bootstrap js ======-->
+    <script src="/static/assets/js/popper.min.js"></script>
+    <script src="/static/assets/js/bootstrap.4.5.2.min.js"></script>
+	
+	<script src="/static/assets/js/slick.min.js"></script>
+	<script src="/static/assets/js/ajax-contact.js"></script>
+	<script src="/static/assets/js/jquery.magnific-popup.min.js"></script>
+
+    
+    <!--====== Scrolling Nav js ======-->
+    <script src="/static/assets/js/jquery.easing.min.js"></script>
+    <script src="/static/assets/js/scrolling-nav.js"></script>
+    
+    <!--====== Counter Up js ======-->
+    <script src="/static/assets/js/waypoints.min.js"></script>
+    <script src="/static/assets/js/jquery.counterup.min.js"></script>
+    
+    <!--====== Nice Select js ======-->
+    <script src="/static/assets/js/jquery.nice-select.min.js"></script>
+    
+    <!--====== WOW js ======-->
+    <script src="/static/assets/js/wow.min.js"></script>
+    
+    <!--====== Main js ======-->
+    <script src="/static/assets/js/main.js"></script>        
+        
+</body>
+
+</html>

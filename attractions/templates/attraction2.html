@@ -1,0 +1,408 @@
+{% load static %}
+
+<!doctype html>
+<html class="no-js" lang="en">
+
+<head>
+    <meta charset="utf-8">
+    
+    <!--====== Title ======-->
+    <title>尋找景點</title>
+    
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!--====== Favicon Icon ======-->
+    <link rel="shortcut icon" href="{% static 'lodging/assets/images/favicon.png' %}" type="image/png">
+    
+	<link rel="stylesheet" href="{% static 'lodging/assets/css/magnific-popup.css' %}">
+	<link rel="stylesheet" href="{% static 'lodging/assets/css/slick.css' %}">
+        
+    <!--====== Animate CSS ======-->
+    <link rel="stylesheet" href="{% static 'lodging/assets/css/animate.css' %}">
+        
+    <!--====== Nice Select CSS ======-->
+    <link rel="stylesheet" href="{% static 'lodging/assets/css/nice-select.css' %}">
+        
+        
+    <!--====== Line Icons CSS ======-->
+    <link rel="stylesheet" href="{% static 'lodging/assets/css/LineIcons.2.0.css' %}">
+        
+    <!--====== Bootstrap CSS ======-->
+    <link rel="stylesheet" href="{% static 'lodging/assets/css/bootstrap.4.5.2.min.css' %}">
+    
+    <!--====== Default CSS ======-->
+    <link rel="stylesheet" href="{% static 'lodging/assets/css/default.css' %}">
+    
+    <!--====== Style CSS ======-->
+    <link rel="stylesheet" href="{% static 'lodging/assets/css/style.css' %}">
+
+    <style>
+   /* 統一圖片大小 */
+.destination_image {
+    width: 100%;
+    height: 250px; /* 固定高度 */
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .destination_image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover; /* 等比例裁切,保持圖片比例 */
+  }
+  
+  /* 統一卡片高度,讓內容垂直分布 */
+  .single_destination {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    min-height: 400px; /* 可依需求調整 */
+  }
+  
+  /* 讓內容區塊填滿剩餘空間,避免卡片高度不一 */
+  .destination_content {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+  .col-lg-4.col-md-6 {
+    margin-bottom: 20px; /* 下方增加 20px 間距 */
+  }
+    </style>
+              
+
+</head>
+
+<body>
+
+    <!--====== PRELOADER PART START ======-->
+
+    <div class="preloader">
+        <div class="loader">
+            <div class="ytp-spinner">
+                <div class="ytp-spinner-container">
+                    <div class="ytp-spinner-rotator">
+                        <div class="ytp-spinner-left">
+                            <div class="ytp-spinner-circle"></div>
+                        </div>
+                        <div class="ytp-spinner-right">
+                            <div class="ytp-spinner-circle"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!--====== PRELOADER PART ENDS ======-->
+
+    <!--====== HEADER PART START ======-->
+
+    <section class="header_area">
+        <div class="header_navbar sticky">
+            <div class="container">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <nav class="navbar navbar-expand-lg">
+                            <a class="navbar-brand" href="{% if request.user.is_authenticated %}/home{% else %}/{% endif %}">
+                                <img src="{% static 'lodging/assets/images/logo2.png' %}" alt="Logo">
+                            </a>
+                            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                                <span class="toggler-icon"></span>
+                                <span class="toggler-icon"></span>
+                                <span class="toggler-icon"></span>
+                            </button>
+
+                            <div class="collapse navbar-collapse sub-menu-bar" id="navbarSupportedContent">
+                                <ul id="nav" class="navbar-nav ml-auto">
+                                    <li class="nav-item active">
+                                        <a class="page-scroll" href="/home">首頁</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="page-scroll" href="{% if request.user.is_authenticated %}/home#about{% else %}/#about{% endif %}">關於我們</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="page-scroll" href="/findattractions">尋找景點</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="page-scroll" href="#services">我的行程</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="page-scroll" href="/booking">尋找飯店</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="page-scroll" href="#blog">住宿管理</a>
+                                    </li>
+                                    <li class="nav-item" id="user-menu">
+                                        <a class="page-scroll" href="/login/">登入</a>
+                                    </li>
+                                    
+                                    <script>
+                                        document.addEventListener("DOMContentLoaded", function () {
+                                            fetch("/api/user-status/", { credentials: "include" })  // 確保傳送 cookies
+                                                .then(response => response.json())
+                                                .then(data => {
+                                                    let userMenu = document.getElementById("user-menu");
+                                                    if (data.is_authenticated) {
+                                                        userMenu.innerHTML = `<a href="/logout/">${data.username}（登出）</a>`;
+                                                    }
+                                                });
+                                        });
+                                    </script>       
+                                </ul>
+                            </div> <!-- navbar collapse -->
+                        </nav> <!-- navbar -->
+                    </div>
+                </div> <!-- row -->
+            </div> <!-- container -->
+        </div> <!-- header navbar -->    
+    </section>
+
+    <!--====== HEADER PART ENDS ======-->
+    <!--====== CONTACT PART START ======-->
+
+    <section id="contact" class="contact_area pt-120 pb-130">
+        <div class="container">
+          <div class="row justify-content-center">
+            <div class="col-lg-6">
+              <div class="section_title text-center pb-25">
+                <h3 class="title">台灣景點搜尋</h3>
+                <p>Explore Taiwan's Beautiful Scenery for an Unforgettable Travel Experience!</p>
+              </div>
+            </div>
+          </div>
+      
+          <div class="contact_form">
+            <form id="searchForm" method="POST">
+              {% csrf_token %}
+              <div class="row">
+                <div class="col-lg-12">
+                  <!-- 使用 Flexbox 排版 -->
+                  <div class="single_form d-flex justify-content-between align-items-center">
+                    <select id="city" name="city">
+                      {% for city in cities %}
+                      <option value="{{ city }}">{{ city }}</option>
+                      {% endfor %}
+                    </select>
+                    <button type="submit" class="main-btn">查詢</button>
+                  </div>
+                </div>
+              </div>              
+            </form>
+          </div>
+      
+          <!-- 搜尋結果區域,使用單一容器 -->
+          <div id="result-container" style="display: none;">
+            <h2 class="text-center mt-4">搜尋結果</h2>
+            <div id="result-list" class="row d-flex flex-wrap justify-content-center">
+              <!-- AJAX 會填入結果 -->
+            </div>
+          </div>
+      
+          <!-- 返回頂部按鈕 -->
+          <div class="text-center mt-5">
+            <button id="backToTop" class="main-btn" style="display: none;">返回頂部</button>
+          </div>
+        </div>
+      </section>
+          
+    <style>
+    /* 統一圖片大小 */
+    .destination_image {
+        width: 100%;
+        height: 250px; /* 固定高度 */
+        overflow: hidden; /* 超出部分隱藏 */
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .destination_image img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover; /* 保持比例,裁切超出範圍 */
+    }
+    </style>
+    
+    <script>
+        document.getElementById("searchForm").addEventListener("submit", function(event) {
+            event.preventDefault();  // 阻止預設表單提交
+          
+            let formData = new FormData(this);
+            let csrfToken = document.querySelector("[name=csrfmiddlewaretoken]").value;
+          
+            fetch("{% url 'findattractions' %}", {
+              method: "POST",
+              headers: {
+                "X-CSRFToken": csrfToken,
+                "X-Requested-With": "XMLHttpRequest"
+              },
+              body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+              let resultContainer = document.getElementById("result-container");
+              let resultList = document.getElementById("result-list");
+              resultList.innerHTML = "";  // 清空舊結果
+          
+              data.attractions.forEach((attraction) => {
+                let item = document.createElement("div");
+                // 固定使用 col-lg-4,不因最後一行項目數不同而改變寬度
+                item.className = "col-lg-4 col-md-6 d-flex align-items-stretch";
+                item.innerHTML = `
+                  <div class="single_destination mt-30 wow fadeIn">
+                    <div class="destination_image">
+                    <a href="{attraction.link}">
+                      <img src="${attraction.image_url}" alt="Destination"></a>
+                    </div>
+                    <div class="destination_content">
+                      <h2 class="title">
+                        <a href="${attraction.link}" target="_blank"><h3>${attraction.name}</h3></a>
+                      </h2>
+                      <p class="price">${attraction.hashtag}</p>
+                    </div>
+                  </div>
+                `;
+                resultList.appendChild(item);
+              });
+          
+              resultContainer.style.display = "block";  // 顯示結果區塊
+              document.getElementById("backToTop").style.display = "inline-block";  // 顯示返回頂部按鈕
+            })
+            .catch(error => console.error("Error:", error));
+          });
+          
+          // 返回頂部功能
+          document.getElementById("backToTop").addEventListener("click", function() {
+            window.scrollTo({ top: 0, behavior: "smooth" });
+          });          
+            </script>
+    
+
+    <!--====== CONTACT PART ENDS ======-->
+
+  
+    <!--====== FOOTER PART START ======-->
+
+    <section id="footer" class="footer_area">
+      <div class="footer_widget pt-80 pb-130">
+          <div class="container">
+              <div class="row">
+                  <div class="col-lg-4 col-md-6 order-md-1 order-lg-1">
+                      <div class="footer_about mt-50">
+                          <a href="{% if request.user.is_authenticated %}/home{% else %}/{% endif %}"><img src="/static/assets/images/logo.png" alt="logo"></a>
+                          <p>Lorem ipsum dolor sifsddt amet, conse tetur sadipscing elitr, sed diam onumy eirmod tempor invidunt ut labore et dolore magna aliquya.</p>
+                          <ul class="social">
+                              <li><a class="social_1" href="javascript:void(0)"><i class="lni lni-facebook-original"></i></a></li>
+                              <li><a class="social_2" href="javascript:void(0)"><i class="lni lni-twitter-original"></i></a></li>
+                              <li><a class="social_3" href="https://www.instagram.com/__simon1121/"><i class="lni lni-instagram-original"></i></a></li>
+                              <li><a class="social_4" href="javascript:void(0)"><i class="lni lni-linkedin-original"></i></a></li>
+                          </ul>
+                      </div> <!-- footer about -->
+                  </div>
+                  <div class="col-lg-4 col-md-12 order-md-3 order-lg-2">
+                      <div class="footer_link_wrapper d-flex flex-wrap">
+                          <div class="footer_link mt-45">
+                              <h4 class="footer_title">Quick Link</h4>
+                              <ul class="link">
+                                  <li><a href="javascript:void(0)">Home</a></li>
+                                  <li><a href="javascript:void(0)">About</a></li>
+                                  <li><a href="javascript:void(0)">Trip Pacakge</a></li>
+                                  <li><a href="javascript:void(0)">Services</a></li>
+                                  <li><a href="javascript:void(0)">Gallery</a></li>
+                              </ul>
+                          </div> <!-- footer link -->
+                          <div class="footer_link mt-45">
+                              <h4 class="footer_title">Support</h4>
+                              <ul class="link">
+                                  <li><a href="javascript:void(0)">Customer Support</a></li>
+                                  <li><a href="javascript:void(0)">Privacy & Policy</a></li>
+                                  <li><a href="javascript:void(0)">Terms & Condition</a></li>
+                                  <li><a href="javascript:void(0)">Forum</a></li>
+                                  <li><a href="javascript:void(0)">Tour Guide</a></li>
+                              </ul>
+                          </div> <!-- footer link -->
+                      </div> <!-- footer link wrapper -->
+                  </div>
+                  <div class="col-lg-4 col-md-6 order-md-2 order-lg-3">
+                      <div class="footer_subscribe mt-45">
+                          <h4 class="footer_title">Subscribe Newsletter</h4>
+                          <p>Lorem ipsum dolor sit amet, consetetur sadip scing elitr, sed diam.</p>
+                          <div class="subscribe_form">
+                              <form action="#">
+                                  <input type="text" placeholder="Enter email">
+                                  <button><i class="lni lni-arrow-right"></i></button>
+                              </form>
+                          </div>
+                      </div> <!-- footer subscribe -->
+                  </div>
+              </div> <!-- row -->
+          </div> <!-- container -->
+          <p class="text-center mt-90"><a target="_blank" href="http://www.mobanwang.com/" title="网页模板">网页模板</a></p>
+      </div> <!-- footer widget -->
+  </section>
+
+  <!--====== FOOTER PART ENDS ======-->
+    
+    <!--====== BACK TOP TOP PART START ======-->
+
+    <a href="#" class="back-to-top"><i class="lni lni-chevron-up"></i></a>
+
+    <!--====== BACK TOP TOP PART ENDS ======-->
+    
+    <!--====== PART START ======-->
+
+<!--
+    <section class="">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-">
+                    
+                </div>
+            </div>
+        </div>
+    </section>
+-->
+
+    <!--====== PART ENDS ======-->
+
+
+
+
+
+    <!--====== Jquery js ======-->
+    <script src="{% static 'lodging/assets/js/vendor/jquery-1.12.4.min.js' %}"></script>
+    <script src="{% static 'lodging/assets/js/vendor/modernizr-3.7.1.min.js' %}"></script>
+    
+    <!--====== Bootstrap js ======-->
+    <script src="{% static 'lodging/assets/js/popper.min.js' %}"></script>
+    <script src="{% static 'lodging/assets/js/bootstrap.4.5.2.min.js' %}"></script>
+	
+	<script src="{% static 'lodging/assets/js/slick.min.js' %}"></script>
+	<script src="{% static 'lodging/assets/js/ajax-contact.js' %}"></script>
+	<script src="{% static 'lodging/assets/js/jquery.magnific-popup.min.js' %}"></script>
+
+    
+    <!--====== Scrolling Nav js ======-->
+    <script src="{% static 'lodging/assets/js/jquery.easing.min.js' %}"></script>
+    <script src="{% static 'lodging/assets/js/scrolling-nav.js' %}"></script>
+    
+    <!--====== Counter Up js ======-->
+    <script src="{% static 'lodging/assets/js/waypoints.min.js' %}"></script>
+    <script src="{% static 'lodging/assets/js/jquery.counterup.min.js' %}"></script>
+    
+    <!--====== Nice Select js ======-->
+    <script src="{% static 'lodging/assets/js/jquery.nice-select.min.js' %}"></script>
+    
+    <!--====== WOW js ======-->
+    <script src="{% static 'lodging/assets/js/wow.min.js' %}"></script>
+    
+    <!--====== Main js ======-->
+    <script src="{% static 'lodging/assets/js/main.js' %}"></script>
+</body>
+
+</html>

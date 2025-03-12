@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Email 驗證通知 - TapTrip</title>
+    <style>
+        body { text-align: center; font-family: Arial, sans-serif; margin-top: 50px; }
+        .container { max-width: 500px; margin: auto; padding: 20px; border-radius: 10px; background: #f4f4f4; box-shadow: 0px 0px 10px #ddd; }
+        h1 { color: #1a73e8; }
+        p { font-size: 18px; }
+        .email { font-weight: bold; color: #333; }
+        a { display: inline-block; margin-top: 20px; padding: 10px 20px; color: #fff; background: #1a73e8; text-decoration: none; border-radius: 5px; }
+        a:hover { background: #1669c1; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📩 Email 驗證信已發送！</h1>
+        <p>我們已發送驗證信至 <span class="email">{{ email }}</span></p>
+        <p>請檢查您的 Email 並點擊驗證連結以啟用您的帳戶。</p>
+        <a href="/">返回首頁</a>
+    </div>
+</body>
+</html>

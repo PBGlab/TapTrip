@@ -1,0 +1,344 @@
+{% load static %}
+
+<!doctype html>
+<html class="no-js" lang="en">
+
+<head>
+    <meta charset="utf-8">
+    
+    <!--====== Title ======-->
+    <title>住宿查詢結果</title>
+    
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!--====== Favicon Icon ======-->
+    <link rel="shortcut icon" href="{% static 'lodging/assets/images/favicon.png' %}" type="image/png">
+    
+    <link rel="stylesheet" href="{% static 'lodging/assets/css/magnific-popup.css' %}">
+    <link rel="stylesheet" href="{% static 'lodging/assets/css/slick.css' %}">
+        
+    <!--====== Animate CSS ======-->
+    <link rel="stylesheet" href="{% static 'lodging/assets/css/animate.css' %}">
+        
+    <!--====== Nice Select CSS ======-->
+    <link rel="stylesheet" href="{% static 'lodging/assets/css/nice-select.css' %}">
+        
+    <!--====== Line Icons CSS ======-->
+    <link rel="stylesheet" href="{% static 'lodging/assets/css/LineIcons.2.0.css' %}">
+        
+    <!--====== Bootstrap CSS ======-->
+    <link rel="stylesheet" href="{% static 'lodging/assets/css/bootstrap.4.5.2.min.css' %}">
+    
+    <!--====== Default CSS ======-->
+    <link rel="stylesheet" href="{% static 'lodging/assets/css/default.css' %}">
+    
+    <!--====== Style CSS ======-->
+    <link rel="stylesheet" href="{% static 'lodging/assets/css/style.css' %}">
+
+    <!-- ======= 修改位置 Start: 新增自訂 CSS 控制圖片尺寸 ======= -->
+    <style>
+        .destination_image {
+            width: 100%;
+            height: 250px; /* 固定高度 */
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #f3f3f3; /* 避免圖片尺寸不夠時出現空白 */
+        }
+        
+        .destination_image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;  /* 強制填滿，可能裁切 */
+        }        
+    </style>
+    <!-- ======= 修改位置 End ======= -->
+</head>
+
+<body>
+
+    <!--====== PRELOADER PART START ======-->
+    <div class="preloader">
+        <div class="loader">
+            <div class="ytp-spinner">
+                <div class="ytp-spinner-container">
+                    <div class="ytp-spinner-rotator">
+                        <div class="ytp-spinner-left">
+                            <div class="ytp-spinner-circle"></div>
+                        </div>
+                        <div class="ytp-spinner-right">
+                            <div class="ytp-spinner-circle"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!--====== PRELOADER PART ENDS ======-->
+
+       <!--====== HEADER PART START ======-->
+
+    <section class="header_area">
+        <div class="header_navbar sticky">
+            <div class="container">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <nav class="navbar navbar-expand-lg">
+                            <a class="navbar-brand" href="{% if request.user.is_authenticated %}/home{% else %}/{% endif %}">
+                                <img src="{% static 'lodging/assets/images/logo2.png' %}" alt="Logo">
+                            </a>
+                            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                                <span class="toggler-icon"></span>
+                                <span class="toggler-icon"></span>
+                                <span class="toggler-icon"></span>
+                            </button>
+
+                            <div class="collapse navbar-collapse sub-menu-bar" id="navbarSupportedContent">
+                                <ul id="nav" class="navbar-nav ml-auto">
+                                    <li class="nav-item {% if request.path == '/' or request.path == '/home' %}active{% endif %}">
+                                        <a class="page-scroll" href="{% if request.user.is_authenticated %}/home{% else %}/{% endif %}">首頁</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="page-scroll" href="{% if request.user.is_authenticated %}/home#about{% else %}/#about{% endif %}">關於我們</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="page-scroll" href="/findattractions">尋找景點</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="page-scroll" href="/booking">尋找飯店</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="page-scroll" href="/lodging">住宿管理</a>   <!-- 路由尚未完善 -->
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="page-scroll" href="/trips">我的行程</a>  <!-- 路由尚未完善 -->
+                                    </li>
+                                    <li class="nav-item" id="user-menu">
+                                        <a class="page-scroll" href="/login/">登入</a>
+                                    </li>
+                                    
+                                    <script>
+                                        document.addEventListener("DOMContentLoaded", function () {
+                                            fetch("/api/user-status/", { credentials: "include" })  // 確保傳送 cookies
+                                                .then(response => response.json())
+                                                .then(data => {
+                                                    let userMenu = document.getElementById("user-menu");
+                                                    if (data.is_authenticated) {
+                                                        userMenu.innerHTML = `<a href="/logout/">${data.username}（登出）</a>`;
+                                                    }
+                                                });
+                                        });
+                                    </script>                      
+                                </ul>
+                            </div> <!-- navbar collapse -->
+                        </nav> <!-- navbar -->
+                    </div>
+                </div> <!-- row -->
+            </div> <!-- container -->
+        </div> <!-- header navbar -->    
+    </section>
+
+    <!--====== HEADER PART ENDS ======-->
+
+
+    <!--====== DESTINATION PART START ======-->
+    <section id="packges" class="destination_area pt-130 pb-130">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-lg-6">
+                    <div class="section_title text-center pb-25">
+                        <h3 class="title">飯店查詢結果如下</h3>
+                        <p>Hotel search results are as follows.</p>
+                    </div>
+                </div>
+            </div>
+    
+            {% if hotels %}
+            <div class="row">
+                <div class="col-12 text-center"></div>
+            </div>
+    
+            <div class="row">
+                {% for hotel in hotels %}
+                <div class="col-lg-4 col-md-6">
+                    <div class="single_destination mt-30 wow fadeIn" data-wow-duration="1.3s" data-wow-delay="0.2s">
+                        <div class="destination_image">
+                            <!-- 修改位置：移除原 inline style，直接使用 CSS 控制圖片尺寸 -->
+                            <a href="{{ hotel.連結 }}">
+                                <img src="{{ hotel.圖片 }}" alt="Destination">
+                            </a>
+                        </div>
+                        <div class="destination_content">
+                            <h4 class="title">
+                                <a href="{{ hotel.連結 }}">{{ hotel.名稱 }}</a>
+                            </h4>
+                            <p class="price">{{ hotel.價格 }}</p>
+                            <a href="javascript:void(0)" class="main-btn">預訂</a>
+                            <a class="more" href="{{ hotel.連結 }}"><i class="lni lni-chevron-right"></i></a>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+        </div>
+    </section>
+    <!--====== DESTINATION PART ENDS ======-->
+  
+ 
+    <!--====== FOOTER PART START ======-->
+
+    <section id="footer" class="footer_area">
+        <div class="footer_widget pt-50 pb-130">
+            <div class="container">
+                <div class="row">
+                    <div class="col-lg-4 col-md-6 order-md-1 order-lg-1">
+                        <div class="footer_about mt-50">
+                            <a href="{% if request.user.is_authenticated %}/home{% else %}/{% endif %}"><img src="/static/assets/images/logo.png" alt="logo"></a>
+                            <p>TapTrip 一站式智能旅遊規劃平台，結合行程安排、天氣提醒、地圖導航與住宿管理，讓自由行更輕鬆、高效、無憂！</p>
+                        </div> <!-- footer about -->
+                    </div>
+                    <div class="col-lg-4 col-md-12 order-md-3 order-lg-2">
+                        <div class="footer_link_wrapper d-flex flex-wrap">
+                            <div class="footer_link mt-45">
+                                <h4 class="footer_title"><strong>快捷連結</strong></h4>
+                                <ul class="link">
+                                    <li><a href="{% if request.user.is_authenticated %}/home{% else %}/{% endif %}">首頁</a></li>
+                                    <li><a href="{% if request.user.is_authenticated %}/home#about{% else %}/#about{% endif %}">關於我們</a></li>
+                                    <li><a href="{% if request.user.is_authenticated %}/home#attractions{% else %}/#attractions{% endif %}">景點</a></li>
+                                    <li><a href="{% if request.user.is_authenticated %}/home#services{% else %}/#services{% endif %}">住宿</a></li>
+                                    <li>
+                                        {% if request.user.is_authenticated %}
+                                            <a href="/logout">登出</a>
+                                        {% else %}
+                                            <a href="/login">登入</a>
+                                        {% endif %}
+                                    </li>          
+                                </ul>
+                            </div> <!-- footer link -->
+                        </div> <!-- footer link wrapper -->
+                    </div>
+                </div> <!-- row -->
+            </div> <!-- container -->
+        </div> <!-- footer widget -->
+    </section>
+    <!--====== FOOTER PART ENDS ======-->
+    
+    <!--====== BACK TOP TOP PART START ======-->
+    <a href="#" class="back-to-top"><i class="lni lni-chevron-up"></i></a>
+    <!--====== BACK TOP TOP PART ENDS ======-->
+    
+    <!--====== PART START ======-->
+    <!--
+    <section class="">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-">
+                    
+                </div>
+            </div>
+        </div>
+    </section>
+    -->
+    <!--====== PART ENDS ======-->
+    
+    <!--====== Jquery js ======-->
+    <script src="{% static 'lodging/assets/js/vendor/jquery-1.12.4.min.js' %}"></script>
+    <script src="{% static 'lodging/assets/js/vendor/modernizr-3.7.1.min.js' %}"></script>
+    
+    <!--====== Bootstrap js ======-->
+    <script src="{% static 'lodging/assets/js/popper.min.js' %}"></script>
+    <script src="{% static 'lodging/assets/js/bootstrap.4.5.2.min.js' %}"></script>
+    
+    <script src="{% static 'lodging/assets/js/slick.min.js' %}"></script>
+    <script src="{% static 'lodging/assets/js/ajax-contact.js' %}"></script>
+    <script src="{% static 'lodging/assets/js/jquery.magnific-popup.min.js' %}"></script>
+    
+    <!--====== Scrolling Nav js ======-->
+    <script src="{% static 'lodging/assets/js/jquery.easing.min.js' %}"></script>
+    <script src="{% static 'lodging/assets/js/scrolling-nav.js' %}"></script>
+    
+    <!--====== Counter Up js ======-->
+    <script src="{% static 'lodging/assets/js/waypoints.min.js' %}"></script>
+    <script src="{% static 'lodging/assets/js/jquery.counterup.min.js' %}"></script>
+    
+    <!--====== Nice Select js ======-->
+    <script src="{% static 'lodging/assets/js/jquery.nice-select.min.js' %}"></script>
+    
+    <!--====== WOW js ======-->
+    <script src="{% static 'lodging/assets/js/wow.min.js' %}"></script>
+    
+    <!--====== Main js ======-->
+    <script src="{% static 'lodging/assets/js/main.js' %}"></script>
+    <!-- 返回頂部按鈕 -->
+<a href="#" class="back-to-top"><i class="lni lni-chevron-up"></i></a>
+
+<style>
+    /* 固定在右下角的返回頂部按鈕 */
+    .back-to-top {
+        position: fixed;
+        bottom: 30px;
+        right: 30px;
+        width: 50px;
+        height: 50px;
+        background-color: #EEC41E;
+        color: white;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 24px;
+        text-decoration: none;
+        box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.2);
+        opacity: 0;
+        transition: opacity 0.3s, transform 0.3s;
+    }
+
+    /* 當滾動超過 300px 時顯示按鈕 */
+    .back-to-top.show {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    /* 按鈕懸停效果 */
+    .back-to-top:hover {
+        background-color: #d1a718;
+    }
+
+    /* 適應小螢幕，縮小按鈕避免擋住內容 */
+    @media (max-width: 768px) {
+        .back-to-top {
+            width: 40px;
+            height: 40px;
+            font-size: 20px;
+            bottom: 20px;
+            right: 20px;
+        }
+    }
+</style>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const backToTopBtn = document.querySelector(".back-to-top");
+
+        // 監聽滾動事件，當滾動超過 300px 顯示按鈕
+        window.addEventListener("scroll", function () {
+            if (window.scrollY > 300) {
+                backToTopBtn.classList.add("show");
+            } else {
+                backToTopBtn.classList.remove("show");
+            }
+        });
+
+        // 點擊按鈕後，平滑滾動回頂部
+        backToTopBtn.addEventListener("click", function (event) {
+            event.preventDefault();
+            window.scrollTo({ top: 0, behavior: "smooth" });
+        });
+    });
+</script>
+
+</body>
+</html>

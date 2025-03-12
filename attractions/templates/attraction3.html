@@ -1,0 +1,462 @@
+{% load static %}
+
+<!doctype html>
+<html class="no-js" lang="en">
+
+<head>
+    <meta charset="utf-8">
+    
+    <!--====== Title ======-->
+    <title>尋找景點</title>
+    
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!--====== Favicon Icon ======-->
+    <link rel="shortcut icon" href="{% static 'lodging/assets/images/favicon.png' %}" type="image/png">
+    
+	<link rel="stylesheet" href="{% static 'lodging/assets/css/magnific-popup.css' %}">
+	<link rel="stylesheet" href="{% static 'lodging/assets/css/slick.css' %}">
+        
+    <!--====== Animate CSS ======-->
+    <link rel="stylesheet" href="{% static 'lodging/assets/css/animate.css' %}">
+        
+    <!--====== Nice Select CSS ======-->
+    <link rel="stylesheet" href="{% static 'lodging/assets/css/nice-select.css' %}">
+        
+        
+    <!--====== Line Icons CSS ======-->
+    <link rel="stylesheet" href="{% static 'lodging/assets/css/LineIcons.2.0.css' %}">
+        
+    <!--====== Bootstrap CSS ======-->
+    <link rel="stylesheet" href="{% static 'lodging/assets/css/bootstrap.4.5.2.min.css' %}">
+    
+    <!--====== Default CSS ======-->
+    <link rel="stylesheet" href="{% static 'lodging/assets/css/default.css' %}">
+    
+    <!--====== Style CSS ======-->
+    <link rel="stylesheet" href="{% static 'lodging/assets/css/style.css' %}">
+
+    <style>
+   /* 統一圖片大小 */
+.destination_image {
+    width: 100%;
+    height: 250px; /* 固定高度 */
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .destination_image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover; /* 等比例裁切,保持圖片比例 */
+  }
+  
+  /* 統一卡片高度,讓內容垂直分布 */
+  .single_destination {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    min-height: 400px; /* 可依需求調整 */
+  }
+  
+  /* 讓內容區塊填滿剩餘空間,避免卡片高度不一 */
+  .destination_content {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+  .col-lg-4.col-md-6 {
+    margin-bottom: 20px; /* 下方增加 20px 間距 */
+  }
+    html, body {
+        height: 100%;
+        margin: 0;
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .footer_area {
+        margin-top: auto; /* 讓 footer 貼到底部 */
+    }
+    /* 確保 footer 不會有多餘的空白 */
+    .footer_widget {
+        padding-top: 40px !important; /* ✅ 減少頂部間距 */
+        padding-bottom: 50px !important; /* ✅ 減少底部間距 */
+    }
+    </style>
+              
+
+</head>
+
+<body>
+
+    <!--====== PRELOADER PART START ======-->
+
+    <div class="preloader">
+        <div class="loader">
+            <div class="ytp-spinner">
+                <div class="ytp-spinner-container">
+                    <div class="ytp-spinner-rotator">
+                        <div class="ytp-spinner-left">
+                            <div class="ytp-spinner-circle"></div>
+                        </div>
+                        <div class="ytp-spinner-right">
+                            <div class="ytp-spinner-circle"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!--====== PRELOADER PART ENDS ======-->
+
+    <!--====== HEADER PART START ======-->
+
+    <section class="header_area">
+        <div class="header_navbar sticky">
+            <div class="container">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <nav class="navbar navbar-expand-lg">
+                            <a class="navbar-brand" href="{% if request.user.is_authenticated %}/home{% else %}/{% endif %}">
+                                <img src="{% static 'lodging/assets/images/logo2.png' %}" alt="Logo">
+                            </a>
+                            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                                <span class="toggler-icon"></span>
+                                <span class="toggler-icon"></span>
+                                <span class="toggler-icon"></span>
+                            </button>
+
+                            <div class="collapse navbar-collapse sub-menu-bar" id="navbarSupportedContent">
+                                <ul id="nav" class="navbar-nav ml-auto">
+                                    <li class="nav-item active">
+                                        <a class="page-scroll" href="{% if request.user.is_authenticated %}/home{% else %}/{% endif %}">首頁</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="page-scroll" href="{% if request.user.is_authenticated %}/home#about{% else %}/#about{% endif %}">關於我們</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="page-scroll" href="/findattractions">尋找景點</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="page-scroll" href="#services">我的行程</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="page-scroll" href="/booking">尋找飯店</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="page-scroll" href="#blog">住宿管理</a>
+                                    </li>
+                                    <li class="nav-item" id="user-menu">
+                                        <a class="page-scroll" href="/login/">登入</a>
+                                    </li>
+                                    
+                                    <script>
+                                        document.addEventListener("DOMContentLoaded", function () {
+                                            fetch("/api/user-status/", { credentials: "include" })  // 確保傳送 cookies
+                                                .then(response => response.json())
+                                                .then(data => {
+                                                    let userMenu = document.getElementById("user-menu");
+                                                    if (data.is_authenticated) {
+                                                        userMenu.innerHTML = `<a href="/logout/">${data.username}（登出）</a>`;
+                                                    }
+                                                });
+                                        });
+                                    </script>       
+                                </ul>
+                            </div> <!-- navbar collapse -->
+                        </nav> <!-- navbar -->
+                    </div>
+                </div> <!-- row -->
+            </div> <!-- container -->
+        </div> <!-- header navbar -->    
+    </section>
+
+    <!--====== HEADER PART ENDS ======-->
+    
+<!--====== CONTACT PART START ======-->
+<section id="contact" class="contact_area pt-120 pb-130">
+  <div class="container">
+      <!-- 標題 -->
+      <div class="row justify-content-center">
+          <div class="col-lg-6">
+              <div class="section_title text-center pb-25">
+                  <h3 class="title">台灣景點搜尋</h3>
+                  <p>Explore Taiwan's Beautiful Scenery for an Unforgettable Travel Experience!</p>
+              </div>
+          </div>
+      </div>
+
+      <!-- 查詢表單 -->
+      <div class="contact_form">
+          <form id="searchForm" method="POST">
+              {% csrf_token %}
+              <div class="row">
+                  <div class="col-lg-12">
+                      <div class="single_form d-flex justify-content-between align-items-center">
+                          <select id="city" name="city">
+                              {% for city in cities %}
+                              <option value="{{ city }}">{{ city }}</option>
+                              {% endfor %}
+                          </select>
+                          <button type="submit" class="main-btn">查詢</button>
+                      </div>
+                  </div>
+              </div>
+          </form>
+      </div>
+
+      <!-- 搜尋結果區塊 -->
+      <div class="row mt-4">
+          <!-- 左側天氣資訊 -->
+          <div class="col-lg-3" id="weather-container" style="display: none;">
+            <p id="weather-title" class="text-center font-weight-bold mt-3"></p>
+              <div id="weather-list" class="d-flex flex-column">
+                  <!-- AJAX 會填入天氣資訊 -->
+              </div>
+          </div>
+
+          <!-- 右側搜尋結果 -->
+          <div class="col-lg-9" id="result-container" style="display: none;">
+              <h2 class="text-center">搜尋結果如下...</h2>
+              <div id="result-list" class="row d-flex flex-wrap justify-content-center">
+                  <!-- AJAX 會填入景點結果 -->
+              </div>
+          </div>
+      </div>
+
+      <!-- 返回頂部按鈕 -->
+      <div class="text-center mt-5">
+          <button id="backToTop" class="main-btn" style="display: none;">返回頂部</button>
+      </div>
+  </div>
+</section>
+<!--====== CONTACT PART ENDS ======-->
+
+<!-- CSS 設計 -->
+<style>
+/* 統一圖片大小 */
+.destination_image {
+  width: 100%;
+  height: 250px;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.destination_image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* 天氣資訊區塊 */
+#weather-container {
+  position: relative;
+  padding-right: 15px;
+}
+
+/* 天氣資訊卡片 */
+.weather_card {
+  background: #f8f9fa;
+  border-radius: 10px;
+  padding: 15px;
+  margin-bottom: 10px;
+  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+  min-width: 100%;
+  text-align: center;
+}
+
+/* 讓天氣資訊垂直排列 */
+#weather-list {
+  display: flex;
+  flex-direction: column;
+}
+</style>
+
+<!-- AJAX 查詢邏輯 -->
+<script>
+document.getElementById("searchForm").addEventListener("submit", function(event) {
+  event.preventDefault();  // 阻止預設表單提交
+
+  let formData = new FormData(this);
+  let csrfToken = document.querySelector("[name=csrfmiddlewaretoken]").value;
+
+  fetch("{% url 'findattractions' %}", {
+      method: "POST",
+      headers: {
+          "X-CSRFToken": csrfToken,
+          "X-Requested-With": "XMLHttpRequest"
+      },
+      body: formData
+  })
+  .then(response => response.json())
+  .then(data => {
+      let weatherContainer = document.getElementById("weather-container");
+      let weatherList = document.getElementById("weather-list");
+      let resultContainer = document.getElementById("result-container");
+      let resultList = document.getElementById("result-list");
+
+      weatherList.innerHTML = "";  // 清空舊天氣資訊
+      resultList.innerHTML = "";  // 清空舊景點結果
+
+      // 更新標題，顯示選擇的城市名稱
+      document.getElementById("weather-title").innerText = `${data.city} 未來 10 天氣象預報`;
+
+      // 顯示天氣資訊（左側）
+      data.weather.forEach((day) => {
+          let weatherItem = document.createElement("div");
+          weatherItem.className = "weather_card";
+          weatherItem.innerHTML = `
+              <h4>${day.date}</h4>
+              <p>🌡 溫度: ${day.temp_min}°C ~ ${day.temp_max}°C</p>
+              <p>天氣狀況: ${day.weather || "未知"}</p>
+              <p>☔ 降雨機率: ${day.rain_chance || "未知"}</p>
+          `;
+          weatherList.appendChild(weatherItem);
+      });
+
+      // 顯示景點資訊（右側）
+      data.attractions.forEach((attraction) => {
+          let item = document.createElement("div");
+          item.className = "col-lg-4 col-md-6 d-flex align-items-stretch";
+          item.innerHTML = `
+              <div class="single_destination mt-30 wow fadeIn">
+                  <div class="destination_image">
+                      <a href="${attraction.link}">
+                          <img src="${attraction.image_url}" alt="Destination">
+                      </a>
+                  </div>
+                  <div class="destination_content">
+                      <h2 class="title">
+                          <a href="${attraction.link}" target="_blank"><h3>${attraction.name}</h3></a>
+                      </h2>
+                      <p class="price">${attraction.hashtag}</p>
+                  </div>
+              </div>
+          `;
+          resultList.appendChild(item);
+      });
+
+      weatherContainer.style.display = "block";
+      resultContainer.style.display = "block";
+
+      // 如果有內容，顯示返回頂部按鈕
+      if (data.attractions.length > 0 || data.weather.length > 0) {
+          document.getElementById("backToTop").style.display = "inline-block";
+      }
+  })
+  .catch(error => console.error("Error:", error));
+});
+
+// 返回頂部功能
+document.getElementById("backToTop").addEventListener("click", function() {
+  window.scrollTo({ top: 0, behavior: "smooth" });
+});
+</script>
+
+    <!--====== CONTACT PART ENDS ======-->
+  
+    <!--====== FOOTER PART START ======-->
+
+    <section id="footer" class="footer_area mt-auto">
+        <div class="footer_widget pt-30 pb-30">
+            <div class="container">
+                <div class="row">
+                    <div class="col-lg-4 col-md-6 order-md-1 order-lg-1">
+                        <div class="footer_about mt-50">
+                            <a href="{% if request.user.is_authenticated %}/home{% else %}/{% endif %}"><img src="/static/assets/images/logo.png" alt="logo"></a>
+                            <p>TapTrip 一站式智能旅遊規劃平台，結合行程安排、天氣提醒、地圖導航與住宿管理，讓自由行更輕鬆、高效、無憂！</p>
+                        </div> <!-- footer about -->
+                    </div>
+                    <div class="col-lg-4 col-md-12 order-md-3 order-lg-2">
+                        <div class="footer_link_wrapper d-flex flex-wrap">
+                            <div class="footer_link mt-45">
+                                <h4 class="footer_title"><strong>快捷連結</strong></h4>
+                                <ul class="link">
+                                    <li><a href="{% if request.user.is_authenticated %}/home{% else %}/{% endif %}">首頁</a></li>
+                                    <li><a href="{% if request.user.is_authenticated %}/home#about{% else %}/#about{% endif %}">關於我們</a></li>
+                                    <li><a href="{% if request.user.is_authenticated %}/home#attractions{% else %}/#attractions{% endif %}">景點</a></li>
+                                    <li><a href="{% if request.user.is_authenticated %}/home#services{% else %}/#services{% endif %}">住宿</a></li>
+                                    <li>
+                                        {% if request.user.is_authenticated %}
+                                            <a href="/logout">登出</a>
+                                        {% else %}
+                                            <a href="/login">登入</a>
+                                        {% endif %}
+                                    </li>          
+                                </ul>
+                            </div> <!-- footer link -->
+                        </div> <!-- footer link wrapper -->
+                    </div>
+                </div> <!-- row -->
+            </div> <!-- container -->
+        </div> <!-- footer widget -->
+    </section>
+
+    <!--====== FOOTER PART ENDS ======-->
+
+    <!--====== BACK TOP TOP PART START ======-->
+
+    <a href="#" class="back-to-top"><i class="lni lni-chevron-up"></i></a>
+
+    <!--====== BACK TOP TOP PART ENDS ======-->
+    
+    <!--====== PART START ======-->
+
+<!--
+    <section class="">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-">
+                    
+                </div>
+            </div>
+        </div>
+    </section>
+-->
+
+    <!--====== PART ENDS ======-->
+
+
+
+
+
+    <!--====== Jquery js ======-->
+    <script src="{% static 'lodging/assets/js/vendor/jquery-1.12.4.min.js' %}"></script>
+    <script src="{% static 'lodging/assets/js/vendor/modernizr-3.7.1.min.js' %}"></script>
+    
+    <!--====== Bootstrap js ======-->
+    <script src="{% static 'lodging/assets/js/popper.min.js' %}"></script>
+    <script src="{% static 'lodging/assets/js/bootstrap.4.5.2.min.js' %}"></script>
+	
+	<script src="{% static 'lodging/assets/js/slick.min.js' %}"></script>
+	<script src="{% static 'lodging/assets/js/ajax-contact.js' %}"></script>
+	<script src="{% static 'lodging/assets/js/jquery.magnific-popup.min.js' %}"></script>
+
+    
+    <!--====== Scrolling Nav js ======-->
+    <script src="{% static 'lodging/assets/js/jquery.easing.min.js' %}"></script>
+    <script src="{% static 'lodging/assets/js/scrolling-nav.js' %}"></script>
+    
+    <!--====== Counter Up js ======-->
+    <script src="{% static 'lodging/assets/js/waypoints.min.js' %}"></script>
+    <script src="{% static 'lodging/assets/js/jquery.counterup.min.js' %}"></script>
+    
+    <!--====== Nice Select js ======-->
+    <script src="{% static 'lodging/assets/js/jquery.nice-select.min.js' %}"></script>
+    
+    <!--====== WOW js ======-->
+    <script src="{% static 'lodging/assets/js/wow.min.js' %}"></script>
+    
+    <!--====== Main js ======-->
+    <script src="{% static 'lodging/assets/js/main.js' %}"></script>
+</body>
+
+</html>

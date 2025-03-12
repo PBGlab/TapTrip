@@ -1,0 +1,335 @@
+{% load static %}
+
+<!doctype html>
+<html class="no-js" lang="en">
+
+<head>
+    <meta charset="utf-8">
+    
+    <!--====== Title ======-->
+    <title>登入 -TapTrip 旅遊一指通</title>
+    
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!--====== Favicon Icon ======-->
+    <link rel="shortcut icon" href="{% static 'lodging/assets/images/favicon.png' %}" type="image/png">
+    
+	<link rel="stylesheet" href="{% static 'lodging/assets/css/magnific-popup.css' %}">
+	<link rel="stylesheet" href="{% static 'lodging/assets/css/slick.css' %}">
+        
+    <!--====== Animate CSS ======-->
+    <link rel="stylesheet" href="{% static 'lodging/assets/css/animate.css' %}">
+        
+    <!--====== Nice Select CSS ======-->
+    <link rel="stylesheet" href="{% static 'lodging/assets/css/nice-select.css' %}">
+        
+        
+    <!--====== Line Icons CSS ======-->
+    <link rel="stylesheet" href="{% static 'lodging/assets/css/LineIcons.2.0.css' %}">
+        
+    <!--====== Bootstrap CSS ======-->
+    <link rel="stylesheet" href="{% static 'lodging/assets/css/bootstrap.4.5.2.min.css' %}">
+    
+    <!--====== Default CSS ======-->
+    <link rel="stylesheet" href="{% static 'lodging/assets/css/default.css' %}">
+    
+    <!--====== Style CSS ======-->
+    <link rel="stylesheet" href="{% static 'lodging/assets/css/style.css' %}">
+
+    <style>
+        html, body {
+            height: 100%;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .footer_area {
+            margin-top: auto; /* 讓 footer 貼到底部 */
+        }
+        /* 確保 footer 不會有多餘的空白 */
+        .footer_widget {
+            padding-top: 40px !important; /* ✅ 減少頂部間距 */
+            padding-bottom: 50px !important; /* ✅ 減少底部間距 */
+        }
+    </style>
+
+</head>
+
+<body>
+
+    <!--====== PRELOADER PART START ======-->
+
+    <div class="preloader">
+        <div class="loader">
+            <div class="ytp-spinner">
+                <div class="ytp-spinner-container">
+                    <div class="ytp-spinner-rotator">
+                        <div class="ytp-spinner-left">
+                            <div class="ytp-spinner-circle"></div>
+                        </div>
+                        <div class="ytp-spinner-right">
+                            <div class="ytp-spinner-circle"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!--====== PRELOADER PART ENDS ======-->
+
+    <!--====== HEADER PART START ======-->
+
+    <section class="header_area">
+        <div class="header_navbar sticky">
+            <div class="container">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <nav class="navbar navbar-expand-lg">
+                            <a class="navbar-brand" href="{% if request.user.is_authenticated %}/home{% else %}/{% endif %}">
+                                <img src="{% static 'lodging/assets/images/logo2.png' %}" alt="Logo">
+                            </a>
+                            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                                <span class="toggler-icon"></span>
+                                <span class="toggler-icon"></span>
+                                <span class="toggler-icon"></span>
+                            </button>
+
+                            <div class="collapse navbar-collapse sub-menu-bar" id="navbarSupportedContent">
+                                <ul id="nav" class="navbar-nav ml-auto">
+                                    <li class="nav-item active">
+                                        <a class="page-scroll" href="{% if request.user.is_authenticated %}/home{% else %}/{% endif %}">首頁</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="page-scroll" href="{% if request.user.is_authenticated %}/home#about{% else %}/#about{% endif %}">關於我們</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="page-scroll" href="/findattractions">尋找景點</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="page-scroll" href="/booking">尋找飯店</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="page-scroll" href="/lodging">住宿管理</a>   <!-- 路由尚未完善 -->
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="page-scroll" href="/trips">我的行程</a>  <!-- 路由尚未完善 -->
+                                    </li>
+                                    <li class="nav-item" id="user-menu">
+                                        <a class="page-scroll" href="/login/">登入</a>
+                                    </li>
+                                    
+                                    <script>
+                                        document.addEventListener("DOMContentLoaded", function () {
+                                            fetch("/api/user-status/", { credentials: "include" })  // 確保傳送 cookies
+                                                .then(response => response.json())
+                                                .then(data => {
+                                                    let userMenu = document.getElementById("user-menu");
+                                                    if (data.is_authenticated) {
+                                                        userMenu.innerHTML = `<a href="/logout/">${data.username}（登出）</a>`;
+                                                    }
+                                                });
+                                        });
+                                    </script>                      
+                                </ul>
+                            </div> <!-- navbar collapse -->
+                        </nav> <!-- navbar -->
+                    </div>
+                </div> <!-- row -->
+            </div> <!-- container -->
+        </div> <!-- header navbar -->    
+    </section>
+
+    <!--====== HEADER PART ENDS ======-->
+
+    <!--====== BODY 設定 flex 讓 footer 自動貼底部 ======-->
+
+    <body class="d-flex flex-column min-vh-100"> <!-- ✅ 讓 footer 始終在底部 -->
+
+    <!--====== CONTACT PART START ======-->
+    <section id="contact" class="contact_area d-flex align-items-center justify-content-center flex-grow-1">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-lg-6">
+                    <div class="section_title text-center pb-25">
+                        <h3 class="title">開始使用<span style="color: #EEC41E;">TapTrip</span><br></h3>
+                        <p>請輸入您的帳號及密碼，若尚未擁有TapTrip帳號請先前往註冊 !</p>
+                    </div> <!-- section title -->
+                </div>
+            </div> <!-- row -->
+
+            <div class="contact_form">
+                <form id="login-form">
+                    {% csrf_token %}
+                    <div class="row">
+                        <div class="col-lg-12 mb-3">
+                            <div class="single_form">
+                                <input type="email" id="email" name="email" placeholder="Email" class="form-control" required>
+                                <p id="error-email" style="color:red; font-size: 0.9em; margin-top: 5px; display:none;"></p>
+                            </div>
+                        </div>
+                
+                        <div class="col-lg-12 mb-3">
+                            <div class="single_form">
+                                <input type="password" id="password" name="password" placeholder="Password" class="form-control" required>
+                                <p id="error-password" style="color:red; font-size: 0.9em; margin-top: 5px; display:none;"></p>
+                            </div>
+                        </div>
+                
+                        <div class="col-lg-12">
+                            <div class="single_form d-flex align-items-center">
+                                <button type="submit" class="main-btn">登入</button>
+                                <p class="mb-0 ms-4 ps-2">
+                                    尚未擁有TapTrip帳號 ? <a href="/register"><strong>前往註冊</strong></a>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+                
+                <script>
+                    document.getElementById("login-form").addEventListener("submit", function(event) {
+                        event.preventDefault();  // 阻止表單刷新
+                    
+                        let formData = new FormData(this);
+                        let csrfToken = document.querySelector("[name=csrfmiddlewaretoken]").value;
+                    
+                        // 清除舊的錯誤訊息
+                        document.getElementById("error-email").style.display = "none";
+                        document.getElementById("error-password").style.display = "none";
+                        document.getElementById("error-email").innerText = "";
+                        document.getElementById("error-password").innerText = "";
+                    
+                        fetch("/login/", {
+                            method: "POST",
+                            headers: { "X-CSRFToken": csrfToken },
+                            body: formData
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                // 成功登入時：記錄 username 到 localStorage，再跳轉
+                                localStorage.setItem("username", data.username);
+                                window.location.href = data.redirect_url; // data.redirect_url 通常設定為 "/home"
+                            } else {
+                                // 登入失敗時：顯示對應的錯誤訊息
+                                if (data.errors.email) {
+                                    let errorEmail = document.getElementById("error-email");
+                                    errorEmail.innerText = data.errors.email;
+                                    errorEmail.style.display = "block";
+                                }
+                                if (data.errors.password) {
+                                    let errorPassword = document.getElementById("error-password");
+                                    errorPassword.innerText = data.errors.password;
+                                    errorPassword.style.display = "block";
+                                }
+                            }
+                        })
+                        .catch(error => console.error("登入錯誤:", error));
+                    });                                        
+                </script>            
+            </div> <!-- contact_form -->
+        </div> <!-- container -->
+    </section>
+    <!--====== CONTACT PART ENDS ======-->
+
+  
+    <!--====== FOOTER PART START ======-->
+
+    <section id="footer" class="footer_area mt-auto">
+        <div class="footer_widget pt-30 pb-30">
+            <div class="container">
+                <div class="row">
+                    <div class="col-lg-4 col-md-6 order-md-1 order-lg-1">
+                        <div class="footer_about mt-50">
+                            <a href="{% if request.user.is_authenticated %}/home{% else %}/{% endif %}"><img src="/static/assets/images/logo.png" alt="logo"></a>
+                            <p>TapTrip 一站式智能旅遊規劃平台，結合行程安排、天氣提醒、地圖導航與住宿管理，讓自由行更輕鬆、高效、無憂！</p>
+                        </div> <!-- footer about -->
+                    </div>
+                    <div class="col-lg-4 col-md-12 order-md-3 order-lg-2">
+                        <div class="footer_link_wrapper d-flex flex-wrap">
+                            <div class="footer_link mt-45">
+                                <h4 class="footer_title"><strong>快捷連結</strong></h4>
+                                <ul class="link">
+                                    <li><a href="{% if request.user.is_authenticated %}/home{% else %}/{% endif %}">首頁</a></li>
+                                    <li><a href="{% if request.user.is_authenticated %}/home#about{% else %}/#about{% endif %}">關於我們</a></li>
+                                    <li><a href="{% if request.user.is_authenticated %}/home#attractions{% else %}/#attractions{% endif %}">景點</a></li>
+                                    <li><a href="{% if request.user.is_authenticated %}/home#services{% else %}/#services{% endif %}">住宿</a></li>
+                                    <li>
+                                        {% if request.user.is_authenticated %}
+                                            <a href="/logout">登出</a>
+                                        {% else %}
+                                            <a href="/login">登入</a>
+                                        {% endif %}
+                                    </li>          
+                                </ul>
+                            </div> <!-- footer link -->
+                        </div> <!-- footer link wrapper -->
+                    </div>
+                </div> <!-- row -->
+            </div> <!-- container -->
+        </div> <!-- footer widget -->
+    </section>
+
+    <!--====== FOOTER PART ENDS ======-->
+    
+    <!--====== BACK TOP TOP PART START ======-->
+
+    <a href="#" class="back-to-top"><i class="lni lni-chevron-up"></i></a>
+
+    <!--====== BACK TOP TOP PART ENDS ======-->
+    
+    <!--====== PART START ======-->
+
+<!--
+    <section class="">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-">
+                    
+                </div>
+            </div>
+        </div>
+    </section>
+-->
+
+    <!--====== PART ENDS ======-->
+
+
+
+
+
+    <!--====== Jquery js ======-->
+    <script src="{% static 'lodging/assets/js/vendor/jquery-1.12.4.min.js' %}"></script>
+    <script src="{% static 'lodging/assets/js/vendor/modernizr-3.7.1.min.js' %}"></script>
+    
+    <!--====== Bootstrap js ======-->
+    <script src="{% static 'lodging/assets/js/popper.min.js' %}"></script>
+    <script src="{% static 'lodging/assets/js/bootstrap.4.5.2.min.js' %}"></script>
+	
+	<script src="{% static 'lodging/assets/js/slick.min.js' %}"></script>
+	<script src="{% static 'lodging/assets/js/ajax-contact.js' %}"></script>
+	<script src="{% static 'lodging/assets/js/jquery.magnific-popup.min.js' %}"></script>
+
+    
+    <!--====== Scrolling Nav js ======-->
+    <script src="{% static 'lodging/assets/js/jquery.easing.min.js' %}"></script>
+    <script src="{% static 'lodging/assets/js/scrolling-nav.js' %}"></script>
+    
+    <!--====== Counter Up js ======-->
+    <script src="{% static 'lodging/assets/js/waypoints.min.js' %}"></script>
+    <script src="{% static 'lodging/assets/js/jquery.counterup.min.js' %}"></script>
+    
+    <!--====== Nice Select js ======-->
+    <script src="{% static 'lodging/assets/js/jquery.nice-select.min.js' %}"></script>
+    
+    <!--====== WOW js ======-->
+    <script src="{% static 'lodging/assets/js/wow.min.js' %}"></script>
+    
+    <!--====== Main js ======-->
+    <script src="{% static 'lodging/assets/js/main.js' %}"></script>
+</body>
+
+</html>
