@@ -9,18 +9,23 @@ from django.middleware.csrf import get_token
 # 初始畫面
 def home2(request):
     TAIWAN_CITIES = City.objects.all()
-
+    
     # 景點預覽用
     random_ids = random.sample(range(1, 753), 6) 
     attractions = Attraction.objects.filter(id__in=random_ids)
-
+    
     errors = request.session.pop('errors', {})
     csrf_token = get_token(request)
+    if request.user.is_authenticated:
+        return render(request, 'home.html', {
+        "cities": TAIWAN_CITIES,
+        "attractions": attractions,
+        "username": request.user.username  
+    })
     return render(request, 'LoginPage.html', {
         "cities": TAIWAN_CITIES,
         "attractions": attractions,
-        "errors": errors,
-        'csrf_token': csrf_token
+        "errors": errors
     })
 
 
