@@ -1,5 +1,5 @@
 {% load static %}
-
+{% load socialaccount %}
 
 <!doctype html>
 <html class="no-js" lang="en">
@@ -202,7 +202,7 @@
                                 <p class="mb-0 ms-4 ps-2">
                                     還不是TapTrip會員 ? <a href="/register"><strong>前往註冊</strong></a>
                                     或使用 Google 登入
-                                    <a href="/accounts/google/login/?next=/" class="google-login-btn">
+                                    <a href="{% provider_login_url 'google' %}" class="google-login-btn">
                                         <img src="https://developers.google.com/identity/images/g-logo.png" alt="Google Logo" class="google-logo">
                                     </a>
                                 </p>
