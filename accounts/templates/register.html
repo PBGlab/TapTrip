@@ -35,7 +35,25 @@
     
     <!--====== Style CSS ======-->
     <link rel="stylesheet" href="{% static 'lodging/assets/css/style.css' %}">
-
+    <style>
+    .google-login-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 40px; /* 圓形按鈕大小 */
+        height: 40px;
+        border-radius: 50%; /* 讓按鈕變成圓形 */
+        background-color: white; /* 背景顏色 */
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2); /* 陰影效果 */
+        margin-left: 8px; /* 調整與文字的間距 */
+    }
+    
+    .google-logo {
+        width: 20px;
+        height: 20px;
+        border-radius: 50%; /* 確保圖片也是圓形 */
+    }
+    </style>
 </head>
 
 <body>
@@ -175,7 +193,11 @@
                             <div class="single_form d-flex align-items-center">
                                 <button type="submit" class="main-btn">註冊</button>
                                 <p class="mb-0 ms-4 ps-2">
-                                    已擁有TapTrip帳號 ? <a href="/login/"><strong>前往登入</strong></a>
+                                    已擁有TapTrip帳號 ? <a href="/register"><strong>前往登入</strong></a>
+                                    或使用 Google 登入
+                                    <a href="/" class="google-login-btn">
+                                        <img src="https://developers.google.com/identity/images/g-logo.png" alt="Google Logo" class="google-logo">
+                                    </a>
                                 </p>
                             </div>
                         </div>
