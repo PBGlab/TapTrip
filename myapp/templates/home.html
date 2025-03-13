@@ -140,7 +140,7 @@
                                     </li>
                                     {% comment %} 首頁功能選單請勿變更 {% endcomment %}
                                     <li class="nav-item">
-                                        <a class="page-scroll" href="#booking">住宿管理</a>
+                                        <a class="page-scroll" href="/lodging">住宿管理</a>
                                     </li>
                                     {% comment %} 首頁功能選單請勿變更 {% endcomment %}
                                     <li class="nav-item" id="user-menu">
@@ -174,7 +174,7 @@
                         <div class="col-lg-6 col-md-8">
                             <div class="slider_content">
                                 <h2 class="slider_title wow fadeInLeftBig" data-wow-duration="1.3s" data-wow-delay="0.2s">Hi ! <strong>{{ request.user.username }}</strong></h2>
-                                <h2 class="slider_title wow fadeInLeftBig" data-wow-duration="1.3s" data-wow-delay="0.2s">準備好和<span>TapTrip</span><br>一起探索了嗎 ?</h2>
+                                <h2 class="slider_title wow fadeInLeftBig" data-wow-duration="1.3s" data-wow-delay="0.2s">準備好和<span>TapTrip</span><br>一起探索台灣了嗎 ?</h2>
                                 <p class="wow fadeInLeftBig" data-wow-duration="1.3s" data-wow-delay="0.5s">Hello !  Welcome to TapTrip </p>
                                 <p class="wow fadeInLeftBig" data-wow-duration="1.3s" data-wow-delay="0.5s">– Your Next Adventure Starts Here!</p>
                                 <a href="/trips" class="main-btn wow fadeInLeftBig" data-wow-duration="1.3s" data-wow-delay="0.8s">立即規劃</a>
@@ -271,6 +271,7 @@
                             <h2 class="title" style="font-weight: bold;">
                                 <a href="{{ attraction.link }}" target="_blank"><h5>{{ attraction.name }}</h5></a>
                             </h2>
+                            <a href="{{ attraction.link }}" class="main-btn" target="_blank" rel="noopener noreferrer">◎ 完整資訊</a>
                             <p class="price">{{ attraction.hashtag }}</p>
                         </div>
                     </div>
@@ -375,35 +376,6 @@
 
     <!--====== SERVICES PART ENDS ======-->
     
-<!--====== CONTACT PART START ======-->
-
-<section id="booking" class="contact_area pt-120 pb-130">
-    <div class="container">
-        <!-- 文字區域 -->
-        <div class="row justify-content-center">
-            <div class="col-lg-6">
-                <div class="section_title text-center pb-25">
-                    <h3 class="title">旅宿無憂，一指搞定！</h3>
-                    <h3>Manage Your Stay</h3>
-                    <p>旅行的家還沒選好嗎？趕快預訂，讓旅程更完美！</p>
-                </div> <!-- section title -->
-            </div>
-        </div> <!-- row -->
-
-        <!-- 按鈕區域：並排置中 -->
-        <div class="row justify-content-center">
-            <div class="col-auto">
-              <a href="/booking/" class="main-btn">尋找飯店</a>
-            </div>
-            <div class="col-auto">
-              <a href="/lodging" class="main-btn">管理住宿</a>
-            </div>
-          </div>          
-    </div> <!-- container -->
-</section>
-
-
-<!--====== CONTACT PART ENDS ======-->
 
     
     <!--====== FOOTER PART START ======-->
