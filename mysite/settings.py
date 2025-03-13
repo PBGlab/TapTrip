@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    'django.contrib.sites', # allauth 需要
 
     "accounts", # 自訂 APP
     "myapp", # 自訂 APP
@@ -46,8 +47,8 @@ INSTALLED_APPS = [
     "attractions", # 自訂 APP
     "django_extensions",
     'maps_app',
-    'itinerary',
     'weather',
+    'trips',
 
     # 第三方套件
     'allauth',
@@ -55,6 +56,19 @@ INSTALLED_APPS = [
     'allauth.socialaccount',  # Google 社交登入
     'allauth.socialaccount.providers.google',
 ]
+
+# 設定 SITE_ID（確保在 `django_site` 有對應記錄）
+SITE_ID = 1
+
+# Google 登入成功後的跳轉路徑
+LOGIN_REDIRECT_URL = "/home/"
+LOGOUT_REDIRECT_URL = "/"
+
+# 自訂 SocialAccount Adapter（如果需要）
+SOCIALACCOUNT_ADAPTER = "accounts.adapters.CustomSocialAccountAdapter"
+
+SOCIALACCOUNT_LOGIN_ON_GET = True
+
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
@@ -137,7 +151,6 @@ USE_TZ = True
 STATIC_URL = "static/"
 
 STATICFILES_DIRS = [
-    BASE_DIR / "itinerary/static", 
     ("lodging", os.path.join(BASE_DIR, "lodging/static")),
     ("myapp", os.path.join(BASE_DIR, "myapp/static")),
 ]
@@ -157,7 +170,6 @@ AUTH_USER_MODEL = 'accounts.CustomUser'
 
 
 
-import os
 from dotenv import load_dotenv
 
 # 讀取 .env 檔案
@@ -174,3 +186,15 @@ ANYMAIL = {
 
 # 設定發件人 Email
 DEFAULT_FROM_EMAIL = os.getenv("DEFAULT_FROM_EMAIL")
+
+# Google OAuth 憑證
+SOCIALACCOUNT_PROVIDERS = {
+    "google": {
+        "SCOPE": ["email", "profile"],
+        "AUTH_PARAMS": {"access_type": "online"},
+        "APP": {
+            "client_id": os.getenv("GOOGLE_CLIENT_ID"),
+            "secret": os.getenv("GOOGLE_CLIENT_SECRET"),
+        },
+    }
+}
