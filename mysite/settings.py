@@ -62,7 +62,12 @@ SITE_ID = 1
 
 # Google 登入成功後的跳轉路徑
 LOGIN_REDIRECT_URL = "/home/"
+
+# Google 登出後的跳轉路徑
 LOGOUT_REDIRECT_URL = "/"
+
+# Google 登入取消後的跳轉路徑
+ACCOUNT_LOGOUT_REDIRECT_URL = "/"
 
 # 自訂 SocialAccount Adapter（如果需要）
 SOCIALACCOUNT_ADAPTER = "accounts.adapters.CustomSocialAccountAdapter"
