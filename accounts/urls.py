@@ -1,7 +1,7 @@
-from django.urls import path
+from django.urls import path , include
 from accounts import views
 
-app_name = "accounts"
+
 
 urlpatterns = [
     path("login/", views.login_view, name="login"),
@@ -12,4 +12,5 @@ urlpatterns = [
     path("verify/<str:token>/", views.verify_email, name="verify_email"), # 顯示驗證確認頁面
     path("api/user-status/", views.user_status, name="user_status"),
     path("updatepassword/", views.updatepassword, name="updatepassword"),
+    path("accounts/", include("allauth.urls")),  # Google OAuth API
 ]
