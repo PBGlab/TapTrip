@@ -84,57 +84,9 @@ def user_status(request):
 
 
 from .utils import send_verification_email
-# @csrf_exempt  # 開發測試用，正式環境請移除
-# def register_view(request):
-#     """註冊 API，發送 Email 驗證"""
-#     if request.method == 'POST':
-#         username = request.POST.get('username')
-#         email = request.POST.get('email')
-#         password = request.POST.get('password')
-#         confirm_password = request.POST.get('confirm_password')
-
-#         errors = {}
-
-#         # 檢查使用者名稱格式（僅允許英數及底線）
-#         if not re.match(r"^[\u4e00-\u9fffa-zA-Z0-9]+$", username):
-#             errors['username'] = '使用者名稱只能使用中文、英文字母或數字，不得使用底線、空白或特殊符號！'
-
-#         # 檢查 Email 是否已存在
-#         if CustomUser.objects.filter(email=email).exists():
-#             errors['email'] = '該 Email 已被註冊！'
-
-#         # 檢查密碼是否一致
-#         if password != confirm_password:
-#             errors['password'] = '密碼不一致,請重新輸入！'
-
-#         if errors:
-#             return JsonResponse({'success': False, 'errors': errors}, status=400)
-
-#         # 創建帳號（預設未啟用）
-#         user = CustomUser.objects.create_user(
-#             username=username,
-#             email=email,
-#             password=password,
-#             is_active=False  # 完成 Email 驗證後才啟用
-#         )
-
-#         # 發送 Email 驗證信
-#         send_verification_email(user)
-
-#         # 成功註冊後，回傳 JSON 並告知前端進行頁面跳轉，同時帶上 email
-#         redirect_url = "/email_verification_notice/?email=" + email
-#         return JsonResponse({
-#             "success": True,
-#             "message": "請檢查您的 Email, 完成驗證。",
-#             "redirect_url": redirect_url
-#         })
-#         # return render(request, 'email_verification_notice.html', {'email': email})
-#     return render(request, 'register.html')
-
-""" 註冊 API（暫時關閉 Email 驗證） """
-@csrf_exempt
+@csrf_exempt  # 開發測試用，正式環境請移除
 def register_view(request):
-
+    """註冊 API，發送 Email 驗證"""
     if request.method == 'POST':
         username = request.POST.get('username')
         email = request.POST.get('email')
@@ -143,35 +95,42 @@ def register_view(request):
 
         errors = {}
 
+        # 檢查使用者名稱格式（僅允許英數及底線）
         if not re.match(r"^[\u4e00-\u9fffa-zA-Z0-9]+$", username):
-            errors['username'] = '使用者名稱只能包含中文、英文、數字！'
+            errors['username'] = '使用者名稱只能使用中文、英文字母或數字，不得使用底線、空白或特殊符號！'
 
+        # 檢查 Email 是否已存在
         if CustomUser.objects.filter(email=email).exists():
             errors['email'] = '該 Email 已被註冊！'
 
+        # 檢查密碼是否一致
         if password != confirm_password:
-            errors['password'] = '密碼不一致！'
+            errors['password'] = '密碼不一致,請重新輸入！'
 
         if errors:
             return JsonResponse({'success': False, 'errors': errors}, status=400)
 
-        # ✅ **這裡直接啟用帳戶，不用 Email 驗證**
+        # 創建帳號（預設未啟用）
         user = CustomUser.objects.create_user(
             username=username,
             email=email,
             password=password,
-            is_active=True,  # ✅ 直接啟用帳戶
-            is_email_verified=True  # ✅ 直接標記為已驗證
+            is_active=False  # 完成 Email 驗證後才啟用
         )
 
+        # 發送 Email 驗證信
+        send_verification_email(user)
 
+        # 成功註冊後，回傳 JSON 並告知前端進行頁面跳轉，同時帶上 email
+        redirect_url = "/email_verification_notice/?email=" + email
         return JsonResponse({
             "success": True,
-            "message": "註冊成功！",
-            "redirect_url": "/login/"
+            "message": "請檢查您的 Email, 完成驗證。",
+            "redirect_url": redirect_url
         })
-
+        # return render(request, 'email_verification_notice.html', {'email': email})
     return render(request, 'register.html')
+
 
 
 from django.contrib.auth.decorators import login_required
