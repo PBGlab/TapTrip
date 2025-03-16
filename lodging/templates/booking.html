@@ -7,7 +7,7 @@
     <meta charset="utf-8">
     
     <!--====== Title ======-->
-    <title>尋找住宿</title>
+    <title>尋找飯店</title>
     
     <meta name="description" content="">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -133,9 +133,21 @@
             <div class="row justify-content-center">
                 <div class="col-lg-6">
                     <div class="section_title text-center pb-25">
-                        <h3 class="title">台灣飯店搜尋</h3>
-                        <p>Search for Hotels in Taiwan</p>
-                    </div> <!-- section title -->
+                        <h3 class="title">
+                            {% if trip_name %}
+                                預定{{ trip_name }}的住宿
+                            {% else %}
+                                台灣飯店搜尋
+                            {% endif %}
+                        </h3>
+                        <p>
+                            {% if trip_name %}
+                                Book accommodation for {{ trip_name }}
+                            {% else %}
+                                Search for Hotels in Taiwan
+                            {% endif %}
+                        </p>
+                    </div>                    
                 </div>
             </div> <!-- row -->
             <div class="contact_form">
@@ -145,13 +157,13 @@
                         <div class="col-lg-6">
                             <div class="single_form">
                                 <label>入住日期：</label>
-                                <input type="date" name="checkin" required>
+                                <input type="date" name="checkin" value="{{ checkin }}" required>
                             </div> <!-- single form -->
                         </div>
                         <div class="col-lg-6">
                             <div class="single_form">
                                 <label>退房日期：</label>
-                                <input type="date" name="checkout" required>
+                                <input type="date" name="checkout" value="{{ checkout }}" required>
                             </div> <!-- single form -->
                         </div>
                         <div class="col-lg-12">
