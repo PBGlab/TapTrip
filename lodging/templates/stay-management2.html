@@ -1,0 +1,396 @@
+{% load static %}
+
+<!doctype html>
+<html class="no-js" lang="en">
+
+<head>
+    <meta charset="utf-8">
+    
+    <!--====== Title ======-->
+    <title>住宿管理</title>
+    
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!--====== Favicon Icon ======-->
+    <link rel="shortcut icon" href="{% static 'lodging/assets/images/favicon.png' %}" type="image/png">
+    
+	<link rel="stylesheet" href="{% static 'lodging/assets/css/magnific-popup.css' %}">
+	<link rel="stylesheet" href="{% static 'lodging/assets/css/slick.css' %}">
+        
+    <!--====== Animate CSS ======-->
+    <link rel="stylesheet" href="{% static 'lodging/assets/css/animate.css' %}">
+        
+    <!--====== Nice Select CSS ======-->
+    <link rel="stylesheet" href="{% static 'lodging/assets/css/nice-select.css' %}">
+        
+        
+    <!--====== Line Icons CSS ======-->
+    <link rel="stylesheet" href="{% static 'lodging/assets/css/LineIcons.2.0.css' %}">
+        
+    <!--====== Bootstrap CSS ======-->
+    <link rel="stylesheet" href="{% static 'lodging/assets/css/bootstrap.4.5.2.min.css' %}">
+    
+    <!--====== Default CSS ======-->
+    <link rel="stylesheet" href="{% static 'lodging/assets/css/default.css' %}">
+    
+    <!--====== Style CSS ======-->
+    <link rel="stylesheet" href="{% static 'lodging/assets/css/style.css' %}">
+
+    <style>
+        /* 行程資訊卡片 (trip_section) */
+        .trip_section {
+            background-color: #f5f5f5; /* 灰色背景 */
+            padding: 25px;
+            border-radius: 12px; /* 圓角 */
+            margin-bottom: 30px; /* 區塊間距 */
+            box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1); /* 添加陰影提升立體感 */
+        }
+        /* ✅ 美化「尚未預定住宿」區塊 */
+        .no-booking {
+            background-color: #FFFFFF; /* 淺灰色 */
+            padding: 20px;
+            text-align: center;
+            border-radius: 10px;
+            margin-top: 15px;
+        }
+
+        /* ✅ 「查看飯店」與「刪除」按鈕樣式統一 */
+        .btn-group {
+            display: flex;
+            gap: 10px; /* 按鈕間距 */
+        }
+
+        .delete-btn {
+            background-color: #ff4d4d; /* 紅色刪除按鈕 */
+            border-color: #ff4d4d;
+        }
+
+        .delete-btn:hover {
+            background-color: #cc0000;
+            border-color: #cc0000;
+        }
+        /* 行程名稱 */
+        .trip_section h3 {
+            font-size: 24px;
+            font-weight: bold;
+            color: #333; /* 深色強調 */
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .trip_section h3 i {
+            font-size: 22px;
+            color: #ff9800; /* 加入橘色圖標 */
+            margin-right: 10px;
+        }
+        
+        /* 行程時間 */
+        .trip_section .trip_time {
+            font-size: 16px;
+            color: #555;
+            display: flex;
+            align-items: center;
+            font-weight: 500;
+        }
+        
+        .trip_section .trip_time i {
+            color: #007bff; /* 使用藍色行程圖標 */
+            margin-right: 8px;
+        }
+        
+
+    /* 讓單個住宿卡片 (`single_blog`) 保持白色 */
+    .single_blog {
+        background-color: #ffffff; /* 白色背景 */
+        padding: 15px;
+        border-radius: 8px; /* 輕微圓角 */
+        box-shadow: 0px 2px 10px rgba(0, 0, 0, 0.1); /* 陰影，讓卡片浮起來 */
+    }
+
+    </style> 
+</head>
+
+<body>
+
+    <!--====== PRELOADER PART START ======-->
+
+    <div class="preloader">
+        <div class="loader">
+            <div class="ytp-spinner">
+                <div class="ytp-spinner-container">
+                    <div class="ytp-spinner-rotator">
+                        <div class="ytp-spinner-left">
+                            <div class="ytp-spinner-circle"></div>
+                        </div>
+                        <div class="ytp-spinner-right">
+                            <div class="ytp-spinner-circle"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!--====== PRELOADER PART ENDS ======-->
+
+    <!--====== HEADER PART START ======-->
+
+    <section class="header_area">
+        <div class="header_navbar sticky">
+            <div class="container">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <nav class="navbar navbar-expand-lg">
+                            <a class="navbar-brand" href="{% if request.user.is_authenticated %}/home{% else %}/{% endif %}">
+                                <img src="{% static 'lodging/assets/images/logo2.png' %}" alt="Logo">
+                            </a>
+                            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                                <span class="toggler-icon"></span>
+                                <span class="toggler-icon"></span>
+                                <span class="toggler-icon"></span>
+                            </button>
+
+                            <div class="collapse navbar-collapse sub-menu-bar" id="navbarSupportedContent">
+                                <ul id="nav" class="navbar-nav ml-auto">
+                                    <li class="nav-item active">
+                                        <a class="page-scroll" href="/home">首頁</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="page-scroll" href="{% if request.user.is_authenticated %}/home#about{% else %}/#about{% endif %}">關於我們</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="page-scroll" href="/findattractions">尋找景點</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="page-scroll" href="/booking">尋找飯店</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="page-scroll" href="/lodging">住宿管理</a>   <!-- 路由尚未完善 -->
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="page-scroll" href="/trips">我的行程</a>  <!-- 路由尚未完善 -->
+                                    </li>
+                                    <li class="nav-item" id="user-menu">
+                                        <a class="page-scroll" href="/login/">登入</a>
+                                    </li>
+                                    
+                                    <script>
+                                        document.addEventListener("DOMContentLoaded", function () {
+                                            fetch("/api/user-status/", { credentials: "include" })  // 確保傳送 cookies
+                                                .then(response => response.json())
+                                                .then(data => {
+                                                    let userMenu = document.getElementById("user-menu");
+                                                    if (data.is_authenticated) {
+                                                        userMenu.innerHTML = `<a href="/logout/">${data.username}（登出）</a>`;
+                                                    }
+                                                });
+                                        });
+                                    </script>                                    
+                                </ul>
+                            </div> <!-- navbar collapse -->
+                        </nav> <!-- navbar -->
+                    </div>
+                </div> <!-- row -->
+            </div> <!-- container -->
+        </div> <!-- header navbar -->    
+    </section>
+
+    <!--====== HEADER PART ENDS ======-->
+
+<!--====== BLOG PART START ======-->
+<section id="blog" class="blog_area pt-120 pb-130">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-6">
+                <div class="section_title text-center pb-25">
+                    <h3 class="title">住宿管理</h3>
+                    <p>Manage Your Stay</p>
+                </div> <!-- section title -->
+            </div>
+        </div> <!-- row -->
+
+        {% for item in trip_data %}
+        <div class="trip_section">
+            <h3><i class="lni lni-map-marker"></i> {{ item.trip.name }}</h3>
+            <p class="trip_time">
+                <i class="lni lni-calendar"></i> 行程時間 {{ item.trip.start_date }} ~ {{ item.trip.end_date }}
+            </p>
+    
+            {% if item.lodgings %}
+                {% for lodging in item.lodgings %}
+                    <div class="single_blog d-sm-flex mt-30" id="lodging-{{ lodging.id }}">
+                        <div class="blog_image">
+                            <img src="{{ lodging.image }}" alt="hotel image">
+                        </div>
+                        <div class="blog_content blog_content_2 media-body">
+                            <h3 class="blog_title">
+                                <a href="{{ lodging.link }}" target="_blank">
+                                    <strong>{{ lodging.name }}</strong>
+                                </a>
+                            </h3>
+                            <p>入住日期：{{ lodging.check_in }} | 退房日期：{{ lodging.check_out }}</p>
+                            <p>地址: {{ lodging.address }}</p>
+                            <p class="price">{{ lodging.price }}</p>
+                            
+                            <!-- 統一樣式按鈕 -->
+                            <div class="btn-group">
+                                <a href="{{ lodging.link }}" target="_blank" class="main-btn">查看飯店</a>
+                                <button class="main-btn delete-btn" onclick="deleteLodging({{ lodging.id }})">刪除飯店</button>
+                            </div>
+                        </div>
+                    </div> <!-- single blog -->
+                {% endfor %}
+                <!-- 提醒標語 -->
+                <div class="reminder-container" style="margin-top: 20px; text-align: center;">
+                    <p class="reminder-message" style="color: red; font-size: 14px;">
+                        **重要提示：**本系統僅提供飯店查詢服務，非正式預訂，請前往 Booking 網站完成實際訂房。
+                    </p>
+                </div>                
+            {% else %}
+                <!-- 美化「尚未預定住宿」區塊 -->
+                <div class="no-booking">
+                    <h4>尚未規劃住宿</h4>
+                    <a href="/booking/?checkin={{ item.trip.start_date|date:'Y-m-d' }}&checkout={{ item.trip.end_date|date:'Y-m-d' }}&trip={{ item.trip.name }}" class="main-btn">前往預定</a>
+                </div>
+            {% endif %}
+
+            <hr>
+        </div>
+    {% endfor %}
+    
+    </div> <!-- container -->
+</section>
+<script>
+    function deleteLodging(lodgingId) {
+        if (!confirm("確定要刪除這間飯店嗎？")) return;
+    
+        console.log("🔍 成功刪除 lodging ID:", lodgingId);  // ✅ Debug: 檢查 ID 是否正確
+    
+        fetch(`/delete_lodging/${lodgingId}/`, {
+            method: "DELETE",
+            headers: {
+                "X-CSRFToken": "{{ csrf_token }}",
+                "Content-Type": "application/json",
+            },
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                let lodgingElement = document.getElementById(`lodging-${lodgingId}`);
+                if (lodgingElement) {
+                    lodgingElement.remove();  // ✅ 確保元素存在才執行刪除
+                    alert("飯店已成功刪除！");
+                } else {
+                    console.error("❌ 找不到對應的 HTML 元素:", `lodging-${lodgingId}`);
+                }
+            } else {
+                alert("刪除失敗：" + data.error);
+            }
+        })
+        .catch(error => console.error("❌ 刪除錯誤:", error));
+    }    
+    </script>
+    
+<!--====== BLOG PART ENDS ======-->
+
+
+  
+    <!--====== FOOTER PART START ======-->
+
+    <section id="footer" class="footer_area">
+        <div class="footer_widget pt-50 pb-130">
+            <div class="container">
+                <div class="row">
+                    <div class="col-lg-4 col-md-6 order-md-1 order-lg-1">
+                        <div class="footer_about mt-50">
+                            <a href="/home"><img src="/static/assets/images/logo.png" alt="logo"></a>
+                            <p>TapTrip 一站式智能旅遊規劃平台，結合行程安排、天氣提醒、地圖導航與住宿管理，讓自由行更輕鬆、高效、無憂！</p>
+                        </div> <!-- footer about -->
+                    </div>
+                    <div class="col-lg-4 col-md-12 order-md-3 order-lg-2">
+                        <div class="footer_link_wrapper d-flex flex-wrap">
+                            <div class="footer_link mt-45">
+                                <h4 class="footer_title"><strong>快捷連結</strong></h4>
+                                <ul class="link">
+                                    <li><a href="{% if request.user.is_authenticated %}/home{% else %}/{% endif %}">首頁</a></li>
+                                    <li><a href="{% if request.user.is_authenticated %}/home#about{% else %}/#about{% endif %}">關於我們</a></li>
+                                    <li><a href="{% if request.user.is_authenticated %}/home#attractions{% else %}/#attractions{% endif %}">景點</a></li>
+                                    <li><a href="{% if request.user.is_authenticated %}/home#services{% else %}/#services{% endif %}">住宿</a></li>
+                                    <li>
+                                        {% if request.user.is_authenticated %}
+                                            <a href="/logout">登出</a>
+                                        {% else %}
+                                            <a href="/login">登入</a>
+                                        {% endif %}
+                                    </li>                                    
+                                </ul>
+                            </div> <!-- footer link -->
+                        </div> <!-- footer link wrapper -->
+                    </div>
+                </div> <!-- row -->
+            </div> <!-- container -->
+        </div> <!-- footer widget -->
+    </section>
+
+    <!--====== FOOTER PART ENDS ======-->
+    
+    <!--====== BACK TOP TOP PART START ======-->
+
+    <a href="#" class="back-to-top"><i class="lni lni-chevron-up"></i></a>
+
+    <!--====== BACK TOP TOP PART ENDS ======-->
+    
+    <!--====== PART START ======-->
+
+<!--
+    <section class="">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-">
+                    
+                </div>
+            </div>
+        </div>
+    </section>
+-->
+
+    <!--====== PART ENDS ======-->
+
+
+
+
+
+    <!--====== Jquery js ======-->
+    <script src="{% static 'lodging/assets/js/vendor/jquery-1.12.4.min.js' %}"></script>
+    <script src="{% static 'lodging/assets/js/vendor/modernizr-3.7.1.min.js' %}"></script>
+    
+    <!--====== Bootstrap js ======-->
+    <script src="{% static 'lodging/assets/js/popper.min.js' %}"></script>
+    <script src="{% static 'lodging/assets/js/bootstrap.4.5.2.min.js' %}"></script>
+	
+	<script src="{% static 'lodging/assets/js/slick.min.js' %}"></script>
+	<script src="{% static 'lodging/assets/js/ajax-contact.js' %}"></script>
+	<script src="{% static 'lodging/assets/js/jquery.magnific-popup.min.js' %}"></script>
+
+    
+    <!--====== Scrolling Nav js ======-->
+    <script src="{% static 'lodging/assets/js/jquery.easing.min.js' %}"></script>
+    <script src="{% static 'lodging/assets/js/scrolling-nav.js' %}"></script>
+    
+    <!--====== Counter Up js ======-->
+    <script src="{% static 'lodging/assets/js/waypoints.min.js' %}"></script>
+    <script src="{% static 'lodging/assets/js/jquery.counterup.min.js' %}"></script>
+    
+    <!--====== Nice Select js ======-->
+    <script src="{% static 'lodging/assets/js/jquery.nice-select.min.js' %}"></script>
+    
+    <!--====== WOW js ======-->
+    <script src="{% static 'lodging/assets/js/wow.min.js' %}"></script>
+    
+    <!--====== Main js ======-->
+    <script src="{% static 'lodging/assets/js/main.js' %}"></script>
+</body>
+
+</html>
