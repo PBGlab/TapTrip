@@ -61,7 +61,7 @@ INSTALLED_APPS = [
 SITE_ID = 1
 
 # Google 登入成功後的跳轉路徑
-LOGIN_REDIRECT_URL = "/home/"
+LOGIN_REDIRECT_URL = "/home"
 
 # Google 登出後的跳轉路徑
 LOGOUT_REDIRECT_URL = "/"
@@ -203,3 +203,9 @@ SOCIALACCOUNT_PROVIDERS = {
         },
     }
 }
+
+# 設定 Django 認證後端，同時支援傳統登入和社交登入
+AUTHENTICATION_BACKENDS = (
+    "django.contrib.auth.backends.ModelBackend",  # 預設後端，處理一般帳號密碼登入
+    "allauth.account.auth_backends.AuthenticationBackend",  # 處理 Google 等社交平台登入
+)
