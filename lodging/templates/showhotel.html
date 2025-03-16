@@ -149,15 +149,14 @@
     </section>
 
     <!--====== HEADER PART ENDS ======-->
-
- <!--====== DESTINATION PART START ======-->
- <section id="packges" class="destination_area pt-130 pb-130">
+<!--====== DESTINATION PART START ======-->
+<section id="packges" class="destination_area pt-130 pb-130">
     <div class="container">
         <div class="row justify-content-center">
             <div class="col-lg-6">
                 <div class="section_title text-center pb-25">
-                    <h3 class="title" id="hotel-title">正在載入飯店資料請稍候...</h3> <!-- 初始標題 -->
-                    <p id="hotel-subtitle">Loading hotel search results...</p>
+                    <h3 class="title" id="hotel-title">正在載入{{ city }}飯店資料...</h3> <!-- 修改標題 -->
+                    <p id="hotel-subtitle">正在載入飯店資料請稍候...</p> <!-- 入住/退房日期會在這行 -->
                 </div>
             </div>
         </div>
@@ -173,28 +172,34 @@
                 <a href="/booking" class="main-btn">再次查詢</a>
             </div>
         </div>
-
     </div>
 </section>
 
 <script>
     document.addEventListener("DOMContentLoaded", function () {
+        // **從 URL 取得 check-in、check-out 和 city**
+        const urlParams = new URLSearchParams(window.location.search);
+        const checkInValue = urlParams.get("checkin") || "未提供";
+        const checkOutValue = urlParams.get("checkout") || "未提供";
+
         let eventSource = new EventSource("/stream-hotels" + window.location.search);
         let resultContainer = document.getElementById("hotels-container");
-        let hotelTitle = document.getElementById("hotel-title");
+        let hotelTitle = document.getElementById("hotel-title"); // 取得標題元素
         let hotelSubtitle = document.getElementById("hotel-subtitle");
         let loadingMessage = document.getElementById("loading-message");
 
         let firstDataReceived = false; // 標記是否收到第一筆資料
 
+        let hotelCount = 0;
         eventSource.onmessage = function(event) {
+            hotelCount += 1;
             let hotel = JSON.parse(event.data);
 
             // **收到第一筆資料時，更新標題**
             if (!firstDataReceived) {
-                document.title = "飯店查詢結果"; // 更新瀏覽器標題
-                hotelTitle.innerText = "飯店查詢結果如下"; // 更新主標題
-                hotelSubtitle.innerText = "Hotel search results are as follows."; // 更新副標題
+                document.title = `飯店查詢結果 ${checkInValue} - ${checkOutValue}`; // 更新瀏覽器標題
+                hotelTitle.innerText = `${urlParams.get("city") || "未知地點"} 飯店搜尋結果`; // 更新主標題
+                hotelSubtitle.innerText = `入住日期：${checkInValue} | 退房日期：${checkOutValue}`; // 更新副標題
                 firstDataReceived = true;
 
                 // 移除載入中訊息
@@ -209,27 +214,75 @@
             hotelItem.setAttribute("data-wow-delay", "0.2s");
 
             hotelItem.innerHTML = `
-                <div class="single_destination mt-30">
-                    <div class="destination_image">
-                        <a href="${hotel.連結}">
-                            <img src="${hotel.圖片}" alt="Destination">
-                        </a>
-                    </div>
-                    <div class="destination_content">
-                        <h4 class="title">
-                            <a href="${hotel.連結}"><strong>${hotel.名稱}</strong></a>
-                        </h4>
-                        <p class="price">${hotel.地址}</p>
-                        <p>${hotel.價格}</p>
-                        {% if request.user.is_authenticated %}
-                            <a href="javascript:void(0)" class="main-btn">預訂</a>
-                        {% endif %}
-                        <a class="more" href="${hotel.連結}"><i class="lni lni-chevron-right"></i></a>
-                    </div>
+            <div class="single_destination mt-30">
+                <div class="destination_image">
+                    <a href="${hotel.連結}">
+                        <img src="${hotel.圖片}" alt="Hotel Image">
+                    </a>
                 </div>
+                <div class="destination_content">
+                    <h4 class="title">
+                        <a href="${hotel.連結}"><strong>${hotel.名稱}</strong></a>
+                    </h4>
+                    <p class="price">${hotel.地址}</p>
+                    <p>${hotel.價格}</p>
+
+                    <!-- 隱藏飯店資訊，當按鈕點擊時讀取 -->
+                    <div class="hidden_data"
+                        data-name="${hotel.名稱}"
+                        data-location="${hotel.地址}"
+                        data-rating="${hotel.評價}"
+                        data-price="${hotel.價格}"
+                        data-image="${hotel.圖片}"
+                        data-link="${hotel.連結}"
+                        data-checkin="${checkInValue}"
+                        data-checkout="${checkOutValue}"
+                        data-trip-id="">
+                    </div>
+                    
+                    <!-- 選擇行程 (trip_id) -->
+                   <div class="trip-selection">
+                        <label for="select_trip_id_${hotelCount}">選擇行程：</label>
+                        <select id="select_trip_id_${hotelCount}">
+                            {% if user_trips %}
+                                <option value="">請選擇行程</option>
+                                {% for trip in user_trips %}
+                                    <option value="{{ trip.id }}">{{ trip.name }}</option>
+                                {% endfor %}
+                            {% else %}
+                                <option value="">尚未建立任何行程</option>
+                            {% endif %}
+                        </select>
+                    </div>
+
+
+                    {% if request.user.is_authenticated %}
+                        <button class="main-btn book-hotel" onclick="bookHotel(this, ${hotelCount})">預訂</button>
+                    {% endif %}
+
+                    <a class="more" href="${hotel.連結}"><i class="lni lni-chevron-right"></i></a>
+                </div>
+            </div>
             `;
 
             resultContainer.appendChild(hotelItem);
+
+            // **即時更新 hidden_data 內的 trip_id**
+            let tripField = document.getElementById(`select_trip_id_${hotelCount}`);
+
+            if (tripField) {
+                tripField.addEventListener("change", function () {
+                    let allHiddenData = document.querySelectorAll(".hidden_data"); // 取得所有隱藏的飯店資訊
+
+                    allHiddenData.forEach(hiddenData => {
+                        if(hiddenData.dataset.name === `${hotel.名稱}`) {
+                            hiddenData.dataset.tripId = tripField.value || ""; // 更新 data-trip-id
+                        }
+                    });
+                    
+                    console.log(`✅ 已更新 #select_trip_id_${hotelCount} 的 hidden_data trip_id:`, tripField.value);
+                });
+            }
 
             // **只對新元素應用 WOW.js，不影響整個版面**
             let wow = new WOW({ live: false });
@@ -237,13 +290,59 @@
         };
 
         eventSource.onerror = function() {
-            console.error("SSE 連線錯誤");
+            console.error("查詢飯店結果顯示完成");
             eventSource.close();
         };
     });
+
+    function bookHotel(button, hotelCount) {
+        let hotelContainer = button.closest('.single_destination');  // 取得該飯店區塊
+        let hiddenData = hotelContainer.querySelector('.hidden_data');  // 取得該飯店的隱藏資訊
+        let tripField = hotelContainer.querySelector(`#select_trip_id_${hotelCount}`);  // 取得該飯店的行程選單
+    
+        if (!tripField || !tripField.value) {
+            alert("請選擇行程！");
+            return;
+        }
+    
+        // ✅ 只更新這間飯店的 `hidden_data`
+        hiddenData.dataset.tripId = tripField.value;
+        console.log("✅ 已更新 hidden_data 的 trip_id:", hiddenData.dataset.tripId);
+    
+        let hotelData = {
+            name: hiddenData.dataset.name || "",
+            address: hiddenData.dataset.location || "",
+            rating: hiddenData.dataset.rating || "",
+            price: hiddenData.dataset.price || "",
+            image: hiddenData.dataset.image || "",
+            link: hiddenData.dataset.link || "",
+            checkin: hiddenData.dataset.checkin,  
+            checkout: hiddenData.dataset.checkout,
+            trip_id: hiddenData.dataset.tripId  // ✅ 現在 `trip_id` 是來自該飯店的 `hidden_data`
+        };
+    
+        console.log("✅ 即將發送的 hotelData:", hotelData);
+    
+        fetch("/book_hotel/", { 
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "X-CSRFToken": "{{ csrf_token }}"
+            },
+            body: JSON.stringify(hotelData)
+        })
+        .then(response => response.json())
+        .then(data => {
+            alert(data.message);
+        })
+        .catch(error => console.error("❌ 錯誤:", error));
+    }
+
 </script>
-            
-    <!--====== DESTINATION PART ENDS ======-->
+
+<!--====== DESTINATION PART ENDS ======-->
+
+
   
  
     <!--====== FOOTER PART START ======-->
