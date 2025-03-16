@@ -175,22 +175,22 @@ AUTH_USER_MODEL = 'accounts.CustomUser'
 
 
 
+import os
 from dotenv import load_dotenv
 
-# 讀取 .env 檔案
+# ✅ 載入 .env
 load_dotenv()
 
-# 設定 Django 使用 Mailgun 發送 Email
-EMAIL_BACKEND = "anymail.backends.mailgun.EmailBackend"
+# ✅ 確保 `DEFAULT_FROM_EMAIL` 正確讀取
+EMAIL_BACKEND = os.getenv('EMAIL_BACKEND')
+EMAIL_HOST = os.getenv('EMAIL_HOST')
+EMAIL_PORT = int(os.getenv('EMAIL_PORT', 587))
+EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')
+EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
+EMAIL_USE_TLS = os.getenv('EMAIL_USE_TLS') == 'True'
+DEFAULT_FROM_EMAIL = os.getenv('DEFAULT_FROM_EMAIL')
+BREVO_API_KEY = os.getenv("BREVO_API_KEY")
 
-# Mailgun 設定（從 .env 讀取）
-ANYMAIL = {
-    "MAILGUN_API_KEY": os.getenv("MAILGUN_API_KEY"),
-    "MAILGUN_SENDER_DOMAIN": os.getenv("MAILGUN_DOMAIN"),
-}
-
-# 設定發件人 Email
-DEFAULT_FROM_EMAIL = os.getenv("DEFAULT_FROM_EMAIL")
 
 # Google OAuth 憑證
 SOCIALACCOUNT_PROVIDERS = {
@@ -209,3 +209,7 @@ AUTHENTICATION_BACKENDS = (
     "django.contrib.auth.backends.ModelBackend",  # 預設後端，處理一般帳號密碼登入
     "allauth.account.auth_backends.AuthenticationBackend",  # 處理 Google 等社交平台登入
 )
+
+
+
+
