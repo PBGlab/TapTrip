@@ -22,16 +22,10 @@ from django.urls import path,include
 
 urlpatterns = [
     path("admin/", admin.site.urls),
-    path('', include('accounts.urls')),
+    path('', include('accounts.urls')), # 將所有 accounts 的路由引入
     path('', include('myapp.urls')),  # 將所有 myapp 的路由引入
     path('', include('lodging.urls')),  # 將所有 lodging 的路由引入
     path('', include('attractions.urls')),  # 將所有 attractions 的路由引入
+    path('', include('trips.urls')),  # 將所有 trips 的路由引入
     path("maps/", include("maps_app.urls")),  # 讓 `/maps/` 指向 maps_app
 ]
-# urlpatterns = [
-#     path("admin/", admin.site.urls),
-#     path('accounts/', include('django.contrib.auth.urls')),
-#     path('', include('myapp.urls')),
-#     path('', views.home, name='home'),             # 首頁
-#     path('register/', views.register, name='register'), 
-# ]
