@@ -5,6 +5,13 @@ from .models import Lodging
 
 # Create your views here.
 
+from django.http import JsonResponse
+from datetime import datetime
+
+from django.shortcuts import render, redirect
+from django.http import JsonResponse
+from datetime import datetime
+
 def booking(request):
     if request.method == 'POST':
         city = request.POST.get('city')
@@ -13,15 +20,43 @@ def booking(request):
         adults = request.POST.get('adults')
         children = request.POST.get('children')
 
-        # **馬上跳轉到 showhotel.html，不等待爬蟲完成**
+        errors = {}
+
+        # 檢查日期格式
+        try:
+            checkin_date = datetime.strptime(checkin, '%Y-%m-%d')
+            checkout_date = datetime.strptime(checkout, '%Y-%m-%d')
+
+            if checkin_date >= checkout_date:
+                errors['date_error'] = "入住日期必須早於退房日期"
+        except ValueError:
+            errors['date_error'] = "日期格式錯誤，請選擇有效日期"
+
+        # 如果有錯誤，返回 `booking.html` 並顯示錯誤訊息
+        if errors:
+            return render(request, 'booking.html', {
+                "cities": City.objects.all(),
+                "checkin": checkin,
+                "checkout": checkout,
+                "trip_name": request.GET.get('trip', ''),
+                "errors": errors
+            })
+
+        # 沒有錯誤，則重定向到 `showhotel.html`
         return redirect(f'/showhotel/?city={city}&checkin={checkin}&checkout={checkout}&adults={adults}&children={children}')
-    
-    # 如果有從 GET 傳遞日期，傳入 context 供 booking.html 預設值使用
+
+    # GET 請求，提供預設值
     checkin = request.GET.get('checkin', '')
     checkout = request.GET.get('checkout', '')
     trip_name = request.GET.get('trip', '')
-    return render(request, 'booking.html', {"cities": City.objects.all(), "checkin": checkin, "checkout": checkout,"trip_name": trip_name,})
 
+    return render(request, 'booking.html', {
+        "cities": City.objects.all(),
+        "checkin": checkin,
+        "checkout": checkout,
+        "trip_name": trip_name,
+        "errors": {}  # 預設無錯誤
+    })
 
 from django.http import StreamingHttpResponse
 import json
@@ -150,7 +185,7 @@ def lodging(request):
             "lodgings": lodgings if lodgings else None  # 如果有住宿就顯示完整 `Lodging`，否則為 None
         })
 
-    return render(request, "stay-management2.html", {"trip_data": trip_data})  # ✅ 有草稿行程，跳轉到 stay-management.html
+    return render(request, "stay-management.html", {"trip_data": trip_data})  # ✅ 有草稿行程，跳轉到 stay-management.html
 
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
