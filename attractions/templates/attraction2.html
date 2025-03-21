@@ -37,9 +37,9 @@
     <!--====== Style CSS ======-->
     <link rel="stylesheet" href="{% static 'lodging/assets/css/style.css' %}">
 
-    <style>
-   /* 統一圖片大小 */
-.destination_image {
+  <style>
+  /* 統一圖片大小 */
+  .destination_image {
     width: 100%;
     height: 250px; /* 固定高度 */
     overflow: hidden;
@@ -72,7 +72,39 @@
   .col-lg-4.col-md-6 {
     margin-bottom: 20px; /* 下方增加 20px 間距 */
   }
-    </style>
+  html, body {
+    height: 100%;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .footer_area {
+    margin-top: auto; /* 讓 footer 貼到底部 */
+  }
+  /* 確保 footer 不會有多餘的空白 */
+  .footer_widget {
+    padding-top: 40px !important; /* ✅ 減少頂部間距 */
+    padding-bottom: 50px !important; /* ✅ 減少底部間距 */
+  }
+  
+  /* 統一圖片大小 */
+  .destination_image {
+    width: 100%;
+    height: 250px; /* 固定高度 */
+    overflow: hidden; /* 超出部分隱藏 */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .destination_image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover; /* 保持比例,裁切超出範圍 */
+  }
+    
+  </style>
               
 
 </head>
@@ -103,66 +135,64 @@
     <!--====== HEADER PART START ======-->
 
     <section class="header_area">
-        <div class="header_navbar sticky">
-            <div class="container">
-                <div class="row">
-                    <div class="col-lg-12">
-                        <nav class="navbar navbar-expand-lg">
-                            <a class="navbar-brand" href="{% if request.user.is_authenticated %}/home{% else %}/{% endif %}">
-                                <img src="{% static 'lodging/assets/images/logo2.png' %}" alt="Logo">
-                            </a>
-                            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-                                <span class="toggler-icon"></span>
-                                <span class="toggler-icon"></span>
-                                <span class="toggler-icon"></span>
-                            </button>
+      <div class="header_navbar sticky">
+          <div class="container">
+              <div class="row">
+                  <div class="col-lg-12">
+                      <nav class="navbar navbar-expand-lg">
+                          <a class="navbar-brand" href="{% if request.user.is_authenticated %}/home{% else %}/{% endif %}">
+                              <img src="{% static 'lodging/assets/images/logo2.png' %}" alt="Logo">
+                          </a>
+                          <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                              <span class="toggler-icon"></span>
+                              <span class="toggler-icon"></span>
+                              <span class="toggler-icon"></span>
+                          </button>
 
-                            <div class="collapse navbar-collapse sub-menu-bar" id="navbarSupportedContent">
-                                <ul id="nav" class="navbar-nav ml-auto">
-                                    <li class="nav-item active">
-                                        <a class="page-scroll" href="/home">首頁</a>
-                                    </li>
-                                    <li class="nav-item">
-                                        <a class="page-scroll" href="{% if request.user.is_authenticated %}/home#about{% else %}/#about{% endif %}">關於我們</a>
-                                    </li>
-                                    <li class="nav-item">
-                                        <a class="page-scroll" href="/findattractions">尋找景點</a>
-                                    </li>
-                                    <li class="nav-item">
-                                        <a class="page-scroll" href="#services">我的行程</a>
-                                    </li>
-                                    <li class="nav-item">
-                                        <a class="page-scroll" href="/booking">尋找飯店</a>
-                                    </li>
-                                    <li class="nav-item">
-                                        <a class="page-scroll" href="#blog">住宿管理</a>
-                                    </li>
-                                    <li class="nav-item" id="user-menu">
-                                        <a class="page-scroll" href="/login/">登入</a>
-                                    </li>
-                                    
-                                    <script>
-                                        document.addEventListener("DOMContentLoaded", function () {
-                                            fetch("/api/user-status/", { credentials: "include" })  // 確保傳送 cookies
-                                                .then(response => response.json())
-                                                .then(data => {
-                                                    let userMenu = document.getElementById("user-menu");
-                                                    if (data.is_authenticated) {
-                                                        userMenu.innerHTML = `<a href="/logout/">${data.username}（登出）</a>`;
-                                                    }
-                                                });
-                                        });
-                                    </script>       
-                                </ul>
-                            </div> <!-- navbar collapse -->
-                        </nav> <!-- navbar -->
-                    </div>
-                </div> <!-- row -->
-            </div> <!-- container -->
-        </div> <!-- header navbar -->    
-    </section>
+                          <div class="collapse navbar-collapse sub-menu-bar" id="navbarSupportedContent">
+                              <ul id="nav" class="navbar-nav ml-auto">
+                                  <li class="nav-item active">
+                                      <a class="page-scroll" href="{% if request.user.is_authenticated %}/home{% else %}/{% endif %}">首頁</a>
+                                  </li>
+                                  <li class="nav-item">
+                                      <a class="page-scroll" href="{% if request.user.is_authenticated %}/home#about{% else %}/#about{% endif %}">關於我們</a>
+                                  </li>
+                                  <li class="nav-item">
+                                      <a class="page-scroll" href="{% if request.user.is_authenticated %}/findattractions{% else %}/showattractions{% endif %}">尋找景點</a>
+                                  </li>
+                                  <li class="nav-item">
+                                      <a class="page-scroll" href="#services">我的行程</a>
+                                  </li>
+                                  <li class="nav-item">
+                                      <a class="page-scroll" href="#blog">住宿管理</a>
+                                  </li>
+                                  <li class="nav-item" id="user-menu">
+                                      <a class="page-scroll" href="/login/">登入</a>
+                                  </li>
+                                  
+                                  <script>
+                                      document.addEventListener("DOMContentLoaded", function () {
+                                          fetch("/api/user-status/", { credentials: "include" })  // 確保傳送 cookies
+                                              .then(response => response.json())
+                                              .then(data => {
+                                                  let userMenu = document.getElementById("user-menu");
+                                                  if (data.is_authenticated) {
+                                                      userMenu.innerHTML = `<a href="/logout/">${data.username}（登出）</a>`;
+                                                  }
+                                              });
+                                      });
+                                  </script>       
+                              </ul>
+                          </div> <!-- navbar collapse -->
+                      </nav> <!-- navbar -->
+                  </div>
+              </div> <!-- row -->
+          </div> <!-- container -->
+      </div> <!-- header navbar -->    
+  </section>
 
-    <!--====== HEADER PART ENDS ======-->
+  <!--====== HEADER PART ENDS ======-->
+
     <!--====== CONTACT PART START ======-->
 
     <section id="contact" class="contact_area pt-120 pb-130">
@@ -210,23 +240,6 @@
         </div>
       </section>
           
-    <style>
-    /* 統一圖片大小 */
-    .destination_image {
-        width: 100%;
-        height: 250px; /* 固定高度 */
-        overflow: hidden; /* 超出部分隱藏 */
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
-    
-    .destination_image img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover; /* 保持比例,裁切超出範圍 */
-    }
-    </style>
     
     <script>
         document.getElementById("searchForm").addEventListener("submit", function(event) {
@@ -288,65 +301,43 @@
   
     <!--====== FOOTER PART START ======-->
 
-    <section id="footer" class="footer_area">
-      <div class="footer_widget pt-80 pb-130">
+    <section id="footer" class="footer_area mt-auto">
+      <div class="footer_widget pt-30 pb-30">
           <div class="container">
               <div class="row">
                   <div class="col-lg-4 col-md-6 order-md-1 order-lg-1">
                       <div class="footer_about mt-50">
                           <a href="{% if request.user.is_authenticated %}/home{% else %}/{% endif %}"><img src="/static/assets/images/logo.png" alt="logo"></a>
-                          <p>Lorem ipsum dolor sifsddt amet, conse tetur sadipscing elitr, sed diam onumy eirmod tempor invidunt ut labore et dolore magna aliquya.</p>
-                          <ul class="social">
-                              <li><a class="social_1" href="javascript:void(0)"><i class="lni lni-facebook-original"></i></a></li>
-                              <li><a class="social_2" href="javascript:void(0)"><i class="lni lni-twitter-original"></i></a></li>
-                              <li><a class="social_3" href="https://www.instagram.com/__simon1121/"><i class="lni lni-instagram-original"></i></a></li>
-                              <li><a class="social_4" href="javascript:void(0)"><i class="lni lni-linkedin-original"></i></a></li>
-                          </ul>
+                          <p>TapTrip 一站式智能旅遊規劃平台，結合行程安排、天氣提醒、地圖導航與住宿管理，讓自由行更輕鬆、高效、無憂！</p>
                       </div> <!-- footer about -->
                   </div>
                   <div class="col-lg-4 col-md-12 order-md-3 order-lg-2">
                       <div class="footer_link_wrapper d-flex flex-wrap">
                           <div class="footer_link mt-45">
-                              <h4 class="footer_title">Quick Link</h4>
+                              <h4 class="footer_title"><strong>快捷連結</strong></h4>
                               <ul class="link">
-                                  <li><a href="javascript:void(0)">Home</a></li>
-                                  <li><a href="javascript:void(0)">About</a></li>
-                                  <li><a href="javascript:void(0)">Trip Pacakge</a></li>
-                                  <li><a href="javascript:void(0)">Services</a></li>
-                                  <li><a href="javascript:void(0)">Gallery</a></li>
-                              </ul>
-                          </div> <!-- footer link -->
-                          <div class="footer_link mt-45">
-                              <h4 class="footer_title">Support</h4>
-                              <ul class="link">
-                                  <li><a href="javascript:void(0)">Customer Support</a></li>
-                                  <li><a href="javascript:void(0)">Privacy & Policy</a></li>
-                                  <li><a href="javascript:void(0)">Terms & Condition</a></li>
-                                  <li><a href="javascript:void(0)">Forum</a></li>
-                                  <li><a href="javascript:void(0)">Tour Guide</a></li>
+                                  <li><a href="{% if request.user.is_authenticated %}/home{% else %}/{% endif %}">首頁</a></li>
+                                  <li><a href="{% if request.user.is_authenticated %}/home#about{% else %}/#about{% endif %}">關於我們</a></li>
+                                  <li><a href="{% if request.user.is_authenticated %}/home#attractions{% else %}/#attractions{% endif %}">景點</a></li>
+                                  <li><a href="{% if request.user.is_authenticated %}/home#services{% else %}/#services{% endif %}">住宿</a></li>
+                                  <li>
+                                      {% if request.user.is_authenticated %}
+                                          <a href="/logout">登出</a>
+                                      {% else %}
+                                          <a href="/login">登入</a>
+                                      {% endif %}
+                                  </li>          
                               </ul>
                           </div> <!-- footer link -->
                       </div> <!-- footer link wrapper -->
                   </div>
-                  <div class="col-lg-4 col-md-6 order-md-2 order-lg-3">
-                      <div class="footer_subscribe mt-45">
-                          <h4 class="footer_title">Subscribe Newsletter</h4>
-                          <p>Lorem ipsum dolor sit amet, consetetur sadip scing elitr, sed diam.</p>
-                          <div class="subscribe_form">
-                              <form action="#">
-                                  <input type="text" placeholder="Enter email">
-                                  <button><i class="lni lni-arrow-right"></i></button>
-                              </form>
-                          </div>
-                      </div> <!-- footer subscribe -->
-                  </div>
               </div> <!-- row -->
           </div> <!-- container -->
-          <p class="text-center mt-90"><a target="_blank" href="http://www.mobanwang.com/" title="网页模板">网页模板</a></p>
       </div> <!-- footer widget -->
   </section>
 
   <!--====== FOOTER PART ENDS ======-->
+
     
     <!--====== BACK TOP TOP PART START ======-->
 
