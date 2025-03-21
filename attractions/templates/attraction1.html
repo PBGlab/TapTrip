@@ -1,0 +1,700 @@
+{% load static %}
+
+<!doctype html>
+<html class="no-js" lang="en">
+
+<head>
+    <meta charset="utf-8">
+    
+    <!--====== Title ======-->
+    <title>尋找景點</title>
+    
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!--====== Favicon Icon ======-->
+    <link rel="shortcut icon" href="{% static 'lodging/assets/images/favicon.png' %}" type="image/png">
+    
+	<link rel="stylesheet" href="{% static 'lodging/assets/css/magnific-popup.css' %}">
+	<link rel="stylesheet" href="{% static 'lodging/assets/css/slick.css' %}">
+        
+    <!--====== Animate CSS ======-->
+    <link rel="stylesheet" href="{% static 'lodging/assets/css/animate.css' %}">
+        
+    <!--====== Nice Select CSS ======-->
+    <link rel="stylesheet" href="{% static 'lodging/assets/css/nice-select.css' %}">
+        
+        
+    <!--====== Line Icons CSS ======-->
+    <link rel="stylesheet" href="{% static 'lodging/assets/css/LineIcons.2.0.css' %}">
+        
+    <!--====== Bootstrap CSS ======-->
+    <link rel="stylesheet" href="{% static 'lodging/assets/css/bootstrap.4.5.2.min.css' %}">
+    
+    <!--====== Default CSS ======-->
+    <link rel="stylesheet" href="{% static 'lodging/assets/css/default.css' %}">
+    
+    <!--====== Style CSS ======-->
+    <link rel="stylesheet" href="{% static 'lodging/assets/css/style.css' %}">
+
+  <style>
+  /* 統一圖片大小 */
+  .destination_image {
+    width: 100%;
+    height: 250px; /* 固定高度 */
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .destination_image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover; /* 等比例裁切,保持圖片比例 */
+  }
+  
+  /* 統一卡片高度,讓內容垂直分布 */
+  .single_destination {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    min-height: 400px; /* 可依需求調整 */
+  }
+  
+  /* 讓內容區塊填滿剩餘空間,避免卡片高度不一 */
+  .destination_content {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+  .col-lg-4.col-md-6 {
+    margin-bottom: 20px; /* 下方增加 20px 間距 */
+  }
+  html, body {
+    height: 100%;
+    margin: 0;
+    
+  }
+
+  .footer_area {
+    margin-top: auto; /* 讓 footer 貼到底部 */
+  }
+  /* 確保 footer 不會有多餘的空白 */
+  .footer_widget {
+    padding-top: 40px !important; /* ✅ 減少頂部間距 */
+    padding-bottom: 50px !important; /* ✅ 減少底部間距 */
+  }
+  
+  /* 統一圖片大小 */
+  .destination_image {
+    width: 100%;
+    height: 250px; /* 固定高度 */
+    overflow: hidden; /* 超出部分隱藏 */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .destination_image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover; /* 保持比例,裁切超出範圍 */
+  }
+  #trip-date-selection {
+    height: 100%;
+    min-height: 500px; /* 確保左側區塊不會太短 */
+    border-right: 1px solid #ddd;
+  }
+
+  /* 左側區塊 */
+#trip-date-selection {
+  min-height: 600px;         /* 保證左側有足夠高度 */
+  border-right: 1px solid #ddd;
+}
+
+/* 行程日期列表樣式 */
+.list-group-item {
+  cursor: pointer;
+  word-wrap: break-word;
+  white-space: normal;
+  border-radius: 12px; /* 圓角 */
+  box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1); /* 添加陰影提升立體感 */
+  margin-bottom: 30px; /* 區塊間距 */
+
+}
+.list-group-item.trip-day {
+  background-color: rgb(13, 40, 67); /* 只影響行程區塊 */
+}
+
+.attraction-list .list-group-item {
+  background-color: #ffffff !important; /* 確保景點列表為白色 */
+  color: #000000; /* 黑色字體確保可讀性 */
+}
+
+
+.trip-day-title {
+  color: white; 
+}
+
+#trip-list {
+  margin-top: 50px;  /* 選單與列表之間的間距 */
+  width: 100%;  /* 避免超出 */
+  max-width: 100%;
+}
+
+.list-group {
+  max-width: 100%;
+  overflow-x: auto;
+  white-space: nowrap;
+}
+
+/* 右側搜尋區域 */
+#result-list {
+  display: flex;
+  flex-wrap: wrap;
+  padding: 20px;
+  justify-content: space-between;
+}
+#trip-date-selection {
+  position: sticky;
+  top: 0;              /* 固定在頁面頂部 */
+  height: 100vh;       /* 佔滿整個視窗高度 */
+  overflow-y: auto;    /* 超出部分自動出現滾動條 */
+}
+
+.contact_area {
+  background-color: #ffffff;
+}
+
+.attraction-image {
+  width: 60px;
+  height: 60px;
+  object-fit: cover;
+  margin-right: 10px;
+  border-radius: 5px;
+  margin-left: 0; /* 確保圖片沒有左邊距 */  
+}
+.add-to-trip {
+  display: flex;
+  align-items: center; /* 垂直置中 */
+  gap: 10px; /* 設定元素之間的間距 */
+}
+
+.trip-date-select {
+  width: auto; /* 讓下拉選單根據內容調整寬度 */
+}
+
+.add-to-trip button {
+  white-space: nowrap; /* 避免按鈕文字換行 */
+}
+
+</style>
+              
+
+</head>
+
+<body>
+
+    <!--====== PRELOADER PART START ======-->
+
+    <div class="preloader">
+        <div class="loader">
+            <div class="ytp-spinner">
+                <div class="ytp-spinner-container">
+                    <div class="ytp-spinner-rotator">
+                        <div class="ytp-spinner-left">
+                            <div class="ytp-spinner-circle"></div>
+                        </div>
+                        <div class="ytp-spinner-right">
+                            <div class="ytp-spinner-circle"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!--====== PRELOADER PART ENDS ======-->
+    <!--====== HEADER PART START ======-->
+
+    <section class="header_area">
+      <div class="header_navbar sticky">
+          <div class="container">
+              <div class="row">
+                  <div class="col-lg-12">
+                      <nav class="navbar navbar-expand-lg">
+                          <a class="navbar-brand" href="{% if request.user.is_authenticated %}/home{% else %}/{% endif %}">
+                              <img src="{% static 'lodging/assets/images/logo2.png' %}" alt="Logo">
+                          </a>
+                          <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                              <span class="toggler-icon"></span>
+                              <span class="toggler-icon"></span>
+                              <span class="toggler-icon"></span>
+                          </button>
+
+                          <div class="collapse navbar-collapse sub-menu-bar" id="navbarSupportedContent">
+                              <ul id="nav" class="navbar-nav ml-auto">
+                                  <li class="nav-item active">
+                                      <a class="page-scroll" href="/home">首頁</a>
+                                  </li>
+                                  <li class="nav-item">
+                                      <a class="page-scroll" href="/home#about">關於我們</a>
+                                  </li>
+                                  <li class="nav-item">
+                                      <a class="page-scroll" href="/findattractions">尋找景點</a>
+                                  </li>
+                                  <li class="nav-item">
+                                      <a class="page-scroll" href="/lodging">住宿管理</a>   <!-- 路由尚未完善 -->
+                                  </li>
+                                  <li class="nav-item">
+                                      <a class="page-scroll" href="/trips">我的行程</a>  <!-- 路由尚未完善 -->
+                                  </li>
+                                  <li class="nav-item" id="user-menu">
+                                      <a class="page-scroll" href="/login/">登入</a>
+                                  </li>
+                                  
+                                  <script>
+                                      document.addEventListener("DOMContentLoaded", function () {
+                                          fetch("/api/user-status/", { credentials: "include" })  // 確保傳送 cookies
+                                              .then(response => response.json())
+                                              .then(data => {
+                                                  let userMenu = document.getElementById("user-menu");
+                                                  if (data.is_authenticated) {
+                                                      userMenu.innerHTML = `<a href="/logout/">${data.username}（登出）</a>`;
+                                                  }
+                                              });
+                                      });
+                                  </script>                                    
+                              </ul>
+                          </div> <!-- navbar collapse -->
+                      </nav> <!-- navbar -->
+                  </div>
+              </div> <!-- row -->
+          </div> <!-- container -->
+      </div> <!-- header navbar -->    
+  </section>
+
+  <!--====== HEADER PART ENDS ======-->
+
+
+
+
+<!--====== 版面左右分佈 (獨立區塊) ======-->
+<div class="container-fluid">
+  <div class="row">
+      <!-- 左側：行程日期選擇(START) -->
+      <div class="col-md-3 bg-light p-4" id="trip-date-selection">
+        <div style="margin: 100px 0 17px; text-align: center;">
+            <h3>請選擇要規劃的行程</h3>
+        </div>
+
+        <!-- 行程選擇下拉選單（由 JS 自動填入） -->
+        <select id="select-trip" name="trip" class="form-control" onchange="updateTripList()">
+          <option value="">請選擇行程</option>
+        </select>
+
+        <!-- 行程日期與景點區塊（由 JS 自動生成） -->
+        <ul class="list-group" id="trip-list"></ul>
+
+        <!-- 尚未建立行程時的提示（由 JS 控制是否顯示） -->
+        <div id="no-trips-message" style="display: none; margin-top: 10px; margin-bottom: 17px; text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 90%;">
+          <h3>目前尚未建立行程</h3>
+          <p>請先前往建立行程</p>
+          <a class="main-btn more-info-btn" href="/create?message=建立你的專屬行程" target="_blank">
+            建立行程
+          </a>
+        </div>
+      </div>
+      <!-- 左側：行程日期(END) -->
+
+    <!-- 右側：景點搜尋 (獨立) -->
+    <div class="col-md-9 p-4">
+      <section id="contact" class="contact_area pt-120 pb-130">
+        <!-- 移除這裡的 container，避免再次限制寬度 -->
+        <div class="row justify-content-center">
+          <div class="col-lg-8">
+            <div class="section_title text-center pb-25">
+              <h3 class="title">探索景點，加入你的行程！</h3>
+              <p>Explore and add spots to your trip!</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="contact_form">
+          <form id="searchForm" method="POST">
+            {% csrf_token %}
+            <div class="row">
+              <div class="col-lg-12">
+                <!-- 使用 Flexbox 排版 -->
+                <div class="single_form d-flex justify-content-between align-items-center" style="padding:0 20%;">
+                  <select id="city" name="city">
+                    {% for city in cities %}
+                      <option value="{{ city }}">{{ city }}</option>
+                    {% endfor %}
+                  </select>
+                  <button type="submit" class="main-btn" style="margin-left:10px;">查詢</button>
+                </div>
+              </div>
+            </div>
+          </form>
+        </div>
+
+        <!-- 搜尋結果區域 -->
+        <div id="result-container" style="display: none;">
+          <h2 class="text-center mt-4">搜尋結果</h2>
+          <div id="result-list" class="row d-flex flex-wrap justify-content-start">
+            <!-- AJAX 會填入結果 -->
+          </div>
+        </div>
+
+        <!-- 返回頂部按鈕 -->
+        <div class="text-center mt-5">
+          <button id="backToTop" class="main-btn" style="display: none;margin-left: 20px;">返回頂部</button>
+        </div>
+      </section>
+    </div>
+  </div>
+</div>
+
+    <script>
+        // 搜尋表單送出後更新景點結果
+        document.getElementById("searchForm").addEventListener("submit", function(event) {
+          event.preventDefault();  // 阻止表單提交
+        
+          let formData = new FormData(this);
+          let csrfToken = document.querySelector("[name=csrfmiddlewaretoken]").value;
+        
+          fetch("{% url 'findattractions' %}", {
+            method: "POST",
+            headers: {
+              "X-CSRFToken": csrfToken,
+              "X-Requested-With": "XMLHttpRequest"
+            },
+            body: formData
+          })
+          .then(response => response.json())
+          .then(data => {
+            let resultContainer = document.getElementById("result-container");
+            let resultList = document.getElementById("result-list");
+            resultList.innerHTML = "";  // 清空舊結果
+        
+            data.attractions.forEach((attraction) => {
+              let item = document.createElement("div");
+              item.className = "col-lg-4 col-md-6 d-flex align-items-stretch";
+              item.innerHTML = `
+                <div class="single_destination mt-30 wow fadeIn">
+                    <div class="destination_image">
+                        <a href="${attraction.link}" target="_blank">
+                            <img src="${attraction.image_url}" alt="Destination">
+                        </a>
+                    </div>
+                    <div class="destination_content">
+                        <h2 class="title">
+                            <a href="${attraction.link}" target="_blank"><strong>${attraction.name}</strong></a>
+                        </h2>
+                        <p class="price">${attraction.hashtag}</p>
+        
+                        <!-- 行程選擇與加入按鈕 -->
+                        <div class="add-to-trip">
+                            <label for="trip-date-${attraction.id}"></label>
+                            <select id="trip-date-${attraction.id}" class="form-control trip-date-select">
+                              {% if trips %}
+                                  <option value="">請選擇日期</option>
+                                  {% for trip in trips %}
+                                      {% for day in trip.days %}
+                                          <option value="{{ day.id }}">{{ trip.name }} 第 {{ day.day_number }} 天</option>
+                                      {% endfor %}
+                                  {% endfor %}
+                              {% else %}
+                                  <option value="">尚未建立任何行程</option>
+                              {% endif %}
+                            </select>
+                            <button class="btn btn-primary mt-2" onclick="addToTrip('${attraction.id}', '${attraction.name}', '${attraction.hashtag}', '${attraction.image_url}')"><strong>加入行程</strong></button>
+                        </div>
+                    </div>
+                </div>
+              `;
+              resultList.appendChild(item);
+            });
+        
+            resultContainer.style.display = "block";  // 顯示結果區塊
+            document.getElementById("backToTop").style.display = "inline-block";  // 顯示返回頂部按鈕
+        
+            // 搜尋結果生成後，觸發 select-trip 的 change 事件，更新所有 "選擇日期" 選單內容
+            document.getElementById("select-trip").dispatchEvent(new Event("change"));
+          })
+          .catch(error => console.error("Error:", error));
+        });
+        
+        
+          // ✅ DOM 載入後先抓左側行程資料，並正確渲染下拉選單與隱藏的行程卡片
+          
+          document.addEventListener("DOMContentLoaded", function () {
+            loadTrips();
+        });
+        
+        function loadTrips(callback) {
+            fetch("/api/trips/")
+                .then(response => response.json())
+                .then(data => {
+                    console.log("✅ trips data:", data);
+                    const tripSelect = document.getElementById("select-trip");
+                    const tripList = document.getElementById("trip-list");
+                    const noTripsMessage = document.getElementById("no-trips-message");
+        
+                    const urlParams = new URLSearchParams(window.location.search);
+                    const selectedTripId = urlParams.get("selected_trip");
+        
+                    tripSelect.innerHTML = '<option value="">請選擇行程</option>';
+                    tripList.innerHTML = '';
+        
+                    if (data.trips.length === 0) {
+                        noTripsMessage.style.display = "flex";
+                        return;
+                    } else {
+                        noTripsMessage.style.display = "none";
+                        tripSelect.style.display = "block";
+                    }
+        
+                    data.trips.forEach(trip => {
+                        const option = document.createElement("option");
+                        option.value = trip.id;
+                        option.textContent = trip.name;
+                        tripSelect.appendChild(option);
+        
+                        trip.days.forEach(day => {
+                            const dayLi = document.createElement("li");
+                            dayLi.className = "list-group-item trip-day";
+                            dayLi.dataset.tripId = trip.id;
+                            dayLi.style.display = "none";
+        
+                            const title = document.createElement("h5");
+                            title.className = "trip-day-title";
+                            title.textContent = `${trip.name} 第 ${day.day_number} 天 - ${day.date}`;
+                            title.onclick = () => selectTripDay(trip.id, day.day_number);
+        
+                            dayLi.appendChild(title);
+        
+                            const attractionList = document.createElement("ul");
+                            attractionList.className = "list-group attraction-list mt-2";
+                            attractionList.id = `day_id_${day.id}`;
+        
+                            if (day.attractions && day.attractions.length > 0) {
+                                day.attractions.forEach(attr => {
+                                    const attrLi = document.createElement("li");
+                                    attrLi.className = "list-group-item p-2 d-flex justify-content-between align-items-center";
+                                    attrLi.id = `attraction_${attr.trip_day_attraction_id}`;
+                                    attrLi.innerHTML = `
+                                        <div class="d-flex align-items-center w-100">
+                                            <img src="${attr.image_url}" alt="${attr.name}" class="attraction-image me-3">
+                                            <div class="flex-grow-1">
+                                                <h5 class="mb-1">${attr.name}</h5>
+                                                <p class="text-muted mb-0">${attr.hashtag || "無標籤"}</p>
+                                            </div>
+                                        </div>
+                                        <button class="btn btn-danger btn-sm" onclick="removeAttraction(${attr.trip_day_attraction_id})">刪除</button>
+                                    `;
+                                    attractionList.appendChild(attrLi);
+                                });
+                            } else {
+                                const emptyMsg = document.createElement("p");
+                                emptyMsg.className = "text-muted empty-message";
+                                emptyMsg.textContent = "尚未安排景點";
+                                dayLi.appendChild(emptyMsg);
+                            }
+        
+                            dayLi.appendChild(attractionList);
+                            tripList.appendChild(dayLi);
+                        });
+                    });
+        
+                    if (selectedTripId) {
+                        tripSelect.value = selectedTripId;
+                        setTimeout(updateTripList, 100); // ✅ 確保更新列表
+                    }
+        
+                    if (callback) callback(); // ✅ 確保外部函式可以執行
+                });
+        }
+
+          // ✅ 下拉選單改變 → 顯示對應的行程日
+          function updateTripList() {
+              const selectedTripId = document.getElementById("select-trip").value;
+              document.querySelectorAll(".trip-day").forEach(day => {
+                  if (day.dataset.tripId === selectedTripId) {
+                      day.style.display = "block";
+                  } else {
+                      day.style.display = "none";
+                  }
+              });
+          }
+          
+          // ✅ 加入景點到行程後，同步更新左側並保持展開
+function addToTrip(attractionId, attractionName, hashtag, imageUrl) {
+  const selectedTripDayId = document.getElementById(`trip-date-${attractionId}`).value;
+
+  if (!selectedTripDayId) {
+      alert("請先選擇行程與日期！");
+      return;
+  }
+
+  const csrfToken = document.querySelector("[name=csrfmiddlewaretoken]").value;
+  const selectedTripId = document.getElementById("select-trip").value;  // ✅ 記住當前選擇的行程
+
+  fetch("/api/add-to-trip/", {
+      method: "POST",
+      headers: {
+          "X-CSRFToken": csrfToken,
+          "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+          trip_day_id: selectedTripDayId,
+          attraction: attractionId
+      })
+  })
+  .then(response => response.json())
+  .then(data => {
+      if (data.success) {
+          alert("成功將景點加入行程！");
+          loadTrips(() => {
+              // ✅ 確保行程不會被收起
+              document.getElementById("select-trip").value = selectedTripId;
+              updateTripList();  // ✅ 重新展開選擇的行程
+          });
+      } else {
+          alert("加入失敗，請稍後再試！");
+      }
+  })
+  .catch(error => console.error("Error:", error));
+}
+
+          
+          // ✅ 刪除景點函式
+          function removeAttraction(attractionId) {
+              if (!confirm("確定要刪除此景點嗎？")) return;
+          
+              fetch(`/api/delete-attraction/${attractionId}/`, {
+                  method: "DELETE",
+                  headers: {
+                      "X-CSRFToken": document.querySelector("[name=csrfmiddlewaretoken]").value
+                  }
+              })
+              .then(response => response.json())
+              .then(data => {
+                  if (data.success) {
+                      alert("景點已刪除");
+                      document.getElementById(`attraction_${attractionId}`).remove(); // ✅ 即時移除畫面上的景點
+                  } else {
+                      alert("刪除失敗，請稍後再試");
+                  }
+              })
+              .catch(error => console.error("刪除景點時發生錯誤:", error));
+          }
+          </script>
+                  
+      </script>
+          
+
+    <!--====== CONTACT PART ENDS ======-->
+
+  
+    <!--====== FOOTER PART START ======-->
+
+    <section id="footer" class="footer_area mt-auto">
+      <div class="footer_widget pt-30 pb-30">
+          <div class="container">
+              <div class="row">
+                  <div class="col-lg-4 col-md-6 order-md-1 order-lg-1">
+                      <div class="footer_about mt-50">
+                          <a href="{% if request.user.is_authenticated %}/home{% else %}/{% endif %}"><img src="/static/assets/images/logo.png" alt="logo"></a>
+                          <p>TapTrip 一站式智能旅遊規劃平台，結合行程安排、天氣提醒、地圖導航與住宿管理，讓自由行更輕鬆、高效、無憂！</p>
+                      </div> <!-- footer about -->
+                  </div>
+                  <div class="col-lg-4 col-md-12 order-md-3 order-lg-2">
+                      <div class="footer_link_wrapper d-flex flex-wrap">
+                          <div class="footer_link mt-45">
+                              <h4 class="footer_title"><strong>快捷連結</strong></h4>
+                              <ul class="link">
+                                  <li><a href="{% if request.user.is_authenticated %}/home{% else %}/{% endif %}">首頁</a></li>
+                                  <li><a href="{% if request.user.is_authenticated %}/home#about{% else %}/#about{% endif %}">關於我們</a></li>
+                                  <li><a href="{% if request.user.is_authenticated %}/home#attractions{% else %}/#attractions{% endif %}">景點</a></li>
+                                  <li><a href="{% if request.user.is_authenticated %}/home#services{% else %}/#services{% endif %}">住宿</a></li>
+                                  <li>
+                                      {% if request.user.is_authenticated %}
+                                          <a href="/logout">登出</a>
+                                      {% else %}
+                                          <a href="/login">登入</a>
+                                      {% endif %}
+                                  </li>          
+                              </ul>
+                          </div> <!-- footer link -->
+                      </div> <!-- footer link wrapper -->
+                  </div>
+              </div> <!-- row -->
+          </div> <!-- container -->
+      </div> <!-- footer widget -->
+  </section>
+
+  <!--====== FOOTER PART ENDS ======-->
+
+    
+    <!--====== BACK TOP TOP PART START ======-->
+
+    <a href="#" class="back-to-top"><i class="lni lni-chevron-up"></i></a>
+
+    <!--====== BACK TOP TOP PART ENDS ======-->
+    
+    <!--====== PART START ======-->
+
+<!--
+    <section class="">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-">
+                    
+                </div>
+            </div>
+        </div>
+    </section>
+-->
+
+    <!--====== PART ENDS ======-->
+
+
+
+
+
+    <!--====== Jquery js ======-->
+    <script src="{% static 'lodging/assets/js/vendor/jquery-1.12.4.min.js' %}"></script>
+    <script src="{% static 'lodging/assets/js/vendor/modernizr-3.7.1.min.js' %}"></script>
+    
+    <!--====== Bootstrap js ======-->
+    <script src="{% static 'lodging/assets/js/popper.min.js' %}"></script>
+    <script src="{% static 'lodging/assets/js/bootstrap.4.5.2.min.js' %}"></script>
+	
+	<script src="{% static 'lodging/assets/js/slick.min.js' %}"></script>
+	<script src="{% static 'lodging/assets/js/ajax-contact.js' %}"></script>
+	<script src="{% static 'lodging/assets/js/jquery.magnific-popup.min.js' %}"></script>
+
+    
+    <!--====== Scrolling Nav js ======-->
+    <script src="{% static 'lodging/assets/js/jquery.easing.min.js' %}"></script>
+    <script src="{% static 'lodging/assets/js/scrolling-nav.js' %}"></script>
+    
+    <!--====== Counter Up js ======-->
+    <script src="{% static 'lodging/assets/js/waypoints.min.js' %}"></script>
+    <script src="{% static 'lodging/assets/js/jquery.counterup.min.js' %}"></script>
+    
+    <!--====== Nice Select js ======-->
+    <script src="{% static 'lodging/assets/js/jquery.nice-select.min.js' %}"></script>
+    
+    <!--====== WOW js ======-->
+    <script src="{% static 'lodging/assets/js/wow.min.js' %}"></script>
+    
+    <!--====== Main js ======-->
+    <script src="{% static 'lodging/assets/js/main.js' %}"></script>
+</body>
+
+</html>
