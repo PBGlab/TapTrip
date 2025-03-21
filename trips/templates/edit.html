@@ -1,0 +1,15 @@
+<h2>編輯{{ trip.name }}的每日行程</h2>
+
+<ul>
+    {% for day in trip_days %}
+        <li>
+            日期：{{ day.date }} -
+            景點：{{ day.attractions }} -
+            住宿：{{ day.hotel }}
+            <a href="{% url 'edit_trip_day' day.id trip.id %}">編輯</a>
+        </li>
+    {% empty %}
+        <li>目前尚未有每日行程</li>
+    {% endfor %}
+    <a href="/trips/">查看總覽</a>
+</ul>
