@@ -1,0 +1,554 @@
+{% load static %}
+
+<!doctype html>
+<html class="no-js" lang="en">
+
+<head>
+    <meta charset="utf-8">
+    
+    <!--====== Title ======-->
+    <title>我的行程</title>
+    
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!--====== Favicon Icon ======-->
+    <link rel="shortcut icon" href="{% static 'lodging/assets/images/favicon.png' %}" type="image/png">
+    
+	<link rel="stylesheet" href="{% static 'lodging/assets/css/magnific-popup.css' %}">
+	<link rel="stylesheet" href="{% static 'lodging/assets/css/slick.css' %}">
+        
+    <!--====== Animate CSS ======-->
+    <link rel="stylesheet" href="{% static 'lodging/assets/css/animate.css' %}">
+        
+    <!--====== Nice Select CSS ======-->
+    <link rel="stylesheet" href="{% static 'lodging/assets/css/nice-select.css' %}">
+        
+        
+    <!--====== Line Icons CSS ======-->
+    <link rel="stylesheet" href="{% static 'lodging/assets/css/LineIcons.2.0.css' %}">
+        
+    <!--====== Bootstrap CSS ======-->
+    <link rel="stylesheet" href="{% static 'lodging/assets/css/bootstrap.4.5.2.min.css' %}">
+    
+    <!--====== Default CSS ======-->
+    <link rel="stylesheet" href="{% static 'lodging/assets/css/default.css' %}">
+    
+    <!--====== Style CSS ======-->
+    <link rel="stylesheet" href="{% static 'lodging/assets/css/style.css' %}">
+
+    <style>
+        /* 行程資訊卡片 (trip_section) */
+        .trip_section {
+            background-color:rgb(13, 40, 67); /* 灰色背景 */
+            padding: 25px;
+            border-radius: 12px; /* 圓角 */
+            margin-bottom: 30px; /* 區塊間距 */
+            box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1); /* 添加陰影提升立體感 */
+        }
+        /* ✅ 美化「尚未預定住宿」區塊 */
+        .no-trip {
+            background-color: #FFFFFF; /* 淺灰色 */
+            padding: 20px;
+            text-align: center;
+            border-radius: 10px;
+            margin-top: 15px;
+        }
+
+        .btn-group {
+            display: flex;
+            justify-content: center;  /* ✅ 讓按鈕水平置中 */
+            gap: 15px;  /* ✅ 讓按鈕之間有間距 */
+            margin-top: 15px;  /* ✅ 增加與上方內容的距離 */
+        }
+        
+
+        .delete-btn {
+            background-color: #ff4d4d; /* 紅色刪除按鈕 */
+            border-color: #ff4d4d;
+        }
+
+        .delete-btn:hover {
+            background-color: #cc0000;
+            border-color: #cc0000;
+        }
+        /* 行程名稱 */
+        .trip_section h3 {
+            font-size: 24px;
+            font-weight: bold;
+            color: #333; /* 深色強調 */
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .trip_section h3 i {
+            font-size: 22px;
+            color: #ff9800; /* 加入橘色圖標 */
+            margin-right: 10px;
+        }
+        
+        /* 行程時間 */
+        .trip_section .trip_time {
+            font-size: 16px;
+            color: #555;
+            display: flex;
+            align-items: center;
+            font-weight: 500;
+        }
+        
+        .trip_section .trip_time i {
+            color: #007bff; /* 使用藍色行程圖標 */
+            margin-right: 8px;
+        }
+
+        .separator {
+            white-space: pre; /* 保持空格不被壓縮 */
+        }
+    
+        .single_blog {
+            background-color: #ffffff; /* 白色背景 */
+            padding: 15px;
+            border-radius: 8px; /* 輕微圓角 */
+            box-shadow: 0px 2px 10px rgba(0, 0, 0, 0.1); /* 陰影，讓卡片浮起來 */
+            display: flex;
+            justify-content: space-between; /* 左右對齊 */
+            align-items: center; /* 確保內容垂直置中 */
+            flex-wrap: wrap; /* 允許小螢幕時自動換行 */
+        }
+
+        .blog_title {
+            font-size: 20px; /* 控制標題大小 */
+            font-weight: 500; /* 避免過粗 */
+            margin-bottom: 0; /* 移除預設 margin，避免不對齊 */
+        }
+        .trip_info {
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5); /* 增加陰影，提高可讀性 */
+            color: white; /* 讓 .trip_info 內的所有文字變白色 */
+        }
+
+        .main-btn:hover {
+            background-color: #113BE1;
+            
+        }
+
+        .blog_title {
+            font-size: 20px; /* 控制標題大小 */
+            font-weight: 500; /* 避免過粗 */
+            margin-bottom: 0; /* 移除預設 margin，避免不對齊 */
+        }
+        .trip_info .trip_title,
+        .trip_info .trip_time,
+        .trip_info .separator {
+            color: white; /* 確保標題、時間與分隔符號都變白 */
+        }
+        
+        .trip_info i {
+            color: white; /* 讓所有的 Icon (lni lni-map-marker, lni-calendar) 變白色 */
+        }
+        /* ✅ 美化「尚未預定住宿」區塊 */
+        .no-booking {
+            padding: 20px;
+            text-align: center;
+            border-radius: 10px;
+            margin-top: 15px;
+        }
+        
+        .no-booking .main-btn {
+            color: white !important; /* ✅ 按鈕文字保持白色 */
+        }
+
+        
+
+        .have-booking {
+            display: flex;  /* 讓圖片與文字水平排列 */
+            align-items: center; /* 垂直置中 */
+            gap: 10px; /* ✅ 縮小圖片與文字的間距 */
+            background-color: #F8F9FA; /* ✅ 淺灰色背景 */
+            padding: 10px 15px; /* ✅ 減少內部空間 */
+            border-radius: 8px; /* ✅ 縮小圓角，讓區塊更緊湊 */
+            margin-top: 10px; /* ✅ 減少上方間距 */
+        }
+        
+        .lodging-image img {
+            width: 100px;  /* 設定縮圖大小 */
+            height: 100px; /* 保持圖片為正方形 */
+            object-fit: cover; /* 確保圖片不變形 */
+            border-radius: 8px; /* 圓角讓畫面更柔和 */
+        }
+        
+        .lodging-info {
+            font-size: 20px; /* 縮小文字大小 */
+            color: black
+        }
+         
+        .icon-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px; /* ✅ 設定圓形按鈕大小 */
+            height: 40px;
+            background-color: #EEC41E;
+            color: white;
+            border-radius: 50%; /* ✅ 讓按鈕變成圓形 */
+            text-decoration: none;
+            font-size: 20px;
+            transition: background-color 0.3s;
+        }
+        
+        .icon-btn:hover {
+            background-color: #0056b3;
+        }
+        
+        .more-info-btn {
+            background-color: #007bff; /* ✅ 藍色按鈕 */
+            color: white;
+            text-align: center;
+            display: inline-block; /* ✅ 讓按鈕不佔滿整個 `div`，確保置中 */
+        }
+        
+        .more-info-btn:hover {
+            background-color: #0056b3; /* ✅ 懸停時變深藍色 */  
+        }
+
+        .more-info-btn-container {
+            text-align: center; /* ✅ 讓內部的按鈕水平置中 */
+        }
+    </style> 
+</head>
+
+<body>
+
+    <!--====== PRELOADER PART START ======-->
+
+    <div class="preloader">
+        <div class="loader">
+            <div class="ytp-spinner">
+                <div class="ytp-spinner-container">
+                    <div class="ytp-spinner-rotator">
+                        <div class="ytp-spinner-left">
+                            <div class="ytp-spinner-circle"></div>
+                        </div>
+                        <div class="ytp-spinner-right">
+                            <div class="ytp-spinner-circle"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!--====== PRELOADER PART ENDS ======-->
+
+    <!--====== HEADER PART START ======-->
+
+    <section class="header_area">
+        <div class="header_navbar sticky">
+            <div class="container">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <nav class="navbar navbar-expand-lg">
+                            <a class="navbar-brand" href="{% if request.user.is_authenticated %}/home{% else %}/{% endif %}">
+                                <img src="{% static 'lodging/assets/images/logo2.png' %}" alt="Logo">
+                            </a>
+                            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                                <span class="toggler-icon"></span>
+                                <span class="toggler-icon"></span>
+                                <span class="toggler-icon"></span>
+                            </button>
+
+                            <div class="collapse navbar-collapse sub-menu-bar" id="navbarSupportedContent">
+                                <ul id="nav" class="navbar-nav ml-auto">
+                                    <li class="nav-item active">
+                                        <a class="page-scroll" href="/home">首頁</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="page-scroll" href="{% if request.user.is_authenticated %}/home#about{% else %}/#about{% endif %}">關於我們</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="page-scroll" href="{% if request.user.is_authenticated %}/findattractions{% else %}/showattractions{% endif %}">尋找景點</a>
+                                    </li>
+                                    
+                                    <li class="nav-item">
+                                        <a class="page-scroll" href="/lodging">住宿管理</a>   <!-- 路由尚未完善 -->
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="page-scroll" href="/trips">我的行程</a>  <!-- 路由尚未完善 -->
+                                    </li>
+                                    <li class="nav-item" id="user-menu">
+                                        <a class="page-scroll" href="/login/">登入</a>
+                                    </li>
+                                    
+                                    <script>
+                                        document.addEventListener("DOMContentLoaded", function () {
+                                            fetch("/api/user-status/", { credentials: "include" })  // 確保傳送 cookies
+                                                .then(response => response.json())
+                                                .then(data => {
+                                                    let userMenu = document.getElementById("user-menu");
+                                                    if (data.is_authenticated) {
+                                                        userMenu.innerHTML = `<a href="/logout/">${data.username}（登出）</a>`;
+                                                    }
+                                                });
+                                        });
+                                    </script>                                    
+                                </ul>
+                            </div> <!-- navbar collapse -->
+                        </nav> <!-- navbar -->
+                    </div>
+                </div> <!-- row -->
+            </div> <!-- container -->
+        </div> <!-- header navbar -->    
+    </section>
+
+    <!--====== HEADER PART ENDS ======-->
+
+<!--====== 行程管理 (Blog Part) START ======-->
+<section id="blog" class="blog_area pt-120 pb-130">
+    <div class="container">
+        <!-- 標題區域 -->
+        <div class="row justify-content-center">
+            <div class="col-lg-6">
+                <div class="section_title text-center pb-25">
+                    <h3 class="title">你的旅程，你做主！</h3>
+                    <p>Your journey, your way!</p>
+                </div>
+            </div>
+        </div>
+        <div>
+            <div class="more-info-btn-container">
+                <a class="main-btn more-info-btn" href="/create" target="_blank">
+                    新增行程
+                </a>
+                <a class="main-btn more-info-btn" href="/create" target="_blank">
+                    歷史行程
+                </a>
+            </div>
+        </div>
+        <br> 
+        {% for item in trip_data %}
+            <!-- 行程資訊 -->
+            <div id="trip-{{ item.trip.id }}" class="trip_section">
+                
+                <!-- Flexbox 讓行程資訊與按鈕平行排列 -->
+                <div class="trip_header d-flex justify-content-between align-items-center">
+                    <div class="trip_info">
+                        <h3 class="trip_title">
+                            <i class="lni lni-map-marker"></i> <strong>{{ item.trip.name }}</strong>
+                        </h3>
+                        <p class="trip_time">
+                            <i class="lni lni-calendar"></i> <strong>行程時間 {{ item.trip.start_date }} ~ {{ item.trip.end_date }}</strong>
+                            <span class="separator">  | <strong>行程天數總計 {{ item.total_days }} 天</strong></span>
+                        </p>
+                    </div>
+                </div>
+        
+                <!-- 每日行程資訊 -->
+                {% for day in item.days %}
+                <div class="single_blog d-sm-flex mt-30 align-items-center justify-content-between">
+                    <!-- 左側：標題 -->
+                    <div class="blog_content blog_content_2 media-body">
+                        <h4 class="blog_title">
+                            <strong>第 {{ forloop.counter }} 天</strong> |&nbsp;  {{ day.date }} - 目前已安排 {{ day.attraction_count }} 個景點
+                        </h4>
+                    </div>
+                    
+                    <!-- 右側：添加行程按鈕 -->
+                    <div>
+                        <a href="/findattractions/?selected_trip={{ item.trip.id }}" class="main-btn">添加景點</a>
+                    </div>
+                </div>
+                
+                {% endfor %}
+                <div class="single_blog d-sm-flex mt-30">
+                    <div class="blog_content blog_content_2 media-body">
+                        {% if item.has_lodging %}
+                            <h4 class="booking-title">
+                                <strong>行程已預定的住宿：</strong>
+                            </h4>
+                            <ul class="lodging-list">
+                                {% for lodging in item.lodgings %}
+                                    <li class="have-booking d-flex align-items-center">
+                                        <!-- 縮小的住宿圖片 -->
+                                        <div class="lodging-image">
+                                            <img src="{{ lodging.image }}" alt="{{ lodging.name }}">
+                                        </div>
+                                    
+                                        <!-- 住宿資訊 -->
+                                        <div class="lodging-info">
+                                            <strong>{{ lodging.name }}</strong> 
+                                            地點: {{ lodging.address }}
+                                            <br>入住日期: {{ lodging.checkin }} | 退房日期: {{ lodging.checkout }}
+                                            <p class="reminder-message" style="color: red; font-size: 14px;">
+                                            **重要提示：住宿資訊僅供參考非正式預訂，請前往 > Booking 網站完成實際訂房。**
+                                            </p>
+                                        </div>
+                                        <!-- 右側：添加行程按鈕 -->
+                                        <div>
+                                            <a class="icon-btn" href="{{ lodging.link }}" target="_blank">
+                                                <i class="lni lni-chevron-right"></i>
+                                            </a>
+                                        </div>
+                                        
+
+                                    </li>     
+                                    <hr>   
+                                {% endfor %}
+                            </ul>
+                        {% else %}
+                            <div class="no-booking">
+                                <h4>尚未規劃住宿</h4>
+                                <br>
+                                <a href="/booking/?checkin={{ item.trip.start_date|date:'Y-m-d' }}&checkout={{ item.trip.end_date|date:'Y-m-d' }}&trip={{ item.trip.name }}" class="main-btn">
+                                    前往預定
+                                </a>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>     
+                <!-- 行程管理按鈕 -->
+                <div class="btn-group">
+                    <a href="{% url 'edit_trip' item.trip.id %}" target="_blank" class="main-btn"><strong>編輯行程</strong></a>
+                    <button class="main-btn delete-btn" onclick="deleteTrip({{ item.trip.id }})">
+                    <strong>刪除行程</strong>
+                    </button>
+                </div>
+            </div>
+        {% endfor %}
+    </div> <!-- container -->
+</section>
+<!--====== Blog Part END ======-->
+
+    <script>
+        function getCSRFToken() {
+            return document.cookie.split('; ')
+                .find(row => row.startsWith('csrftoken='))
+                ?.split('=')[1];
+        }
+
+        function deleteTrip(tripId) {
+            if (!confirm("確定要刪除這個行程嗎？")) return;
+
+            fetch(`/delete_trip/${tripId}/`, {
+                method: "DELETE",
+                headers: {
+                    "X-CSRFToken": getCSRFToken()
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert("行程已成功刪除！");
+                    document.getElementById(`trip-${tripId}`).remove();
+
+                    // ✅ 檢查是否還有行程
+                    let remainingTrips = document.querySelectorAll(".trip_section").length;
+                    if (remainingTrips === 0) {
+                        // ✅ 若沒有行程，跳轉到「新增行程」頁面
+                        window.location.href = "/trips/";
+                    }
+                } else {
+                    alert("刪除失敗：" + data.error);
+                }
+            })
+            .catch(error => console.error("刪除錯誤:", error));
+        }
+    </script>
+
+  
+    <!--====== FOOTER PART START ======-->
+
+    <section id="footer" class="footer_area">
+        <div class="footer_widget pt-50 pb-130">
+            <div class="container">
+                <div class="row">
+                    <div class="col-lg-4 col-md-6 order-md-1 order-lg-1">
+                        <div class="footer_about mt-50">
+                            <a href="/home"><img src="/static/assets/images/logo.png" alt="logo"></a>
+                            <p>TapTrip 一站式智能旅遊規劃平台，結合行程安排、天氣提醒、地圖導航與住宿管理，讓自由行更輕鬆、高效、無憂！</p>
+                        </div> <!-- footer about -->
+                    </div>
+                    <div class="col-lg-4 col-md-12 order-md-3 order-lg-2">
+                        <div class="footer_link_wrapper d-flex flex-wrap">
+                            <div class="footer_link mt-45">
+                                <h4 class="footer_title"><strong>快捷連結</strong></h4>
+                                <ul class="link">
+                                    <li><a href="{% if request.user.is_authenticated %}/home{% else %}/{% endif %}">首頁</a></li>
+                                    <li><a href="{% if request.user.is_authenticated %}/home#about{% else %}/#about{% endif %}">關於我們</a></li>
+                                    <li><a href="{% if request.user.is_authenticated %}/home#attractions{% else %}/#attractions{% endif %}">景點</a></li>
+                                    <li><a href="{% if request.user.is_authenticated %}/home#services{% else %}/#services{% endif %}">住宿</a></li>
+                                    <li>
+                                        {% if request.user.is_authenticated %}
+                                            <a href="/logout">登出</a>
+                                        {% else %}
+                                            <a href="/login">登入</a>
+                                        {% endif %}
+                                    </li>                                    
+                                </ul>
+                            </div> <!-- footer link -->
+                        </div> <!-- footer link wrapper -->
+                    </div>
+                </div> <!-- row -->
+            </div> <!-- container -->
+        </div> <!-- footer widget -->
+    </section>
+
+    <!--====== FOOTER PART ENDS ======-->
+    
+    <!--====== BACK TOP TOP PART START ======-->
+
+    <a href="#" class="back-to-top"><i class="lni lni-chevron-up"></i></a>
+
+    <!--====== BACK TOP TOP PART ENDS ======-->
+    
+    <!--====== PART START ======-->
+
+<!--
+    <section class="">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-">
+                    
+                </div>
+            </div>
+        </div>
+    </section>
+-->
+
+    <!--====== PART ENDS ======-->
+
+
+
+
+
+    <!--====== Jquery js ======-->
+    <script src="{% static 'lodging/assets/js/vendor/jquery-1.12.4.min.js' %}"></script>
+    <script src="{% static 'lodging/assets/js/vendor/modernizr-3.7.1.min.js' %}"></script>
+    
+    <!--====== Bootstrap js ======-->
+    <script src="{% static 'lodging/assets/js/popper.min.js' %}"></script>
+    <script src="{% static 'lodging/assets/js/bootstrap.4.5.2.min.js' %}"></script>
+	
+	<script src="{% static 'lodging/assets/js/slick.min.js' %}"></script>
+	<script src="{% static 'lodging/assets/js/ajax-contact.js' %}"></script>
+	<script src="{% static 'lodging/assets/js/jquery.magnific-popup.min.js' %}"></script>
+
+    
+    <!--====== Scrolling Nav js ======-->
+    <script src="{% static 'lodging/assets/js/jquery.easing.min.js' %}"></script>
+    <script src="{% static 'lodging/assets/js/scrolling-nav.js' %}"></script>
+    
+    <!--====== Counter Up js ======-->
+    <script src="{% static 'lodging/assets/js/waypoints.min.js' %}"></script>
+    <script src="{% static 'lodging/assets/js/jquery.counterup.min.js' %}"></script>
+    
+    <!--====== Nice Select js ======-->
+    <script src="{% static 'lodging/assets/js/jquery.nice-select.min.js' %}"></script>
+    
+    <!--====== WOW js ======-->
+    <script src="{% static 'lodging/assets/js/wow.min.js' %}"></script>
+    
+    <!--====== Main js ======-->
+    <script src="{% static 'lodging/assets/js/main.js' %}"></script>
+</body>
+
+</html>
