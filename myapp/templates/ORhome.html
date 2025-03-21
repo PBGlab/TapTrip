@@ -1,0 +1,713 @@
+<head>
+    <meta charset="utf-8">
+    
+    <!--====== Title ======-->
+    <title>TapTrip 旅遊一指通</title>
+    
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!--====== Favicon Icon ======-->
+    <link rel="shortcut icon" href="/static/assets/images/favicon.png" type="image/png">
+    
+    <link rel="stylesheet" href="/static/assets/css/magnific-popup.css">
+    <link rel="stylesheet" href="/static/assets/css/slick.css">
+        
+    <!--====== Animate CSS ======-->
+    <link rel="stylesheet" href="/static/assets/css/animate.css">
+        
+    <!--====== Nice Select CSS ======-->
+    <link rel="stylesheet" href="/static/assets/css/nice-select.css">
+        
+    <!--====== Line Icons CSS ======-->
+    <link rel="stylesheet" href="/static/assets/css/LineIcons.2.0.css">
+        
+    <!--====== Bootstrap CSS ======-->
+    <link rel="stylesheet" href="/static/assets/css/bootstrap.4.5.2.min.css">
+    
+    <!--====== Default CSS ======-->
+    <link rel="stylesheet" href="/static/assets/css/default.css">
+    
+    <!--====== Style CSS ======-->
+    <link rel="stylesheet" href="/static/assets/css/style.css">
+    
+    <!--====== 自訂樣式 ======-->
+    <style>
+        .fixed-size-image {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+        }
+    </style>
+    <style>
+        .destination_content {
+            min-height: 120px; /* 設定固定的最小高度 */
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between; /* 讓標籤 & 按鈕對齊 */
+        }
+
+        .destination_content p {
+            flex-grow: 1; /* 讓 hashtag 撐開區塊 */
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+    </style>
+</head>
+
+
+<body>
+
+    <!--====== PRELOADER PART START ======-->
+
+    <div class="preloader">
+        <div class="loader">
+            <div class="ytp-spinner">
+                <div class="ytp-spinner-container">
+                    <div class="ytp-spinner-rotator">
+                        <div class="ytp-spinner-left">
+                            <div class="ytp-spinner-circle"></div>
+                        </div>
+                        <div class="ytp-spinner-right">
+                            <div class="ytp-spinner-circle"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!--====== PRELOADER PART ENDS ======-->
+
+    <!--====== HEADER PART START ======-->
+
+    <section class="header_area">
+        <div class="header_navbar">
+            <div class="container">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <nav class="navbar navbar-expand-lg">
+                            <a class="navbar-brand" href="#home">
+                                <img src="/static/assets/images/logo.png" alt="Logo">
+                            </a>
+                            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                                <span class="toggler-icon"></span>
+                                <span class="toggler-icon"></span>
+                                <span class="toggler-icon"></span>
+                                </button>
+                                    {% comment %} 首頁功能選單請勿變更 {% endcomment %}
+                            <div class="collapse navbar-collapse sub-menu-bar" id="navbarSupportedContent">
+                                <ul id="nav" class="navbar-nav ml-auto">
+                                    {% comment %} 首頁功能選單請勿變更 {% endcomment %}
+                                    <li class="nav-item active">
+                                        <a class="page-scroll" href="#home">首頁</a>
+                                    </li>
+                                    {% comment %} 首頁功能選單請勿變更 {% endcomment %}
+                                    <li class="nav-item">
+                                        <a class="page-scroll" href="{% if request.user.is_authenticated %}/home#about{% else %}/#about{% endif %}">關於我們</a>
+                                    </li>
+                                    {% comment %} 首頁功能選單請勿變更 {% endcomment %}
+                                    <li class="nav-item">
+                                        <a class="page-scroll" href="#attractions">尋找景點</a>
+                                    </li>
+                                    {% comment %} 首頁功能選單請勿變更 {% endcomment %}
+                                    <li class="nav-item">
+                                        <a class="page-scroll" href="#services">我的行程</a>
+                                    </li>
+                                    {% comment %} 首頁功能選單請勿變更 {% endcomment %}
+                                    <li class="nav-item">
+                                        <a class="page-scroll" href="#booking">尋找飯店</a>
+                                    </li>
+                                    {% comment %} 首頁功能選單請勿變更 {% endcomment %}
+                                    <li class="nav-item">
+                                        <a class="page-scroll" href="#blog">住宿管理</a>
+                                    </li>
+                                    <li class="nav-item" id="user-menu">
+                                        <a class="page-scroll" href="#contact">帳號管理</a>  <!-- 預設顯示「帳號管理」 -->
+                                    </li>
+                                    <script>
+                                        document.addEventListener("DOMContentLoaded", function () {
+                                            let username = localStorage.getItem("username");  // 取得 `username`
+                                            let userMenu = document.getElementById("user-menu");
+                                    
+                                            if (username) {
+                                                // ✅ 已登入，顯示 `username` 並設定登出連結
+                                                userMenu.innerHTML = `<a href="/logout/">${username}</a>`;
+                                            }
+                                        });
+                                    </script>
+                                    
+                                </ul>
+                            </div> <!-- navbar collapse -->
+                        </nav> <!-- navbar -->
+                    </div>
+                </div> <!-- row -->
+            </div> <!-- container -->
+        </div> <!-- header navbar -->
+
+        <div id="home" class="header_slider">
+            <div class="single_slider bg_cover d-flex align-items-center" style="background-image: url(static/assets/images/taipei.jpg)">
+                <div class="container">
+                    <div class="row">
+                        <div class="col-lg-6 col-md-8">
+                            <div class="slider_content">
+                                <h2 class="slider_title wow fadeInLeftBig" data-wow-duration="1.3s" data-wow-delay="0.2s">規劃、預訂、出發</h2>
+                                <h2 class="slider_title wow fadeInLeftBig" data-wow-duration="1.3s" data-wow-delay="0.2s"><span>一指搞定</span></h2>
+                                <p class="wow fadeInLeftBig" data-wow-duration="1.3s" data-wow-delay="0.5s">Seamless Travel, Right at Your Fingertips.Plan, Book,</p>
+                                <p class="wow fadeInLeftBig" data-wow-duration="1.3s" data-wow-delay="0.5s">Go – All with a Tap!</p>
+                                <a href="javascript:void(0)" class="main-btn wow fadeInLeftBig" data-wow-duration="1.3s" data-wow-delay="0.8s">立即規劃</a>
+                            </div> <!-- slider content -->
+                        </div>
+                    </div> <!-- row -->
+                </div> <!-- container -->
+            </div> <!-- single slider -->
+        </div> <!-- header slider -->
+    </section>
+
+    <!--====== HEADER PART ENDS ======-->
+    
+ <!--====== ABOUT PART START ======-->
+
+<section id="about" class="about_area pt-130 pb-130">
+    <div class="about_wrapper">
+        <div class="about_image bg_cover" style="background-image: url(static/assets/images/about.jpg)"></div> <!-- about image -->
+        <div class="container">
+            <div class="row justify-content-end">
+                <div class="col-lg-6">
+                    <div class="about_content">
+                        <div class="section_title">
+                            <h3 class="title">關於我們<br> About <span>TapTrip</span></h3>
+                            <p><strong>TapTrip – 你的智能自駕遊行程規劃平台</strong></p>
+                            <p>TapTrip 致力於提供高效、直覺且安全的旅遊規劃體驗，讓每位自駕旅客都能根據個人需求輕鬆打造理想行程。不論是週末短途旅行，還是跨縣市的深度探索，我們都為你提供最靈活、便捷的規劃方式。</p>
+                            <p>我們的系統整合多項實用功能，包括行程規劃、天氣預報、住宿推薦及視覺化地圖導航，幫助旅客快速制定最合適的旅行計畫。透過 Google Maps API 讓路線視覺化，結合即時天氣資訊與住宿平台推薦，確保用戶在規劃旅程時擁有最完整的資訊，讓每一趟旅程都更安心順利。</p>
+
+                            <p><strong>Our Mission｜願景</strong></p>
+                            <p>我們的目標是透過科技提升國內自駕旅遊的便利性與安全性，讓用戶都能無憂無慮地探索台灣。TapTrip 不只是行程規劃工具，更是一個全方位的智能旅遊平台，讓旅行變得更加輕鬆、個人化且富有樂趣。</p>
+                            <!-- 隱藏的內容區域 -->
+                            <div id="more-content" style="display: none;">
+                                <p><strong>Key Features｜核心功能</strong></p>
+                                <p><strong></strong></p>
+                                <ul class="about_features">
+                                    <li><strong>行程規劃：</strong> 自由設定目的地，輕鬆安排專屬行程，讓旅程順暢且高效。</li>
+                                    <li><strong>即時天氣：</strong> 根據行程日期與地點提供天氣預報與警示。</li>
+                                    <li><strong>住宿預覽：</strong> 整合訂房平台，快速篩選與預覽飯店資訊。</li>
+                                    <li><strong>路線視覺化：</strong> 透過地圖技術呈現行程動線，清晰顯示景點之間的距離。</li>
+                                    <li><strong>個人化管理：</strong> 在過往行程，快速複製、編輯，並輕鬆分享給旅伴或朋友。</li>
+                                </ul>
+                            
+                                <p><strong>Join Us｜開啟您的旅程</strong></p>
+                                <p>無論是獨自探險、與好友同行，或是規劃家庭度假，TapTrip 提供全面的行程規劃解決方案，幫助您輕鬆規劃每一次旅行，確保旅途順利，體驗更高效的旅遊方式。</p>
+                            </div>
+                        </div> <!-- section title -->
+                        <button id="toggle-btn" class="main-btn" onclick="toggleReadMore()">查看更多</button>
+                    </div>
+                </div> <!-- row -->
+            </div> <!-- container -->
+        </div> <!-- about wrapper -->
+    </section>
+
+
+
+<script>
+function toggleReadMore() {
+    var content = document.getElementById("more-content");
+    var button = document.getElementById("toggle-btn");
+
+    if (content.style.display === "none") {
+        content.style.display = "block";
+        button.textContent = "收起"; // 展開後按鈕改成 "Read Less"
+    } else {
+        content.style.display = "none";
+        button.textContent = "查看更多"; // 收起時按鈕回復 "Read More"
+    }
+}
+</script>
+
+<!--====== ABOUT PART ENDS ======-->
+    
+    <!--====== DESTINATION PART START ======-->
+    <section id="attractions" class="destination_area pt-130 pb-130">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-lg-6">
+                    <div class="section_title text-center pb-25">
+                        <h3 class="title">景點預覽</h3>
+                        <p>探索台灣美景，來場難忘的旅遊體驗！</p>
+                    </div>
+                </div>
+            </div>
+    
+            {% if attractions %}
+            <div class="row">
+                {% for attraction in attractions %}
+                <div class="col-lg-4 col-md-6">
+                    <div class="single_destination mt-30 wow fadeIn" data-wow-duration="1.3s" data-wow-delay="0.2s">
+                        <div class="destination_image"> 
+                            <img src="{{ attraction.image_url }}" alt="Destination" class="fixed-size-image">
+                        </div>
+                        <div class="destination_content"> 
+                            <h2 class="title" style="font-weight: bold;">
+                                <a href="{{ attraction.link }}" target="_blank"><h5>{{ attraction.name }}</h5></a>
+                            </h2>
+                            <p class="price">{{ attraction.hashtag }}</p>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+    
+            <!-- 新增的查看更多按鈕，置底 & 置中 -->
+            <div class="row">
+                <div class="col-12 text-center mt-4">
+                    <a href="/findattractions" class="main-btn">查看更多</a>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </section>    
+
+    <!--====== DESTINATION PART ENDS ======-->
+    
+    <!--====== SERVICES PART START ======-->
+
+    <section id="services" class="services_area pt-120">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-lg-6">
+                    <div class="section_title text-center pb-25">
+                        <h3 class="title">Service We Provide</h3>
+                        <p>Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed dianum eirmod tempor invidunt ut labore et dolore magna </p>
+                    </div> <!-- section title -->
+                </div>
+            </div> <!-- row -->
+            <div class="row">
+                <div class="col-lg-3 col-sm-6">
+                    <div class="single_service mt-30 text-center wow fadeInUpBig" data-wow-duration="1.3s" data-wow-delay="0.2s">
+                        <div class="services_icon">
+                            <i class="lni lni-apartment"></i>
+                        </div>
+                        <div class="services_content">
+                            <h4 class="title">Hotel Booking</h4>
+                            <p>Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed dianum eirmod.</p>
+                        </div>
+                    </div> <!-- single service -->
+                </div>
+                <div class="col-lg-3 col-sm-6">
+                    <div class="single_service mt-30 text-center wow fadeInUpBig" data-wow-duration="1.3s" data-wow-delay="0.4s">
+                        <div class="services_icon">
+                            <i class="lni lni-plane"></i>
+                        </div>
+                        <div class="services_content">
+                            <h4 class="title">Flight Booking</h4>
+                            <p>Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed dianum eirmod.</p>
+                        </div>
+                    </div> <!-- single service -->
+                </div>
+                <div class="col-lg-3 col-sm-6">
+                    <div class="single_service mt-30 text-center wow fadeInUpBig" data-wow-duration="1.3s" data-wow-delay="0.6s">
+                        <div class="services_icon">
+                            <i class="lni lni-ship"></i>
+                        </div>
+                        <div class="services_content">
+                            <h4 class="title">Ship Booking</h4>
+                            <p>Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed dianum eirmod.</p>
+                        </div>
+                    </div> <!-- single service -->
+                </div>
+                <div class="col-lg-3 col-sm-6">
+                    <div class="single_service mt-30 text-center wow fadeInUpBig" data-wow-duration="1.3s" data-wow-delay="0.8s">
+                        <div class="services_icon">
+                            <i class="lni lni-car-alt"></i>
+                        </div>
+                        <div class="services_content">
+                            <h4 class="title">Car Booking</h4>
+                            <p>Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed dianum eirmod.</p>
+                        </div>
+                    </div> <!-- single service -->
+                </div>
+            </div> <!-- row -->
+        </div> <!-- container -->
+    </section>
+
+    <!--====== SERVICES PART ENDS ======-->
+    
+<!--====== CONTACT PART START ======-->
+
+<section id="booking" class="contact_area pt-120 pb-130">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-6">
+                <div class="section_title text-center pb-25">
+                    <h3 class="title">台灣飯店搜尋</h3>
+                    <p>Search for Hotels in Taiwan</p>
+                </div> <!-- section title -->
+            </div>
+        </div> <!-- row -->
+        <div class="contact_form">
+            <form action="/booking/" method="POST">
+                {% csrf_token %}
+                <div class="row">
+                    <div class="col-lg-6">
+                        <div class="single_form">
+                            <label>入住日期：</label>
+                            <input type="date" name="checkin" required>
+                        </div> <!-- single form -->
+                    </div>
+                    <div class="col-lg-6">
+                        <div class="single_form">
+                            <label>退房日期：</label>
+                            <input type="date" name="checkout" required>
+                        </div> <!-- single form -->
+                    </div>
+                    <div class="col-lg-12">
+                        <div class="single_form">
+                            <select id="city" name="city">
+                                {% for city in cities %}
+                                <option value="{{ city }}">{{ city }}</option>
+                                {% endfor %}
+                            </select>
+                        </div> <!-- single form -->
+                    </div>
+                    <div class="col-lg-6">
+                        <div class="single_form">
+                            <label>成人數：</label>
+                            <input type="number" name="adults" min="1" value="1" required>
+                        </div> <!-- single form -->
+                    </div>
+                    <div class="col-lg-6">
+                        <div class="single_form">
+                            <label>兒童數：</label>
+                            <input type="number" name="children" min="0" value="0">
+                        </div> <!-- single form -->
+                    </div>
+                    <div class="col-lg-12">
+                        <div class="single_form">
+                            <button type="submit" class="main-btn">查詢</button>
+                        </div> <!-- single form -->
+                    </div>
+                </div> <!-- row -->
+                <p class="form-message pt-30"></p>
+            </form>
+        </div> <!-- row -->
+    </div> <!-- container -->
+</section>
+
+<!--====== CONTACT PART ENDS ======-->
+
+<!--====== TEAM PART START ======-->
+
+<section id=team class="team_area pt-120 pb-130">
+  <div class=container>
+    <div class="row justify-content-center">
+      <div class=col-lg-6>
+        <div class="section_title text-center pb-25">
+          <h3 class=title>測試更改</h3>
+          <p>Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed dianum eirmod tempor invidunt ut labore et dolore magna </p>
+        </div>
+      </div>
+    </div>
+    <div class=row>
+      <div class="col-lg-3 col-sm-6">
+        <div class="single_team mt-30 wow fadeIn" data-wow-duration=1.3s data-wow-delay=0.2s>
+          <div class=team_image> <img src="/static/assets/images/team-1.jpg" alt=team> </div>
+          <div class=team_content>
+            <h5 class=team_name>Kim John</h5>
+            <p>Founder and CEO</p>
+            <ul class=social>
+              <li><a href="javascript:void(0)"><i class="lni lni-facebook-original"></i></a></li>
+              <li><a href="javascript:void(0)"><i class="lni lni-twitter-original"></i></a></li>
+              <li><a href="javascript:void(0)"><i class="lni lni-instagram-original"></i></a></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-3 col-sm-6">
+        <div class="single_team mt-30 wow fadeIn" data-wow-duration=1.3s data-wow-delay=0.4s>
+          <div class=team_image> <img src="/static/assets/images/team-2.jpg" alt=team> </div>
+          <div class=team_content>
+            <h5 class=team_name>Sara Smith</h5>
+            <p>Senior Trainer</p>
+            <ul class=social>
+              <li><a href="javascript:void(0)"><i class="lni lni-facebook-original"></i></a></li>
+              <li><a href="javascript:void(0)"><i class="lni lni-twitter-original"></i></a></li>
+              <li><a href="javascript:void(0)"><i class="lni lni-instagram-original"></i></a></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-3 col-sm-6">
+        <div class="single_team mt-30 wow fadeIn" data-wow-duration=1.3s data-wow-delay=0.6s>
+          <div class=team_image> <img src="/static/assets/images/team-3.jpg" alt=team> </div>
+          <div class=team_content>
+            <h5 class=team_name>John Doe</h5>
+            <p>Trip Guide</p>
+            <ul class=social>
+              <li><a href="javascript:void(0)"><i class="lni lni-facebook-original"></i></a></li>
+              <li><a href="javascript:void(0)"><i class="lni lni-twitter-original"></i></a></li>
+              <li><a href="javascript:void(0)"><i class="lni lni-instagram-original"></i></a></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-3 col-sm-6">
+        <div class="single_team mt-30 wow fadeIn" data-wow-duration=1.3s data-wow-delay=0.8s>
+          <div class=team_image> <img src="/static/assets/images/team-4.jpg" alt=team> </div>
+          <div class=team_content>
+            <h5 class=team_name>Ena Smith</h5>
+            <p>Business Manager</p>
+            <ul class=social>
+              <li><a href="javascript:void(0)"><i class="lni lni-facebook-original"></i></a></li>
+              <li><a href="javascript:void(0)"><i class="lni lni-twitter-original"></i></a></li>
+              <li><a href="javascript:void(0)"><i class="lni lni-instagram-original"></i></a></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+    <!--====== TEAM PART ENDS ======-->
+    
+    <!--====== BLOG PART START ======-->
+
+    <section id="blog" class="blog_area pt-120 pb-130">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-lg-6">
+                    <div class="section_title text-center pb-25">
+                        <h3 class="title">Recent Blog Post</h3>
+                        <p>Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed dianum eirmod tempor invidunt ut labore et dolore magna </p>
+                    </div> <!-- section title -->
+                </div>
+            </div> <!-- row -->
+            <div class="row">
+                <div class="col-lg-6">
+                    <div class="single_blog mt-30">
+                        <div class="blog_image">
+                            <img src="/static/assets/images/blog-1.jpg" alt="blog">
+                        </div>
+                        <div class="blog_content">
+                            <div class="blog_meta">
+                                <ul>
+                                    <li>Posted by: <a href="javascript:void(0)">Michle Smith</a></li>
+                                    <li>14 June 2023</li>
+                                </ul>
+                            </div>
+                            <h4 class="blog_title"><a href="javascript:void(0)">Tonumy eirmod tempor invidunt ut labore et dolore magn aaliq yam erat, sed diam voluptua.</a></h4>
+                            <p>Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magn aaliq yam erat, sed diam voluptua. At vero eos et accusam et justo dolores  ea rebum Stet clita kasd gubergren sea.</p>
+                        </div>
+                    </div> <!-- single blog -->
+                </div>
+                <div class="col-lg-6">
+                    <div class="single_blog d-sm-flex mt-30">
+                        <div class="blog_image">
+                            <img src="/static/assets/images/blog-2.jpg" alt="blog">
+                        </div>
+                        <div class="blog_content blog_content_2 media-body">
+                            <h4 class="blog_title"><a href="javascript:void(0)">Tonumy eirmod temporinvi unt ut labore et dolore</a></h4>
+                            <p>Lorem ipsum dolor sit ametcon setetur sadipscing elitr, sed diam nonumy eirmod tempor</p>
+                            <a href="javascript:void(0)" class="more">Read More</a>
+                        </div>
+                    </div> <!-- single blog -->
+                    
+                    <div class="single_blog d-sm-flex mt-30">
+                        <div class="blog_image">
+                            <img src="/static/assets/images/blog-3.jpg" alt="blog">
+                        </div>
+                        <div class="blog_content blog_content_2 media-body">
+                            <h4 class="blog_title"><a href="javascript:void(0)">Tonumy eirmod temporinvi unt ut labore et dolore</a></h4>
+                            <p>Lorem ipsum dolor sit ametcon setetur sadipscing elitr, sed diam nonumy eirmod tempor</p>
+                            <a href="javascript:void(0)" class="more">Read More</a>
+                        </div>
+                    </div> <!-- single blog -->
+                </div>
+            </div> <!-- row -->
+        </div> <!-- container -->
+    </section>
+
+    <!--====== BLOG PART ENDS ======-->
+    
+    <!--====== CONTACT PART START ======-->
+
+    <section id="contact" class="contact_area pt-120 pb-130">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-lg-6">
+                    <div class="section_title text-center pb-25">
+                        <h3 class="title">Get in Touch</h3>
+                        <p>Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed dianum eirmod tempor invidunt ut labore et dolore magna </p>
+                    </div> <!-- section title -->
+                </div>
+            </div> <!-- row -->
+            <div class="contact_form">
+                <form action="/static/assets/contact.php" method="POST" id="contact-form">
+                    <div class="row">
+                        <div class="col-lg-6">
+                            <div class="single_form">
+                                <input type="text" name="name" id="name" placeholder="Name">
+                            </div> <!-- single form -->
+                        </div>
+                        <div class="col-lg-6">
+                            <div class="single_form">
+                                <input type="text" name="phone" id="phone" placeholder="Phone">
+                            </div> <!-- single form -->
+                        </div>
+                        <div class="col-lg-6">
+                            <div class="single_form">
+                                <input type="email" name="email" id="email" placeholder="Email">
+                            </div> <!-- single form -->
+                        </div>
+                        <div class="col-lg-6">
+                            <div class="single_form">
+                                <select id="country" name="country">
+                                    <option value="0" selected disabled>Select Trip</option>
+                                    <option value="1">Trip 1</option>
+                                    <option value="2">Trip 2</option>
+                                    <option value="3">Trip 3</option>
+                                    <option value="4">Trip 4</option>
+                                    <option value="5">Trip 5</option>
+                                </select>
+                            </div> <!-- single form -->
+                        </div>
+                        <div class="col-lg-12">
+                            <div class="single_form">
+                                <textarea name="message" id="message" placeholder="Message"></textarea>
+                            </div> <!-- single form -->
+                        </div>
+                        <div class="col-lg-12">
+                            <div class="single_form">
+                                <button type="submit" class="main-btn">Send Message</button>
+                            </div> <!-- single form -->
+                        </div>
+                    </div> <!-- row -->
+                    <p class="form-message pt-30"></p>
+                </form>
+            </div> <!-- row -->
+        </div> <!-- container -->
+    </section>
+
+    <!--====== CONTACT PART ENDS ======-->
+    
+    <!--====== FOOTER PART START ======-->
+
+    <section id="footer" class="footer_area">
+        <div class="footer_widget pt-80 pb-130">
+            <div class="container">
+                <div class="row">
+                    <div class="col-lg-4 col-md-6 order-md-1 order-lg-1">
+                        <div class="footer_about mt-50">
+                            <a href="{% if request.user.is_authenticated %}/home{% else %}/{% endif %}"><img src="/static/assets/images/logo.png" alt="logo"></a>
+                            <p>Lorem ipsum dolor sifsddt amet, conse tetur sadipscing elitr, sed diam onumy eirmod tempor invidunt ut labore et dolore magna aliquya.</p>
+                            <ul class="social">
+                                <li><a class="social_1" href="javascript:void(0)"><i class="lni lni-facebook-original"></i></a></li>
+                                <li><a class="social_2" href="javascript:void(0)"><i class="lni lni-twitter-original"></i></a></li>
+                                <li><a class="social_3" href="https://www.instagram.com/__simon1121/"><i class="lni lni-instagram-original"></i></a></li>
+                                <li><a class="social_4" href="javascript:void(0)"><i class="lni lni-linkedin-original"></i></a></li>
+                            </ul>
+                        </div> <!-- footer about -->
+                    </div>
+                    <div class="col-lg-4 col-md-12 order-md-3 order-lg-2">
+                        <div class="footer_link_wrapper d-flex flex-wrap">
+                            <div class="footer_link mt-45">
+                                <h4 class="footer_title">Quick Link</h4>
+                                <ul class="link">
+                                    <li><a href="javascript:void(0)">Home</a></li>
+                                    <li><a href="javascript:void(0)">About</a></li>
+                                    <li><a href="javascript:void(0)">Trip Pacakge</a></li>
+                                    <li><a href="javascript:void(0)">Services</a></li>
+                                    <li><a href="javascript:void(0)">Gallery</a></li>
+                                </ul>
+                            </div> <!-- footer link -->
+                            <div class="footer_link mt-45">
+                                <h4 class="footer_title">Support</h4>
+                                <ul class="link">
+                                    <li><a href="javascript:void(0)">Customer Support</a></li>
+                                    <li><a href="javascript:void(0)">Privacy & Policy</a></li>
+                                    <li><a href="javascript:void(0)">Terms & Condition</a></li>
+                                    <li><a href="javascript:void(0)">Forum</a></li>
+                                    <li><a href="javascript:void(0)">Tour Guide</a></li>
+                                </ul>
+                            </div> <!-- footer link -->
+                        </div> <!-- footer link wrapper -->
+                    </div>
+                    <div class="col-lg-4 col-md-6 order-md-2 order-lg-3">
+                        <div class="footer_subscribe mt-45">
+                            <h4 class="footer_title">Subscribe Newsletter</h4>
+                            <p>Lorem ipsum dolor sit amet, consetetur sadip scing elitr, sed diam.</p>
+                            <div class="subscribe_form">
+                                <form action="#">
+                                    <input type="text" placeholder="Enter email">
+                                    <button><i class="lni lni-arrow-right"></i></button>
+                                </form>
+                            </div>
+                        </div> <!-- footer subscribe -->
+                    </div>
+                </div> <!-- row -->
+            </div> <!-- container -->
+            <p class="text-center mt-90"><a target="_blank" href="http://www.mobanwang.com/" title="网页模板">网页模板</a></p>
+        </div> <!-- footer widget -->
+    </section>
+
+    <!--====== FOOTER PART ENDS ======-->
+    
+    <!--====== BACK TOP TOP PART START ======-->
+
+    <a href="#" class="back-to-top"><i class="lni lni-chevron-up"></i></a>
+
+    <!--====== BACK TOP TOP PART ENDS ======-->
+    
+    <!--====== PART START ======-->
+
+<!--
+    <section class="">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-">
+                    
+                </div>
+            </div>
+        </div>
+    </section>
+-->
+
+    <!--====== PART ENDS ======-->
+
+
+
+
+
+    <!--====== Jquery js ======-->
+    <script src="/static/assets/js/vendor/jquery-1.12.4.min.js"></script>
+    <script src="/static/assets/js/vendor/modernizr-3.7.1.min.js"></script>
+    
+    <!--====== Bootstrap js ======-->
+    <script src="/static/assets/js/popper.min.js"></script>
+    <script src="/static/assets/js/bootstrap.4.5.2.min.js"></script>
+	
+	<script src="/static/assets/js/slick.min.js"></script>
+	<script src="/static/assets/js/ajax-contact.js"></script>
+	<script src="/static/assets/js/jquery.magnific-popup.min.js"></script>
+
+    
+    <!--====== Scrolling Nav js ======-->
+    <script src="/static/assets/js/jquery.easing.min.js"></script>
+    <script src="/static/assets/js/scrolling-nav.js"></script>
+    
+    <!--====== Counter Up js ======-->
+    <script src="/static/assets/js/waypoints.min.js"></script>
+    <script src="/static/assets/js/jquery.counterup.min.js"></script>
+    
+    <!--====== Nice Select js ======-->
+    <script src="/static/assets/js/jquery.nice-select.min.js"></script>
+    
+    <!--====== WOW js ======-->
+    <script src="/static/assets/js/wow.min.js"></script>
+    
+    <!--====== Main js ======-->
+    <script src="/static/assets/js/main.js"></script>        
+        
+</body>
+
+</html>
