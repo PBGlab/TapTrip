@@ -1,9 +1,13 @@
 from django.shortcuts import render
 from attractions.models import City, Attraction
 from django.http import JsonResponse
-from weather.views import get_weather_data  # ✅ 從 weather 匯入函數
+from trips.models import Trip
 
-def findattractions(request):
+
+
+
+#登出狀態頁面
+def showattractions(request):
     cities = City.objects.all()  # 取得所有城市
     attractions = []  # 預設為空
 
@@ -13,11 +17,7 @@ def findattractions(request):
         
         if city:
             attractions = Attraction.objects.filter(city=city)
-        
-        # ✅ 調用 `weather` App 提供的 `get_weather_data()`
-        weather_info = get_weather_data(city_name)
 
-        # **回傳 JSON 給前端,包含 景點 + 天氣**
         return JsonResponse({
             "city": city_name,
             "attractions": [
@@ -29,7 +29,65 @@ def findattractions(request):
                 }
                 for attraction in attractions
             ],
-            "weather": weather_info  # ✅ 這裡的天氣數據來自 `weather/views.py`
         })
 
-    return render(request, "attraction3.html", {"cities": cities})  # 初始載入頁面
+    return render(request, "attraction2.html", {"cities": cities})  # ✅ 初始頁面為 `attraction2.html`
+
+
+
+
+
+from django.contrib.auth.decorators import login_required
+
+
+@login_required
+def findattractions(request):
+    cities = City.objects.all()
+
+    # 🔍 AJAX 查詢景點
+    if request.method == "POST" and request.headers.get("x-requested-with") == "XMLHttpRequest":
+        city_name = request.POST.get("city")
+        city = City.objects.filter(name=city_name).first()
+
+        if city:
+            attractions = Attraction.objects.filter(city=city)
+        else:
+            attractions = []
+
+        return JsonResponse({
+            "city": city_name,
+            "attractions": [
+                {
+                    "id": attraction.id,
+                    "name": attraction.name,
+                    "image_url": attraction.image_url,
+                    "link": attraction.link,
+                    "hashtag": attraction.hashtag
+                }
+                for attraction in attractions
+            ]
+        })
+
+    # 🔁 一般 GET 載入頁面，同時給右側搜尋表單使用的行程/天數資料
+    trips = Trip.objects.filter(user=request.user, status="draft").prefetch_related("days")
+
+    trip_data = []
+    for trip in trips:
+        days = []
+        for i, day in enumerate(trip.days.all().order_by("date")):
+            days.append({
+                "id": day.id,
+                "day_number": i + 1,
+                "date": str(day.date)
+            })
+
+        trip_data.append({
+            "id": trip.id,
+            "name": trip.name,
+            "days": days
+        })
+
+    return render(request, "attraction1.html", {
+        "cities": cities,
+        "trips": trip_data 
+    })
