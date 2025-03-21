@@ -407,7 +407,7 @@
                 </div>     
                 <!-- 行程管理按鈕 -->
                 <div class="btn-group">
-                    <a href="{% url 'edit_trip' item.trip.id %}" target="_blank" class="main-btn"><strong>編輯行程</strong></a>
+                    <a href="/findattractions/?selected_trip={{ item.trip.id }}" target="_blank" class="main-btn"><strong>編輯行程</strong></a>
                     <button class="main-btn delete-btn" onclick="deleteTrip({{ item.trip.id }})">
                     <strong>刪除行程</strong>
                     </button>
