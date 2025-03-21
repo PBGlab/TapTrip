@@ -124,7 +124,7 @@
                                         <a class="page-scroll" href="{% if request.user.is_authenticated %}/home#about{% else %}/#about{% endif %}">關於我們</a>
                                     </li>
                                     <li class="nav-item">
-                                        <a class="page-scroll" href="/findattractions">尋找景點</a>
+                                        <a class="page-scroll" href="{% if request.user.is_authenticated %}/findattractions{% else %}/showattractions{% endif %}">尋找景點</a>
                                     </li>
                                     <li class="nav-item">
                                         <a class="page-scroll" href="/booking">尋找飯店</a>
