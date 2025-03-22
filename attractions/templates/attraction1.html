@@ -565,6 +565,8 @@
                 option.value = trip.id;
                 option.textContent = trip.name;
                 tripSelect.appendChild(option);
+
+  
         
                 trip.days.forEach(day => {
                   const dayLi = document.createElement("li");
@@ -639,6 +641,12 @@
 
 
                 });
+                // ✅ 🔽 加在這裡就對了！
+                const $tripSelect = $('#select-trip');
+                if ($tripSelect.next('.nice-select').length) {
+                  $tripSelect.niceSelect('destroy');
+                }
+                $tripSelect.niceSelect();
               });
         
               // ✅ 把這段放進 .then() 裡！
