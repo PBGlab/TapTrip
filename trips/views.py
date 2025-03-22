@@ -142,7 +142,9 @@ def api_trips(request):
                     "name": tda.attraction.name,
                     "image_url": tda.attraction.image_url,
                     "link": tda.attraction.link,
-                    "hashtag": tda.attraction.hashtag
+                    "hashtag": tda.attraction.hashtag,
+                    "latitude": tda.attraction.latitude,
+                    "longitude": tda.attraction.longitude
                 }
                 for tda in day.tripdayattraction_set.select_related("attraction")
             ]

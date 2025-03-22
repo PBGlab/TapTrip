@@ -535,6 +535,7 @@
         });
         
         function loadTrips(callback) {
+          window.attractionDataById = {};  // ✅ 放這裡，表示每次重抓行程時清空舊資料
           fetch("/api/trips/")
             .then(response => response.json())
             .then(data => {
@@ -599,6 +600,15 @@
                   // 加入景點 <li>
                   if (day.attractions && day.attractions.length > 0) {
                     day.attractions.forEach(attr => {
+
+                      //導入座標
+                      window.attractionDataById[attr.trip_day_attraction_id] = {
+                        lat: parseFloat(attr.latitude),
+                        lng: parseFloat(attr.longitude),
+                        name: attr.name
+                      };
+
+
                       const attrLi = document.createElement("li");
                       attrLi.className = "list-group-item p-2 d-flex justify-content-between align-items-center";
                       attrLi.id = `attraction_${attr.trip_day_attraction_id}`;
@@ -689,6 +699,20 @@ function openMapModal(dayId) {
       attractionList.classList.add("sortable-initialized");
     }
 
+    // ✅ 新增：從當前圖卡順序抓經緯度
+    const listItems = attractionList.querySelectorAll("li");
+    const pathCoordinates = [];
+
+    listItems.forEach(item => {
+      const idStr = item.id.replace("attraction_", "");
+      const attrId = parseInt(idStr);
+      const data = window.attractionDataById[attrId];
+      if (data) {
+        pathCoordinates.push({ lat: data.lat, lng: data.lng });
+      }
+    });
+
+    console.log("📍 畫線資料：", pathCoordinates);  // ← 先印出來確認
 
 
   // 可選：加一個假 marker
