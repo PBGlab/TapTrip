@@ -668,9 +668,67 @@
               });
           }
 
+          function drawRouteOnMap(dayId, map) {
+            // 🔁 清除舊路線
+            if (window.currentDirectionsRenderer) {
+              window.currentDirectionsRenderer.setMap(null);
+            }
+          
+            const listItems = document.querySelectorAll(`#sortable-day-${dayId} li`);
+            const pathCoordinates = [];
+          
+            listItems.forEach(item => {
+              const idStr = item.id.replace("attraction_", "");
+              const attrId = parseInt(idStr);
+              const data = window.attractionDataById[attrId];
+              if (data) {
+                pathCoordinates.push({ lat: data.lat, lng: data.lng });
+              }
+            });
+          
+            console.log("📍 畫線資料（導航模式）：", pathCoordinates);
+          
+            if (pathCoordinates.length < 2) {
+              console.warn("⚠️ 至少要有兩個點才可規劃路線");
+              return;
+            }
+          
+            // ✅ 新增 DirectionsRenderer 並儲存起來
+            const directionsRenderer = new google.maps.DirectionsRenderer({
+              map: map,
+              suppressMarkers: false
+            });
+            window.currentDirectionsRenderer = directionsRenderer;
+          
+            const directionsService = new google.maps.DirectionsService();
+          
+            const origin = pathCoordinates[0];
+            const destination = pathCoordinates[pathCoordinates.length - 1];
+            const waypoints = pathCoordinates.slice(1, -1).map(coord => ({
+              location: coord,
+              stopover: true
+            }));
+          
+            directionsService.route({
+              origin: origin,
+              destination: destination,
+              waypoints: waypoints,
+              travelMode: google.maps.TravelMode.DRIVING
+            }, function (response, status) {
+              if (status === 'OK') {
+                directionsRenderer.setDirections(response);
+              } else {
+                console.error('❌ 規劃路線失敗：', status);
+              }
+            });
+          }
+          
+          
+          
+
 // 🔵 開啟地圖彈出框並載入 Google Maps
 function openMapModal(dayId) {
-  document.getElementById("mapModal").style.display = "flex";  // 顯示地圖彈出框
+  document.getElementById("mapModal").style.display = "flex";  // 顯示地圖彈出
 
   // TODO：你可以改成從 API 根據 dayId 抓景點座標並畫線
   // 這裡先顯示一張假地圖
@@ -678,6 +736,8 @@ function openMapModal(dayId) {
     center: { lat: 24.796, lng: 120.993 },  // 預設中心點（苗栗中間值）
     zoom: 13
   });
+  drawRouteOnMap(dayId, map);
+
 
     // ✅ 這裡初始化拖曳 有地圖才能改順序
     const attractionList = document.getElementById(`sortable-day-${dayId}`);
@@ -693,34 +753,15 @@ function openMapModal(dayId) {
             newOrder.push(attractionId);
           });
           console.log("✅ 拖曳完成，新順序：", newOrder);
+
+          drawRouteOnMap(dayId, map);  // ✅ 拖曳後自動重畫線
         }
       });
   
       attractionList.classList.add("sortable-initialized");
     }
 
-    // ✅ 新增：從當前圖卡順序抓經緯度
-    const listItems = attractionList.querySelectorAll("li");
-    const pathCoordinates = [];
 
-    listItems.forEach(item => {
-      const idStr = item.id.replace("attraction_", "");
-      const attrId = parseInt(idStr);
-      const data = window.attractionDataById[attrId];
-      if (data) {
-        pathCoordinates.push({ lat: data.lat, lng: data.lng });
-      }
-    });
-
-    console.log("📍 畫線資料：", pathCoordinates);  // ← 先印出來確認
-
-
-  // 可選：加一個假 marker
-  new google.maps.Marker({
-    position: { lat: 24.796, lng: 120.993 },
-    map: map,
-    title: "景點示意"
-  });
 
     // 設定全域變數，供 saveRouteOrder() 使用
     window.currentEditingDayId = dayId;
