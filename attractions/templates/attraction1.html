@@ -260,6 +260,15 @@
   border-radius: 8px;
 }
 
+.title-marker {
+  display: inline-block;
+  margin-right: 8px;
+  font-weight: bold;
+  font-size: 1em;
+  color: #0d2843;
+  min-width: 20px;
+  text-align: center;
+}
 
 </style>
               
@@ -458,6 +467,10 @@
 
 
     <script>
+
+      function indexToLetter(index) {
+        return String.fromCharCode(65 + index); // A = 65
+      }
         // 搜尋表單送出後更新景點結果
         document.getElementById("searchForm").addEventListener("submit", function(event) {
           event.preventDefault();  // 阻止表單提交
@@ -532,6 +545,14 @@
           
           document.addEventListener("DOMContentLoaded", function () {
             loadTrips();
+            setTimeout(() => {
+              const $citySelect = $('#city');
+              if ($citySelect.length && $citySelect.next('.nice-select').length) {
+                $citySelect.niceSelect('destroy');
+              }
+              $citySelect.niceSelect();
+            }, 100); // 延遲 0.1 秒以確保 DOM 已經渲染好
+
         });
         
         function loadTrips(callback) {
@@ -601,7 +622,7 @@
         
                   // 加入景點 <li>
                   if (day.attractions && day.attractions.length > 0) {
-                    day.attractions.forEach(attr => {
+                    day.attractions.forEach((attr,i) => {
 
                       //導入座標
                       window.attractionDataById[attr.trip_day_attraction_id] = {
@@ -618,7 +639,10 @@
                         <div class="d-flex align-items-center w-100">
                           <img src="${attr.image_url}" alt="${attr.name}" class="attraction-image me-3">
                           <div class="flex-grow-1">
-                            <h5 class="mb-1">${attr.name}</h5>
+                            <h5 class="mb-1">
+                              <span class="title-marker">${indexToLetter(i)}</span>
+                              ${attr.name}
+                            </h5>
                             <p class="text-muted mb-0">${attr.hashtag || "無標籤"}</p>
                           </div>
                         </div>
