@@ -190,9 +190,52 @@
   white-space: nowrap; /* 避免按鈕文字換行 */
 }
 
+
+
+
+/* 🔄 只覆蓋右側區塊，不要全螢幕 */
+.map-modal {
+  display: none;
+  position: absolute;  /* 相對於 col-md-9 */
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.6); /* 半透明黑底 */
+  z-index: 10;
+  justify-content: center;
+  align-items: center;
+}
+
+/* 🔳 地圖彈出內容 */
+.map-modal-content {
+  background: white;
+  padding: 20px;
+  width: 100%;
+  max-width: 100%;     /* 撐滿右側 */
+  height: 90%;
+  border-radius: 10px;
+  position: relative;
+  overflow: hidden;
+}
+
+/* ❌ 關閉按鈕 */
+.close-btn {
+  position: absolute;
+  top: 10px;
+  right: 15px;
+  font-size: 28px;
+  cursor: pointer;
+}
+
+
+
+
 </style>
               
 
+
+<script src="https://maps.googleapis.com/maps/api/js?key={{ GOOGLE_MAPS_API_KEY }}"></script>
 </head>
 
 <body>
@@ -311,6 +354,17 @@
 
     <!-- 右側：景點搜尋 (獨立) -->
     <div class="col-md-9 p-4">
+
+          <!-- 🔵 Google 地圖彈出框（放這裡） -->
+    <div id="mapModal" class="map-modal">
+      <div class="map-modal-content">
+        <span class="close-btn" onclick="closeMapModal()">&times;</span>
+        <h4 class="mb-3">行程路線地圖</h4>
+        <div id="map" style="width: 100%; height: 500px;"></div>
+      </div>
+    </div>
+
+
       <section id="contact" class="contact_area pt-120 pb-130">
         <!-- 移除這裡的 container，避免再次限制寬度 -->
         <div class="row justify-content-center">
@@ -352,6 +406,8 @@
         <!-- 返回頂部按鈕 -->
         <div class="text-center mt-5">
           <button id="backToTop" class="main-btn" style="display: none;margin-left: 20px;">返回頂部</button>
+        </div>
+
         </div>
       </section>
     </div>
@@ -470,13 +526,27 @@
                             dayLi.dataset.tripId = trip.id;
                             dayLi.style.display = "none";
         
+                            // ✅ 建立一個容器，把標題和按鈕包在一起
+                            const titleRow = document.createElement("div");
+                            titleRow.className = "d-flex justify-content-between align-items-center"; // Bootstrap 的排版工具
+                            // ✅ 建立標題（靠左）
                             const title = document.createElement("h5");
-                            title.className = "trip-day-title";
+                            title.className = "trip-day-title mb-0"; // mb-0 取消多餘底部間距
                             title.textContent = `${trip.name} 第 ${day.day_number} 天 - ${day.date}`;
                             title.onclick = () => selectTripDay(trip.id, day.day_number);
-        
-                            dayLi.appendChild(title);
-        
+                            // ✅ 建立按鈕（靠右）
+                            const editRouteBtn = document.createElement("button");
+                            editRouteBtn.className = "btn btn-outline-primary btn-sm";
+                            editRouteBtn.textContent = "編輯路線";
+                            editRouteBtn.onclick = function () {
+                              alert(`你要編輯 ${trip.name} 第 ${day.day_number} 天的路線`);
+                            };
+                            // ✅ 把標題和按鈕加進同一個 div 裡
+                            titleRow.appendChild(title);
+                            titleRow.appendChild(editRouteBtn);
+                            // ✅ 最後把這個 div 加到 li 裡
+                            dayLi.appendChild(titleRow);
+                                    
                             const attractionList = document.createElement("ul");
                             attractionList.className = "list-group attraction-list mt-2";
                             attractionList.id = `day_id_${day.id}`;
@@ -506,6 +576,9 @@
                             }
         
                             dayLi.appendChild(attractionList);
+
+
+
                             tripList.appendChild(dayLi);
                         });
                     });
@@ -530,6 +603,30 @@
                   }
               });
           }
+
+// 🔵 開啟地圖彈出框並載入 Google Maps
+function openMapModal(dayId) {
+  document.getElementById("mapModal").style.display = "flex";  // 顯示地圖彈出框
+
+  // TODO：你可以改成從 API 根據 dayId 抓景點座標並畫線
+  // 這裡先顯示一張假地圖
+  const map = new google.maps.Map(document.getElementById("map"), {
+    center: { lat: 24.796, lng: 120.993 },  // 預設中心點（苗栗中間值）
+    zoom: 13
+  });
+
+  // 可選：加一個假 marker
+  new google.maps.Marker({
+    position: { lat: 24.796, lng: 120.993 },
+    map: map,
+    title: "景點示意"
+  });
+}
+
+// 🔵 關閉地圖彈出框
+function closeMapModal() {
+  document.getElementById("mapModal").style.display = "none";
+}
           
           // ✅ 加入景點到行程後，同步更新左側並保持展開
 function addToTrip(attractionId, attractionName, hashtag, imageUrl) {
@@ -592,9 +689,33 @@ function addToTrip(attractionId, attractionName, hashtag, imageUrl) {
               })
               .catch(error => console.error("刪除景點時發生錯誤:", error));
           }
+
+          function openMapModal(dayId) {
+            document.getElementById("mapModal").style.display = "flex";
+          
+            const map = new google.maps.Map(document.getElementById("map"), {
+              center: { lat: 24.796, lng: 120.993 }, // 預設中心點
+              zoom: 13
+            });
+          
+            new google.maps.Marker({
+              position: { lat: 24.796, lng: 120.993 },
+              map: map,
+              title: "景點示意"
+            });
+          }
+          
+          function closeMapModal() {
+            document.getElementById("mapModal").style.display = "none";
+          }
+
+
           </script>
+
+
+          
                   
-      </script>
+      
           
 
     <!--====== CONTACT PART ENDS ======-->
