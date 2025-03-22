@@ -453,6 +453,10 @@
   </div>
 </div>
 
+
+<script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
+
+
     <script>
         // 搜尋表單送出後更新景點結果
         document.getElementById("searchForm").addEventListener("submit", function(event) {
@@ -531,110 +535,130 @@
         });
         
         function loadTrips(callback) {
-            fetch("/api/trips/")
-                .then(response => response.json())
-                .then(data => {
-                    console.log("✅ trips data:", data);
-                    const tripSelect = document.getElementById("select-trip");
-                    const tripList = document.getElementById("trip-list");
-                    const noTripsMessage = document.getElementById("no-trips-message");
+          fetch("/api/trips/")
+            .then(response => response.json())
+            .then(data => {
+              console.log("✅ trips data:", data);
         
-                    const urlParams = new URLSearchParams(window.location.search);
-                    const selectedTripId = urlParams.get("selected_trip");
+              const tripSelect = document.getElementById("select-trip");
+              const tripList = document.getElementById("trip-list");
+              const noTripsMessage = document.getElementById("no-trips-message");
         
-                    tripSelect.innerHTML = '<option value="">請選擇行程</option>';
-                    tripList.innerHTML = '';
+              const urlParams = new URLSearchParams(window.location.search);
+              const selectedTripId = urlParams.get("selected_trip");  // ✅ 這裡宣告了 selectedTripId
         
-                    if (data.trips.length === 0) {
-                        noTripsMessage.style.display = "flex";
-                        return;
-                    } else {
-                        noTripsMessage.style.display = "none";
-                        tripSelect.style.display = "block";
-                    }
+              tripSelect.innerHTML = '<option value="">請選擇行程</option>';
+              tripList.innerHTML = '';
         
-                    data.trips.forEach(trip => {
-                        const option = document.createElement("option");
-                        option.value = trip.id;
-                        option.textContent = trip.name;
-                        tripSelect.appendChild(option);
+              if (data.trips.length === 0) {
+                noTripsMessage.style.display = "flex";
+                return;
+              } else {
+                noTripsMessage.style.display = "none";
+                tripSelect.style.display = "block";
+              }
         
-                        trip.days.forEach(day => {
-                            const dayLi = document.createElement("li");
-                            dayLi.className = "list-group-item trip-day";
-                            dayLi.dataset.tripId = trip.id;
-                            dayLi.style.display = "none";
+              // ✅ 建立下拉選單與行程列表
+              data.trips.forEach(trip => {
+                const option = document.createElement("option");
+                option.value = trip.id;
+                option.textContent = trip.name;
+                tripSelect.appendChild(option);
         
-                            // ✅ 建立一個容器，把標題和按鈕包在一起
-                            const titleRow = document.createElement("div");
-                            titleRow.className = "d-flex justify-content-between align-items-center"; // Bootstrap 的排版工具
-                            // ✅ 建立標題（靠左）
-                            const title = document.createElement("h5");
-                            title.className = "trip-day-title mb-0"; // mb-0 取消多餘底部間距
-                            title.textContent = `${trip.name} 第 ${day.day_number} 天 - ${day.date}`;
-                            title.onclick = () => selectTripDay(trip.id, day.day_number);
-                            // ✅ 建立按鈕（靠右）
-                            const editRouteBtn = document.createElement("button");
-                            editRouteBtn.className = "btn btn-outline-primary btn-sm";
-                            editRouteBtn.textContent = "編輯路線";
-                            editRouteBtn.onclick = function () {
-                              console.log("✅ 編輯路線按鈕點擊，dayId =", day.id);  // 可留著除錯
-                              openMapModal(day.id);  // ✅ 加上這行才能開地圖彈窗！
-                            };
-                            // ✅ 把標題和按鈕加進同一個 div 裡
-                            titleRow.appendChild(title);
-                            titleRow.appendChild(editRouteBtn);
-                            // ✅ 最後把這個 div 加到 li 裡
-                            dayLi.appendChild(titleRow);
-                                    
-                            const attractionList = document.createElement("ul");
-                            attractionList.className = "list-group attraction-list mt-2";
-                            attractionList.id = `day_id_${day.id}`;
+                trip.days.forEach(day => {
+                  const dayLi = document.createElement("li");
+                  dayLi.className = "list-group-item trip-day";
+                  dayLi.dataset.tripId = trip.id;
+                  dayLi.style.display = "none";
         
-                            if (day.attractions && day.attractions.length > 0) {
-                                day.attractions.forEach(attr => {
-                                    const attrLi = document.createElement("li");
-                                    attrLi.className = "list-group-item p-2 d-flex justify-content-between align-items-center";
-                                    attrLi.id = `attraction_${attr.trip_day_attraction_id}`;
-                                    attrLi.innerHTML = `
-                                        <div class="d-flex align-items-center w-100">
-                                            <img src="${attr.image_url}" alt="${attr.name}" class="attraction-image me-3">
-                                            <div class="flex-grow-1">
-                                                <h5 class="mb-1">${attr.name}</h5>
-                                                <p class="text-muted mb-0">${attr.hashtag || "無標籤"}</p>
-                                            </div>
-                                        </div>
-                                        <button class="btn btn-danger btn-sm" onclick="removeAttraction(${attr.trip_day_attraction_id})">刪除</button>
-                                    `;
-                                    attractionList.appendChild(attrLi);
-                                });
-                            } else {
-                                const emptyMsg = document.createElement("p");
-                                emptyMsg.className = "text-muted empty-message";
-                                emptyMsg.textContent = "尚未安排景點";
-                                dayLi.appendChild(emptyMsg);
-                            }
+                  const titleRow = document.createElement("div");
+                  titleRow.className = "d-flex justify-content-between align-items-center";
         
-                            dayLi.appendChild(attractionList);
-
-
-
-                            tripList.appendChild(dayLi);
-                        });
+                  const title = document.createElement("h5");
+                  title.className = "trip-day-title mb-0";
+                  title.textContent = `${trip.name} 第 ${day.day_number} 天 - ${day.date}`;
+                  title.onclick = () => selectTripDay(trip.id, day.day_number);
+        
+                  const editRouteBtn = document.createElement("button");
+                  editRouteBtn.className = "btn btn-outline-primary btn-sm";
+                  editRouteBtn.textContent = "編輯路線";
+                  editRouteBtn.onclick = function () {
+                    console.log("✅ 編輯路線按鈕點擊，dayId =", day.id);
+                    openMapModal(day.id);
+                  };
+        
+                  titleRow.appendChild(title);
+                  titleRow.appendChild(editRouteBtn);
+                  dayLi.appendChild(titleRow);
+        
+                  // 建立景點清單 <ul>
+                  const attractionList = document.createElement("ul");
+                  attractionList.className = "list-group attraction-list mt-2";
+                  attractionList.id = `sortable-day-${day.id}`;
+        
+                  // 加入景點 <li>
+                  if (day.attractions && day.attractions.length > 0) {
+                    day.attractions.forEach(attr => {
+                      const attrLi = document.createElement("li");
+                      attrLi.className = "list-group-item p-2 d-flex justify-content-between align-items-center";
+                      attrLi.id = `attraction_${attr.trip_day_attraction_id}`;
+                      attrLi.innerHTML = `
+                        <div class="d-flex align-items-center w-100">
+                          <img src="${attr.image_url}" alt="${attr.name}" class="attraction-image me-3">
+                          <div class="flex-grow-1">
+                            <h5 class="mb-1">${attr.name}</h5>
+                            <p class="text-muted mb-0">${attr.hashtag || "無標籤"}</p>
+                          </div>
+                        </div>
+                        <button class="btn btn-danger btn-sm" onclick="removeAttraction(${attr.trip_day_attraction_id})">刪除</button>
+                      `;
+                      attractionList.appendChild(attrLi);
                     });
+                  } else {
+                    const emptyMsg = document.createElement("p");
+                    emptyMsg.className = "text-muted empty-message";
+                    emptyMsg.textContent = "尚未安排景點";
+                    dayLi.appendChild(emptyMsg);
+                  }
         
-                    if (selectedTripId) {
-                        tripSelect.value = selectedTripId;
-                        setTimeout(updateTripList, 100); // ✅ 確保更新列表
+                  dayLi.appendChild(attractionList);
+                  tripList.appendChild(dayLi);
+        
+                  // 拖曳功能
+                  new Sortable(attractionList, {
+                    animation: 150,
+                    onEnd: function (evt) {
+                      const newOrder = [];
+                      const listItems = evt.to.querySelectorAll("li");
+                      listItems.forEach(item => {
+                        const idStr = item.id;
+                        const attractionId = parseInt(idStr.replace("attraction_", ""));
+                        newOrder.push(attractionId);
+                      });
+                      console.log("✅ 拖曳完成，新順序：", newOrder);
                     }
-        
-                    if (callback) callback(); // ✅ 確保外部函式可以執行
+                  });
                 });
-        }
+              });
+        
+              // ✅ 把這段放進 .then() 裡！
+              if (selectedTripId) {
+                tripSelect.value = selectedTripId;
+                setTimeout(updateTripList, 100);  // ✅ 展開目前選中的行程
+              }
+        
+              if (callback) callback();  // ✅ 若有 callback 就執行
+            }); // ✅ 關閉 .then()
+        }       // ✅ 關閉 loadTrips()
+        
+                
+        
 
           // ✅ 下拉選單改變 → 顯示對應的行程日
           function updateTripList() {
               const selectedTripId = document.getElementById("select-trip").value;
+              console.log("✅ 正在展開 tripId =", selectedTripId);
+
               document.querySelectorAll(".trip-day").forEach(day => {
                   if (day.dataset.tripId === selectedTripId) {
                       day.style.display = "block";
@@ -671,6 +695,7 @@ function closeMapModal() {
           // ✅ 加入景點到行程後，同步更新左側並保持展開
 function addToTrip(attractionId, attractionName, hashtag, imageUrl) {
   const selectedTripDayId = document.getElementById(`trip-date-${attractionId}`).value;
+  const selectedTripId = document.getElementById("select-trip").value;  // ✅ 記住當前選擇的行程
 
   if (!selectedTripDayId) {
       alert("請先選擇行程與日期！");
@@ -678,7 +703,7 @@ function addToTrip(attractionId, attractionName, hashtag, imageUrl) {
   }
 
   const csrfToken = document.querySelector("[name=csrfmiddlewaretoken]").value;
-  const selectedTripId = document.getElementById("select-trip").value;  // ✅ 記住當前選擇的行程
+  
 
   fetch("/api/add-to-trip/", {
       method: "POST",
