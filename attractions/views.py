@@ -38,7 +38,7 @@ def showattractions(request):
 
 
 from django.contrib.auth.decorators import login_required
-
+from django.conf import settings
 
 @login_required
 def findattractions(request):
@@ -89,5 +89,6 @@ def findattractions(request):
 
     return render(request, "attraction1.html", {
         "cities": cities,
-        "trips": trip_data 
+        "trips": trip_data,
+        "GOOGLE_MAPS_API_KEY": settings.GOOGLE_MAPS_API_KEY,
     })
