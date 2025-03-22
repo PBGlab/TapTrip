@@ -250,6 +250,16 @@
 }
 
 
+.continue-btn {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  z-index: 20;
+  font-size: 14px;
+  padding: 6px 12px;
+  border-radius: 8px;
+}
+
 
 </style>
               
@@ -387,7 +397,7 @@
           <!-- 🔵 Google 地圖彈出框（放這裡） -->
     <div id="mapModal" class="map-modal">
       <div class="map-modal-content">
-        <span class="close-btn" onclick="closeMapModal()">&times;</span>
+        <button class="btn btn-secondary continue-btn" onclick="closeMapModal()">繼續尋找景點</button>
         <h4 class="map-title">行程路線地圖</h4>
         <div id="map" class="map-container" style="width: 90%; height: 700px;"></div>
       </div>
