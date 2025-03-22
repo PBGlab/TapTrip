@@ -17,10 +17,15 @@ $(function () {
   $(window).scroll(function () {
     var scrollbarLocation = $(this).scrollTop();
     scrollLink.each(function () {
-      var sectionOffset = $(this.hash).offset().top - 73;
-      if (sectionOffset <= scrollbarLocation) {
-        $(this).parent().addClass("active");
-        $(this).parent().siblings().removeClass("active");
+      const target = $(this.hash);
+      if (target.length) {
+        var sectionOffset = target.offset().top - 73;
+        if (sectionOffset <= scrollbarLocation) {
+          $(this).parent().addClass("active");
+          $(this).parent().siblings().removeClass("active");
+        }
+      } else {
+        console.warn("⚠️ 無法定位 hash 對象：", this.hash);
       }
     });
   });
