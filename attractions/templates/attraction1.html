@@ -397,7 +397,7 @@
           <!-- 🔵 Google 地圖彈出框（放這裡） -->
     <div id="mapModal" class="map-modal">
       <div class="map-modal-content">
-        <button class="btn btn-secondary continue-btn" onclick="closeMapModal()">繼續尋找景點</button>
+        <button class="btn btn-success continue-btn" onclick="saveRouteOrder()">儲存路線</button>
         <h4 class="map-title">行程路線地圖</h4>
         <div id="map" class="map-container" style="width: 90%; height: 700px;"></div>
       </div>
@@ -624,20 +624,10 @@
                   dayLi.appendChild(attractionList);
                   tripList.appendChild(dayLi);
         
-                  // 拖曳功能
-                  new Sortable(attractionList, {
-                    animation: 150,
-                    onEnd: function (evt) {
-                      const newOrder = [];
-                      const listItems = evt.to.querySelectorAll("li");
-                      listItems.forEach(item => {
-                        const idStr = item.id;
-                        const attractionId = parseInt(idStr.replace("attraction_", ""));
-                        newOrder.push(attractionId);
-                      });
-                      console.log("✅ 拖曳完成，新順序：", newOrder);
-                    }
-                  });
+
+
+
+
                 });
               });
         
@@ -679,17 +669,47 @@ function openMapModal(dayId) {
     zoom: 13
   });
 
+    // ✅ 這裡初始化拖曳 有地圖才能改順序
+    const attractionList = document.getElementById(`sortable-day-${dayId}`);
+    if (attractionList && !attractionList.classList.contains("sortable-initialized")) {
+      new Sortable(attractionList, {
+        animation: 150,
+        onEnd: function (evt) {
+          const newOrder = [];
+          const listItems = evt.to.querySelectorAll("li");
+          listItems.forEach(item => {
+            const idStr = item.id;
+            const attractionId = parseInt(idStr.replace("attraction_", ""));
+            newOrder.push(attractionId);
+          });
+          console.log("✅ 拖曳完成，新順序：", newOrder);
+        }
+      });
+  
+      attractionList.classList.add("sortable-initialized");
+    }
+
+
+
   // 可選：加一個假 marker
   new google.maps.Marker({
     position: { lat: 24.796, lng: 120.993 },
     map: map,
     title: "景點示意"
   });
+
+    // 設定全域變數，供 saveRouteOrder() 使用
+    window.currentEditingDayId = dayId;
 }
 
 // 🔵 關閉地圖彈出框
 function closeMapModal() {
   document.getElementById("mapModal").style.display = "none";
+
+  // ✅ 關閉地圖時，移除所有 .sortable-initialized 標記，讓下次重新啟用拖曳
+  const attractionLists = document.querySelectorAll(".sortable-initialized");
+  attractionLists.forEach(list => list.classList.remove("sortable-initialized"));
+
 }
           
           // ✅ 加入景點到行程後，同步更新左側並保持展開
@@ -755,24 +775,49 @@ function addToTrip(attractionId, attractionName, hashtag, imageUrl) {
               .catch(error => console.error("刪除景點時發生錯誤:", error));
           }
 
-          function openMapModal(dayId) {
-            document.getElementById("mapModal").style.display = "flex";
-          
-            const map = new google.maps.Map(document.getElementById("map"), {
-              center: { lat: 24.796, lng: 120.993 }, // 預設中心點
-              zoom: 13
-            });
-          
-            new google.maps.Marker({
-              position: { lat: 24.796, lng: 120.993 },
-              map: map,
-              title: "景點示意"
-            });
-          }
+
           
           function closeMapModal() {
             document.getElementById("mapModal").style.display = "none";
           }
+
+          //儲存路線
+          function saveRouteOrder() {
+            // ✅ 抓出目前開啟的 dayId（可以用全域變數或暫存 DOM 來記住）
+            const dayId = window.currentEditingDayId;
+          
+            const list = document.getElementById(`sortable-day-${dayId}`);
+            const attractionIds = Array.from(list.querySelectorAll("li")).map(item => {
+              return parseInt(item.id.replace("attraction_", ""));
+            });
+          
+            console.log("📤 要儲存的新順序：", attractionIds);
+          
+            fetch(`/api/trip-day/${dayId}/reorder/`, {
+              method: "POST",
+              headers: {
+                "X-CSRFToken": document.querySelector("[name=csrfmiddlewaretoken]").value,
+                "Content-Type": "application/json"
+              },
+              body: JSON.stringify({
+                order: attractionIds
+              })
+            })
+              .then(response => response.json())
+              .then(data => {
+                if (data.success) {
+                  alert("✅ 順序儲存成功！");
+                  closeMapModal();  // ✅ 關掉地圖
+                  loadTrips();      // ✅ 重新抓一次資料（包含順序）
+                } else {
+                  alert("❌ 儲存失敗！");
+                }
+              })
+              .catch(error => {
+                console.error("❌ 儲存時發生錯誤：", error);
+              });
+          }
+
 
 
           </script>

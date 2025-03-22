@@ -215,3 +215,22 @@ def complete_trip(request, trip_id):
     trip.status = "completed"
     trip.save()
     return redirect('view_trip', trip_id=trip.id)
+
+
+@csrf_exempt  # 或用 @login_required，如果你有登入驗證
+def reorder_trip_day(request, day_id):
+    if request.method == "POST":
+        try:
+            data = json.loads(request.body)
+            new_order = data.get("order", [])  # 前端送來的 attraction id list
+            print("✅ 收到排序請求：", new_order)
+
+            for index, attraction_id in enumerate(new_order):
+                TripDayAttraction.objects.filter(id=attraction_id, trip_day_id=day_id).update(order=index)
+
+            return JsonResponse({"success": True})
+        except Exception as e:
+            print("❌ 排序失敗：", e)
+            return JsonResponse({"success": False, "error": str(e)})
+    else:
+        return JsonResponse({"error": "Invalid request"}, status=400)

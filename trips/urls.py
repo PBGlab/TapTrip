@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import create_trip, delete_trip, list_trips, complete_trip,add_to_trip,api_trips,delete_attraction
+from .views import create_trip, delete_trip, list_trips, complete_trip,add_to_trip,api_trips,delete_attraction ,reorder_trip_day
 urlpatterns = [
     # 顯示「建立行程」頁面
     path('create/', create_trip, name='create_trip'),
@@ -21,4 +21,7 @@ urlpatterns = [
 
     # 完成行程
     path('complete/<int:trip_id>/', complete_trip, name='complete_trip'),
+
+    # ✅ 接收前端送來的景點排序結果，更新 TripDayAttraction 中的順序（order 欄位）
+    path("api/trip-day/<int:day_id>/reorder/", reorder_trip_day, name="reorder_trip_day"),
 ]
