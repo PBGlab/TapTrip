@@ -683,7 +683,7 @@
                   tripList.appendChild(dayLi);
 
                   // ✅ 每次載入完當日行程，就觸發時間計算
-                  getRouteData(day.id, (response) => {
+                  getRouteData(day.id,map, (response) => {
                     // 等 DOM 渲染完成再插入
                     setTimeout(() => {
                       renderRouteUI(day.id, response);
@@ -728,12 +728,11 @@
           }
 
           function drawRouteOnMap(dayId, map) {
-            // 🔁 清除舊路線
             if (window.currentDirectionsRenderer) {
               window.currentDirectionsRenderer.setMap(null);
             }
           
-            const listItems = document.querySelectorAll(`#sortable-day-${dayId} li`);
+            const listItems = document.querySelectorAll(`#sortable-day-${dayId} li:not(.duration-info)`);
             const pathCoordinates = [];
           
             listItems.forEach(item => {
@@ -745,14 +744,25 @@
               }
             });
           
-            console.log("📍 畫線資料（導航模式）：", pathCoordinates);
+            if (pathCoordinates.length === 1) {
+              console.warn("⚠️ 只有一個點，顯示 marker");
           
-            if (pathCoordinates.length < 2) {
-              console.warn("⚠️ 至少要有兩個點才可規劃路線");
+              new google.maps.Marker({
+                position: pathCoordinates[0],
+                map: map,
+                title: "景點位置"
+              });
+          
+              map.setCenter(pathCoordinates[0]);
+              map.setZoom(15);
               return;
             }
           
-            // ✅ 新增 DirectionsRenderer 並儲存起來
+            if (pathCoordinates.length < 2) {
+              console.warn("⚠️ 沒有足夠的點來畫路線");
+              return;
+            }
+          
             const directionsRenderer = new google.maps.DirectionsRenderer({
               map: map,
               suppressMarkers: false
@@ -761,17 +771,13 @@
           
             const directionsService = new google.maps.DirectionsService();
           
-            const origin = pathCoordinates[0];
-            const destination = pathCoordinates[pathCoordinates.length - 1];
-            const waypoints = pathCoordinates.slice(1, -1).map(coord => ({
-              location: coord,
-              stopover: true
-            }));
-          
             directionsService.route({
-              origin: origin,
-              destination: destination,
-              waypoints: waypoints,
+              origin: pathCoordinates[0],
+              destination: pathCoordinates[pathCoordinates.length - 1],
+              waypoints: pathCoordinates.slice(1, -1).map(coord => ({
+                location: coord,
+                stopover: true
+              })),
               travelMode: google.maps.TravelMode.DRIVING
             }, function (response, status) {
               if (status === 'OK') {
@@ -781,6 +787,7 @@
               }
             });
           }
+          
           
           
           
@@ -994,7 +1001,7 @@ function addToTrip(attractionId, attractionName, hashtag, imageUrl) {
               });
           }
 
-          function getRouteData(dayId, callback) {
+          function getRouteData(dayId,map, callback) {
             const listItems = document.querySelectorAll(`#sortable-day-${dayId} li:not(.duration-info)`);
           
             const pathCoordinates = [];
@@ -1008,8 +1015,10 @@ function addToTrip(attractionId, attractionName, hashtag, imageUrl) {
               }
             });
           
+          
+            
             if (pathCoordinates.length < 2) {
-              console.warn("⚠️ 至少要有兩個點才可規劃路線");
+              console.warn("⚠️ 沒有足夠的點來畫路線");
               return;
             }
           
