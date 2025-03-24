@@ -904,25 +904,44 @@ function addToTrip(attractionId, attractionName, hashtag, imageUrl) {
           
           // ✅ 刪除景點函式
           function removeAttraction(attractionId) {
-              if (!confirm("確定要刪除此景點嗎？")) return;
+            if (!confirm("確定要刪除此景點嗎？")) return;
           
-              fetch(`/api/delete-attraction/${attractionId}/`, {
-                  method: "DELETE",
-                  headers: {
-                      "X-CSRFToken": document.querySelector("[name=csrfmiddlewaretoken]").value
-                  }
-              })
-              .then(response => response.json())
-              .then(data => {
-                  if (data.success) {
-                      alert("景點已刪除");
-                      document.getElementById(`attraction_${attractionId}`).remove(); // ✅ 即時移除畫面上的景點
-                  } else {
-                      alert("刪除失敗，請稍後再試");
-                  }
-              })
-              .catch(error => console.error("刪除景點時發生錯誤:", error));
+            fetch(`/api/delete-attraction/${attractionId}/`, {
+              method: "DELETE",
+              headers: {
+                "X-CSRFToken": document.querySelector("[name=csrfmiddlewaretoken]").value
+              }
+            })
+            .then(response => response.json())
+            .then(data => {
+              if (data.success) {
+                alert("景點已刪除");
+                const deletedLi = document.getElementById(`attraction_${attractionId}`);
+                if (deletedLi) {
+                  const parentUl = deletedLi.closest("ul");
+                  const dayIdStr = parentUl.id.replace("sortable-day-", "");
+                  const dayId = parseInt(dayIdStr);
+          
+                  // ✅ 移除景點卡片
+                  deletedLi.remove();
+          
+                  // ✅ 移除所有舊的預估時間
+                  document.querySelectorAll(`#sortable-day-${dayId} .duration-info`).forEach(el => el.remove());
+          
+                  // ✅ 重新計算路線與時間
+                  getRouteData(dayId, (response) => {
+                    setTimeout(() => {
+                      renderRouteUI(dayId, response);
+                    }, 50);
+                  });
+                }
+              } else {
+                alert("刪除失敗，請稍後再試");
+              }
+            })
+            .catch(error => console.error("刪除景點時發生錯誤:", error));
           }
+          
 
 
           
