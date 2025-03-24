@@ -270,6 +270,25 @@
   text-align: center;
 }
 
+.duration-info {
+  font-size: 14px;
+  color: #fff;
+  font-weight: 500;
+  margin: 4px 0 4px 60px;
+  padding-left: 20px;
+  position: relative;
+  line-height: 1.5;
+}
+
+.duration-info::before {
+  content: "🚗";
+  position: absolute;
+  left: 0;
+  top: 0;
+}
+
+
+
 </style>
               
 
@@ -659,10 +678,15 @@
         
                   dayLi.appendChild(attractionList);
                   tripList.appendChild(dayLi);
-        
 
-
-
+                  // ✅ 每次載入完當日行程，就觸發時間計算
+                  getRouteData(day.id, (response) => {
+                    // 等 DOM 渲染完成再插入
+                    setTimeout(() => {
+                      renderRouteUI(day.id, response);
+                    }, 50);
+                  });
+      
 
                 });
                 // ✅ 🔽 加在這裡就對了！
@@ -785,11 +809,20 @@ function openMapModal(dayId) {
             newOrder.push(attractionId);
           });
           console.log("✅ 拖曳完成，新順序：", newOrder);
-
-          drawRouteOnMap(dayId, map);  // ✅ 拖曳後自動重畫線
+    
+          // ✅ 拖曳後重新畫地圖（如果有開啟）
+          drawRouteOnMap(dayId, map);
+    
+          // ✅ 拖曳後更新預估時間
+          getRouteData(selectedTripDayId, (response) => {
+            // 等待 DOM 插入完成再插入時間
+            setTimeout(() => {
+              renderRouteUI(selectedTripDayId, response);
+            }, 50);
+          });
         }
       });
-  
+    
       attractionList.classList.add("sortable-initialized");
     }
 
@@ -809,45 +842,52 @@ function closeMapModal() {
 
 }
           
-          // ✅ 加入景點到行程後，同步更新左側並保持展開
+// ✅ 加入景點到行程後，同步更新左側並保持展開
 function addToTrip(attractionId, attractionName, hashtag, imageUrl) {
   const selectedTripDayId = document.getElementById(`trip-date-${attractionId}`).value;
   const selectedTripId = document.getElementById("select-trip").value;  // ✅ 記住當前選擇的行程
 
   if (!selectedTripDayId) {
-      alert("請先選擇行程與日期！");
-      return;
+    alert("請先選擇行程與日期！");
+    return;
   }
 
   const csrfToken = document.querySelector("[name=csrfmiddlewaretoken]").value;
-  
 
   fetch("/api/add-to-trip/", {
-      method: "POST",
-      headers: {
-          "X-CSRFToken": csrfToken,
-          "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-          trip_day_id: selectedTripDayId,
-          attraction: attractionId
-      })
+    method: "POST",
+    headers: {
+      "X-CSRFToken": csrfToken,
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      trip_day_id: selectedTripDayId,
+      attraction: attractionId
+    })
   })
-  .then(response => response.json())
-  .then(data => {
+    .then(response => response.json())
+    .then(data => {
       if (data.success) {
-          alert("成功將景點加入行程！");
-          loadTrips(() => {
-              // ✅ 確保行程不會被收起
-              document.getElementById("select-trip").value = selectedTripId;
-              updateTripList();  // ✅ 重新展開選擇的行程
+        alert("成功將景點加入行程！");
+        loadTrips(() => {
+          // ✅ 確保行程不會被收起
+          document.getElementById("select-trip").value = selectedTripId;
+          updateTripList();  // ✅ 重新展開選擇的行程
+
+          // ✨ 加入景點後即時顯示預估時間
+          getRouteData(selectedTripDayId, (response) => {
+            renderRouteUI(selectedTripDayId, response);
           });
+        });
       } else {
-          alert("加入失敗，請稍後再試！");
+        alert("加入失敗，請稍後再試！");
       }
-  })
-  .catch(error => console.error("Error:", error));
+    })
+    .catch(error => {
+      console.error("❌ 加入景點時發生錯誤：", error);
+    });
 }
+
 
           
           // ✅ 刪除景點函式
@@ -913,6 +953,65 @@ function addToTrip(attractionId, attractionName, hashtag, imageUrl) {
               .catch(error => {
                 console.error("❌ 儲存時發生錯誤：", error);
               });
+          }
+
+          //計算路線時間
+          function getRouteData(dayId, callback) {
+            const listItems = document.querySelectorAll(`#sortable-day-${dayId} li`);
+            const pathCoordinates = [];
+          
+            listItems.forEach(item => {
+              const idStr = item.id.replace("attraction_", "");
+              const attrId = parseInt(idStr);
+              const data = window.attractionDataById[attrId];
+              if (data) {
+                pathCoordinates.push({ lat: data.lat, lng: data.lng });
+              }
+            });
+          
+            if (pathCoordinates.length < 2) {
+              console.warn("⚠️ 至少要有兩個點才可規劃路線");
+              return;
+            }
+          
+            const directionsService = new google.maps.DirectionsService();
+            const origin = pathCoordinates[0];
+            const destination = pathCoordinates[pathCoordinates.length - 1];
+            const waypoints = pathCoordinates.slice(1, -1).map(coord => ({
+              location: coord,
+              stopover: true
+            }));
+          
+            directionsService.route({
+              origin,
+              destination,
+              waypoints,
+              travelMode: google.maps.TravelMode.DRIVING
+            }, (response, status) => {
+              if (status === 'OK') {
+                callback(response);
+              } else {
+                console.error("❌ 路線規劃失敗：", status);
+              }
+            });
+          }
+
+          //取得路線數據
+          function renderRouteUI(dayId, response) {
+            const legs = response.routes[0].legs;
+            const listItems = document.querySelectorAll(`#sortable-day-${dayId} li`);
+
+            console.log("🧭 顯示預估時間中...", dayId);
+            // 移除舊的時間
+            document.querySelectorAll(`#sortable-day-${dayId} .duration-info`).forEach(el => el.remove());
+          
+            for (let i = 0; i < legs.length; i++) {
+              const durationText = legs[i].duration.text;
+              const durationLi = document.createElement("li");
+              durationLi.className = "duration-info";
+              durationLi.textContent = `預計車程：${durationText}`;
+              listItems[i].after(durationLi);
+            }
           }
 
 
