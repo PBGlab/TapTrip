@@ -787,6 +787,14 @@
 
 // 🔵 開啟地圖彈出框並載入 Google Maps
 function openMapModal(dayId) {
+
+  // ✅ 隱藏搜尋結果區塊
+  const resultContainer = document.getElementById("result-container");
+  if (resultContainer) {
+    resultContainer.style.display = "none";
+  }
+
+
   document.getElementById("mapModal").style.display = "flex";  // 顯示地圖彈出
 
   // TODO：你可以改成從 API 根據 dayId 抓景點座標並畫線
