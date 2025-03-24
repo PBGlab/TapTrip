@@ -131,6 +131,10 @@
 .attraction-list .list-group-item {
   background-color: #ffffff !important; /* 確保景點列表為白色 */
   color: #000000; /* 黑色字體確保可讀性 */
+  padding: 0; /* 移除 Bootstrap 的預設內距 */
+  margin-bottom: 8px; /* 圖卡間距靠這裡控制 */
+  background-color: transparent; /* 不讓 li 加底色 */
+  border: none;
 }
 
 
@@ -274,18 +278,17 @@
   font-size: 14px;
   color: #fff;
   font-weight: 500;
-  margin: 4px 0 4px 60px;
-  padding-left: 20px;
-  position: relative;
   line-height: 1.5;
+  margin: 4px 0;
+  padding-left: 24px;   /* 控制 🚗 與文字的間距 */
+  text-align: left;     /* ✅ 明確指定靠左 */
+  position: relative;
 }
-
 .duration-info::before {
   content: "🚗";
   position: absolute;
   left: 0;
-  top: 0;
-}
+  top:
 
 
 
