@@ -681,14 +681,9 @@
         
                   dayLi.appendChild(attractionList);
                   tripList.appendChild(dayLi);
-
-                  // ✅ 每次載入完當日行程，就觸發時間計算
-                  getRouteData(day.id,map, (response) => {
-                    // 等 DOM 渲染完成再插入
-                    setTimeout(() => {
-                      renderRouteUI(day.id, response);
-                    }, 50);
-                  });
+                  
+                  // ✅ 載入完景點就自動顯示預估時間
+                  drawRouteOnMap(day.id, new google.maps.Map(document.createElement("div")));
       
 
                 });
@@ -734,6 +729,7 @@
           
             const listItems = document.querySelectorAll(`#sortable-day-${dayId} li:not(.duration-info)`);
             const pathCoordinates = [];
+            const attractionIds = [];
           
             listItems.forEach(item => {
               const idStr = item.id.replace("attraction_", "");
@@ -741,6 +737,7 @@
               const data = window.attractionDataById[attrId];
               if (data) {
                 pathCoordinates.push({ lat: data.lat, lng: data.lng });
+                attractionIds.push(attrId);
               }
             });
           
@@ -782,6 +779,9 @@
             }, function (response, status) {
               if (status === 'OK') {
                 directionsRenderer.setDirections(response);
+          
+                // ✅ 畫出行車距離文字
+                renderRouteUI(dayId, response);
               } else {
                 console.error('❌ 規劃路線失敗：', status);
               }
@@ -833,7 +833,7 @@ function openMapModal(dayId) {
       
           drawRouteOnMap(dayId, map);
       
-          getRouteData(dayId, (response) => {
+          drawRouteOnMap(dayId, (response) => {
             setTimeout(() => {
               renderRouteUI(dayId, response);
             }, 50);
@@ -1001,7 +1001,7 @@ function addToTrip(attractionId, attractionName, hashtag, imageUrl) {
               });
           }
 
-          function getRouteData(dayId,map, callback) {
+          function getRouteData(dayId, callback) {
             const listItems = document.querySelectorAll(`#sortable-day-${dayId} li:not(.duration-info)`);
           
             const pathCoordinates = [];
@@ -1015,12 +1015,7 @@ function addToTrip(attractionId, attractionName, hashtag, imageUrl) {
               }
             });
           
-          
-            
-            if (pathCoordinates.length < 2) {
-              console.warn("⚠️ 沒有足夠的點來畫路線");
-              return;
-            }
+            if (pathCoordinates.length < 2) return; // 可加 fallback
           
             const directionsService = new google.maps.DirectionsService();
             directionsService.route({
@@ -1032,7 +1027,7 @@ function addToTrip(attractionId, attractionName, hashtag, imageUrl) {
               if (status === 'OK') {
                 callback(response);
               } else {
-                console.error("❌ 路線規劃失敗：", status);
+                console.error("❌ 路線預估失敗：", status);
               }
             });
           }
