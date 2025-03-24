@@ -803,28 +803,37 @@ function openMapModal(dayId) {
     if (attractionList && !attractionList.classList.contains("sortable-initialized")) {
       new Sortable(attractionList, {
         animation: 150,
+        filter: ".duration-info", // 排除預估時間行
         onEnd: function (evt) {
+          const listItems = evt.to.querySelectorAll("li:not(.duration-info)");
+      
           const newOrder = [];
-          const listItems = evt.to.querySelectorAll("li");
           listItems.forEach(item => {
             const idStr = item.id;
             const attractionId = parseInt(idStr.replace("attraction_", ""));
             newOrder.push(attractionId);
           });
+      
           console.log("✅ 拖曳完成，新順序：", newOrder);
-    
-          // ✅ 拖曳後重新畫地圖（如果有開啟）
+      
           drawRouteOnMap(dayId, map);
-    
-          // ✅ 拖曳後更新預估時間
-          getRouteData(selectedTripDayId, (response) => {
-            // 等待 DOM 插入完成再插入時間
+      
+          getRouteData(dayId, (response) => {
             setTimeout(() => {
-              renderRouteUI(selectedTripDayId, response);
+              renderRouteUI(dayId, response);
             }, 50);
+          });
+
+          // ✅ 更新 title-marker (A/B/C...)
+          listItems.forEach((item, idx) => {
+            const markerSpan = item.querySelector(".title-marker");
+            if (markerSpan) {
+              markerSpan.textContent = String.fromCharCode(65 + idx);
+            }
           });
         }
       });
+      
     
       attractionList.classList.add("sortable-initialized");
     }
@@ -958,9 +967,9 @@ function addToTrip(attractionId, attractionName, hashtag, imageUrl) {
               });
           }
 
-          //計算路線時間
           function getRouteData(dayId, callback) {
-            const listItems = document.querySelectorAll(`#sortable-day-${dayId} li`);
+            const listItems = document.querySelectorAll(`#sortable-day-${dayId} li:not(.duration-info)`);
+          
             const pathCoordinates = [];
           
             listItems.forEach(item => {
@@ -978,17 +987,10 @@ function addToTrip(attractionId, attractionName, hashtag, imageUrl) {
             }
           
             const directionsService = new google.maps.DirectionsService();
-            const origin = pathCoordinates[0];
-            const destination = pathCoordinates[pathCoordinates.length - 1];
-            const waypoints = pathCoordinates.slice(1, -1).map(coord => ({
-              location: coord,
-              stopover: true
-            }));
-          
             directionsService.route({
-              origin,
-              destination,
-              waypoints,
+              origin: pathCoordinates[0],
+              destination: pathCoordinates[pathCoordinates.length - 1],
+              waypoints: pathCoordinates.slice(1, -1).map(coord => ({ location: coord, stopover: true })),
               travelMode: google.maps.TravelMode.DRIVING
             }, (response, status) => {
               if (status === 'OK') {
@@ -998,14 +1000,16 @@ function addToTrip(attractionId, attractionName, hashtag, imageUrl) {
               }
             });
           }
+          
 
           //取得路線數據
           function renderRouteUI(dayId, response) {
             const legs = response.routes[0].legs;
-            const listItems = document.querySelectorAll(`#sortable-day-${dayId} li`);
-
-            console.log("🧭 顯示預估時間中...", dayId);
-            // 移除舊的時間
+          
+            // 只抓景點卡片 li（排除預估時間 li）
+            const listItems = document.querySelectorAll(`#sortable-day-${dayId} li:not(.duration-info)`);
+          
+            // 清除舊的預估時間區塊
             document.querySelectorAll(`#sortable-day-${dayId} .duration-info`).forEach(el => el.remove());
           
             for (let i = 0; i < legs.length; i++) {
@@ -1016,6 +1020,7 @@ function addToTrip(attractionId, attractionName, hashtag, imageUrl) {
               listItems[i].after(durationLi);
             }
           }
+          
 
 
 
