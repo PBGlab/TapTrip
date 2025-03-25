@@ -340,12 +340,17 @@
                             <span class="separator">  | <strong>行程天數總計 {{ item.total_days }} 天</strong></span>
                         </p>
                     </div>
+                    <!-- 行程管理按鈕 -->
+                    <div class="btn-group">
+                        <button class="main-btn delete-btn" onclick="deleteTrip({{ item.trip.id }})">
+                        <strong>刪除行程</strong>
+                        </button>
+                    </div>
                 </div>
         
                 <!-- 每日行程資訊 -->
                 {% for day in item.days %}
-                <div class="single_blog d-sm-flex mt-30 align-items-center justify-content-between">
-                    <!-- 左側：標題 -->
+                <div class="single_blog mt-30">
                     <div class="blog_content blog_content_2 media-body">
                         <h4 class="blog_title">
                             <strong>第 {{ forloop.counter }} 天</strong> |&nbsp;  {{ day.date }} - 目前已安排 {{ day.attraction_count }} 個景點
@@ -354,11 +359,38 @@
                     
                     <!-- 右側：添加行程按鈕 -->
                     <div>
-                        <a href="/findattractions/?selected_trip={{ item.trip.id }}" class="main-btn">添加景點</a>
+                        <a href="/findattractions/?selected_trip={{ item.trip.id }}" class="main-btn">編輯</a>
                     </div>
+
+                    <!-- ✅ 景點卡片 -->
+                    {% if day.attractions %}
+                    <div class="mt-2 w-100">
+                        {% for attr in day.attractions %}
+                        <div class="card mb-2 p-3" style="background-color:#f9f9f9; border-radius: 10px;">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <!-- 左側：圖片 + 文字 -->
+                                <div class="d-flex align-items-center" style="flex: 1;">
+                                    <img src="{{ attr.image_url }}" alt="{{ attr.name }}"
+                                        style="width:80px; height:80px; object-fit:cover; border-radius:8px; margin-right:15px;">
+                                    <div>
+                                        <strong>{{ forloop.counter }}. {{ attr.name }}</strong><br>
+                                        <small>{{ attr.city }}</small>
+                                        <span style="font-size: 13px; color: #888;">{{ attr.hashtag }}</span>
+                                    </div>
+                                </div>
+
+                                <div class="text-right d-flex flex-column justify-content-center align-items-end" style="min-width: 130px;">
+                                    <a href="{{ attr.googlemap }}" target="_blank" style="color:#007bff;"><strong>取得位置</strong></a>
+                                    <a href="{{ attr.link }}" target="_blank" style="color:#f39c12;"><strong>完整資訊</strong></a>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
                 </div>
-                
                 {% endfor %}
+
                 <div class="single_blog d-sm-flex mt-30">
                     <div class="blog_content blog_content_2 media-body">
                         {% if item.has_lodging %}
@@ -404,14 +436,13 @@
                             </div>
                         {% endif %}
                     </div>
-                </div>     
+                </div>
                 <!-- 行程管理按鈕 -->
                 <div class="btn-group">
-                    <a href="/findattractions/?selected_trip={{ item.trip.id }}" target="_blank" class="main-btn"><strong>編輯行程</strong></a>
                     <button class="main-btn delete-btn" onclick="deleteTrip({{ item.trip.id }})">
-                    <strong>刪除行程</strong>
+                    <strong>完成行程</strong>
                     </button>
-                </div>
+                </div>    
             </div>
         {% endfor %}
     </div> <!-- container -->
