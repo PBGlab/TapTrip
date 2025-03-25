@@ -290,7 +290,7 @@
   left: 0;
   top:
 
-
+}
 
 </style>
               
@@ -578,6 +578,7 @@
         });
         
         function loadTrips(callback) {
+          
           window.attractionDataById = {};  // ✅ 放這裡，表示每次重抓行程時清空舊資料
           fetch("/api/trips/")
             .then(response => response.json())
@@ -681,9 +682,9 @@
         
                   dayLi.appendChild(attractionList);
                   tripList.appendChild(dayLi);
-                  
-                  // ✅ 載入完景點就自動顯示預估時間
-                  drawRouteOnMap(day.id, new google.maps.Map(document.createElement("div")));
+
+                  // ✅ 每次載入完當日行程，就初始化地圖資料（不顯示真正地圖）
+                  initializeDayRouteUI(day.id, new google.maps.Map(document.createElement("div")));
       
 
                 });
@@ -722,71 +723,6 @@
               });
           }
 
-          function drawRouteOnMap(dayId, map) {
-            if (window.currentDirectionsRenderer) {
-              window.currentDirectionsRenderer.setMap(null);
-            }
-          
-            const listItems = document.querySelectorAll(`#sortable-day-${dayId} li:not(.duration-info)`);
-            const pathCoordinates = [];
-            const attractionIds = [];
-          
-            listItems.forEach(item => {
-              const idStr = item.id.replace("attraction_", "");
-              const attrId = parseInt(idStr);
-              const data = window.attractionDataById[attrId];
-              if (data) {
-                pathCoordinates.push({ lat: data.lat, lng: data.lng });
-                attractionIds.push(attrId);
-              }
-            });
-          
-            if (pathCoordinates.length === 1) {
-              console.warn("⚠️ 只有一個點，顯示 marker");
-          
-              new google.maps.Marker({
-                position: pathCoordinates[0],
-                map: map,
-                title: "景點位置"
-              });
-          
-              map.setCenter(pathCoordinates[0]);
-              map.setZoom(15);
-              return;
-            }
-          
-            if (pathCoordinates.length < 2) {
-              console.warn("⚠️ 沒有足夠的點來畫路線");
-              return;
-            }
-          
-            const directionsRenderer = new google.maps.DirectionsRenderer({
-              map: map,
-              suppressMarkers: false
-            });
-            window.currentDirectionsRenderer = directionsRenderer;
-          
-            const directionsService = new google.maps.DirectionsService();
-          
-            directionsService.route({
-              origin: pathCoordinates[0],
-              destination: pathCoordinates[pathCoordinates.length - 1],
-              waypoints: pathCoordinates.slice(1, -1).map(coord => ({
-                location: coord,
-                stopover: true
-              })),
-              travelMode: google.maps.TravelMode.DRIVING
-            }, function (response, status) {
-              if (status === 'OK') {
-                directionsRenderer.setDirections(response);
-          
-                // ✅ 畫出行車距離文字
-                renderRouteUI(dayId, response);
-              } else {
-                console.error('❌ 規劃路線失敗：', status);
-              }
-            });
-          }
           
           
           
@@ -810,7 +746,8 @@ function openMapModal(dayId) {
     center: { lat: 24.796, lng: 120.993 },  // 預設中心點（苗栗中間值）
     zoom: 13
   });
-  drawRouteOnMap(dayId, map);
+  window.currentMapInstance = map; // ✅ 每次更新最新地圖物件
+  initializeDayRouteUI(dayId, map);
 
 
     // ✅ 這裡初始化拖曳 有地圖才能改順序
@@ -830,10 +767,13 @@ function openMapModal(dayId) {
           });
       
           console.log("✅ 拖曳完成，新順序：", newOrder);
+
+          const map = window.currentMapInstance; // ✅ 拿到最新的地圖
       
-          drawRouteOnMap(dayId, map);
+          // 2. 更新整個地圖與 UI
+          initializeDayRouteUI(dayId, map);
       
-          drawRouteOnMap(dayId, (response) => {
+          getRouteData(dayId, (response) => {
             setTimeout(() => {
               renderRouteUI(dayId, response);
             }, 50);
@@ -901,10 +841,8 @@ function addToTrip(attractionId, attractionName, hashtag, imageUrl) {
           document.getElementById("select-trip").value = selectedTripId;
           updateTripList();  // ✅ 重新展開選擇的行程
 
-          // ✨ 加入景點後即時顯示預估時間
-          getRouteData(selectedTripDayId, (response) => {
-            renderRouteUI(selectedTripDayId, response);
-          });
+          initializeDayRouteUI(selectedTripDayId, new google.maps.Map(document.createElement("div")));
+
         });
       } else {
         alert("加入失敗，請稍後再試！");
@@ -940,15 +878,8 @@ function addToTrip(attractionId, attractionName, hashtag, imageUrl) {
                   // ✅ 移除景點卡片
                   deletedLi.remove();
           
-                  // ✅ 移除所有舊的預估時間
-                  document.querySelectorAll(`#sortable-day-${dayId} .duration-info`).forEach(el => el.remove());
-          
-                  // ✅ 重新計算路線與時間
-                  getRouteData(dayId, (response) => {
-                    setTimeout(() => {
-                      renderRouteUI(dayId, response);
-                    }, 50);
-                  });
+                  initializeDayRouteUI(dayId, new google.maps.Map(document.createElement("div")));
+
                 }
               } else {
                 alert("刪除失敗，請稍後再試");
@@ -1050,6 +981,76 @@ function addToTrip(attractionId, attractionName, hashtag, imageUrl) {
               durationLi.textContent = `預計車程：${durationText}`;
               listItems[i].after(durationLi);
             }
+          }
+          
+
+
+
+          function initializeDayRouteUI(dayId, map) {
+            // 🔁 清除舊的地圖線
+            if (window.currentDirectionsRenderer) {
+              window.currentDirectionsRenderer.setMap(null);
+            }
+          
+            const listItems = document.querySelectorAll(`#sortable-day-${dayId} li:not(.duration-info)`);
+            const pathCoordinates = [];
+          
+            listItems.forEach(item => {
+              const idStr = item.id.replace("attraction_", "");
+              const attrId = parseInt(idStr);
+              const data = window.attractionDataById[attrId];
+              if (data) {
+                pathCoordinates.push({ lat: data.lat, lng: data.lng });
+              }
+            });
+          
+            // 🟡 只有一個點 → 顯示 Marker
+            if (pathCoordinates.length === 1) {
+              new google.maps.Marker({
+                position: pathCoordinates[0],
+                map: map,
+                title: "景點位置"
+              });
+              map.setCenter(pathCoordinates[0]);
+              map.setZoom(15);
+              return;
+            }
+          
+            // 🔴 沒點就不處理
+            if (pathCoordinates.length < 1) return;
+          
+            // 🔵 多點 → 規劃路線 + 顯示距離 + ABC 標籤
+            const directionsService = new google.maps.DirectionsService();
+            const directionsRenderer = new google.maps.DirectionsRenderer({ map, suppressMarkers: false });
+            window.currentDirectionsRenderer = directionsRenderer;
+          
+            directionsService.route({
+              origin: pathCoordinates[0],
+              destination: pathCoordinates[pathCoordinates.length - 1],
+              waypoints: pathCoordinates.slice(1, -1).map(coord => ({
+                location: coord,
+                stopover: true
+              })),
+              travelMode: google.maps.TravelMode.DRIVING
+            }, function (response, status) {
+              if (status === 'OK') {
+                directionsRenderer.setDirections(response);
+          
+                // ✅ 更新預估時間
+                renderRouteUI(dayId, response);
+          
+                // ✅ 更新 ABC 標籤
+                const updatedList = document.querySelectorAll(`#sortable-day-${dayId} li:not(.duration-info)`);
+                updatedList.forEach((item, idx) => {
+                  const markerSpan = item.querySelector(".title-marker");
+                  if (markerSpan) {
+                    markerSpan.textContent = String.fromCharCode(65 + idx);
+                  }
+                });
+              } else {
+                console.error("❌ 路線規劃失敗：", status);
+              }
+            });
           }
           
 
