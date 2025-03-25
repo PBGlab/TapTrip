@@ -291,6 +291,42 @@
   top:
 }
 
+.attraction-card {
+  position: relative;
+  overflow: visible;
+  transition: padding-left 0.3s ease;
+}
+
+.attraction-card.edit-mode {
+  padding-left: 28px; /* 空出位置給 ☰ */
+}
+
+/* ☰ 拖曳圖標：白色圓角塊，滑入動畫 */
+.drag-slide-icon {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  transform: translate(-100%, -50%);
+  font-size: 1.1rem;
+  color: #333;
+  background: white;
+  border-radius: 6px;
+  padding: 4px 6px;
+  opacity: 0;
+  transition: all 0.3s ease;
+  cursor: grab;
+  z-index: 10;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+.attraction-card.edit-mode .drag-slide-icon {
+  transform: translate(0%, -50%);
+  opacity: 1;
+}
+.attraction-card.edit-mode:hover .drag-slide-icon {
+  box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+
 
 </style>
               
@@ -578,6 +614,7 @@
         });
         
         function loadTrips(callback) {
+          
           window.attractionDataById = {};  // ✅ 放這裡，表示每次重抓行程時清空舊資料
           fetch("/api/trips/")
             .then(response => response.json())
@@ -655,11 +692,16 @@
 
 
                       const attrLi = document.createElement("li");
-                      attrLi.className = "list-group-item p-2 d-flex justify-content-between align-items-center";
+                      attrLi.className = "list-group-item p-2 d-flex justify-content-between align-items-center attraction-card";
                       attrLi.id = `attraction_${attr.trip_day_attraction_id}`;
+                      attrLi.dataset.dayId = day.id;
+                      
                       attrLi.innerHTML = `
+                        <div class="drag-slide-icon">☰</div>
+                      
                         <div class="d-flex align-items-center w-100">
-                          <img src="${attr.image_url}" alt="${attr.name}" class="attraction-image me-3">
+                          <img src="${attr.image_url}" alt="${attr.name}" class="attraction-image me-3" style="width: 60px; height: 60px; object-fit: cover; border-radius: 5px;">
+                      
                           <div class="flex-grow-1">
                             <h5 class="mb-1">
                               <span class="title-marker">${indexToLetter(i)}</span>
@@ -667,9 +709,11 @@
                             </h5>
                             <p class="text-muted mb-0">${attr.hashtag || "無標籤"}</p>
                           </div>
+                      
+                          <button class="btn btn-danger btn-sm ms-2" onclick="removeAttraction(${attr.trip_day_attraction_id})">刪除</button>
                         </div>
-                        <button class="btn btn-danger btn-sm" onclick="removeAttraction(${attr.trip_day_attraction_id})">刪除</button>
                       `;
+                      
                       attractionList.appendChild(attrLi);
                     });
                   } else {
@@ -681,9 +725,9 @@
         
                   dayLi.appendChild(attractionList);
                   tripList.appendChild(dayLi);
-                  
-                  // ✅ 載入完景點就自動顯示預估時間
-                  drawRouteOnMap(day.id, new google.maps.Map(document.createElement("div")));
+
+                  // ✅ 每次載入完當日行程，就初始化地圖資料（不顯示真正地圖）
+                  initializeDayRouteUI(day.id, new google.maps.Map(document.createElement("div")));
       
 
                 });
@@ -722,71 +766,6 @@
               });
           }
 
-          function drawRouteOnMap(dayId, map) {
-            if (window.currentDirectionsRenderer) {
-              window.currentDirectionsRenderer.setMap(null);
-            }
-          
-            const listItems = document.querySelectorAll(`#sortable-day-${dayId} li:not(.duration-info)`);
-            const pathCoordinates = [];
-            const attractionIds = [];
-          
-            listItems.forEach(item => {
-              const idStr = item.id.replace("attraction_", "");
-              const attrId = parseInt(idStr);
-              const data = window.attractionDataById[attrId];
-              if (data) {
-                pathCoordinates.push({ lat: data.lat, lng: data.lng });
-                attractionIds.push(attrId);
-              }
-            });
-          
-            if (pathCoordinates.length === 1) {
-              console.warn("⚠️ 只有一個點，顯示 marker");
-          
-              new google.maps.Marker({
-                position: pathCoordinates[0],
-                map: map,
-                title: "景點位置"
-              });
-          
-              map.setCenter(pathCoordinates[0]);
-              map.setZoom(15);
-              return;
-            }
-          
-            if (pathCoordinates.length < 2) {
-              console.warn("⚠️ 沒有足夠的點來畫路線");
-              return;
-            }
-          
-            const directionsRenderer = new google.maps.DirectionsRenderer({
-              map: map,
-              suppressMarkers: false
-            });
-            window.currentDirectionsRenderer = directionsRenderer;
-          
-            const directionsService = new google.maps.DirectionsService();
-          
-            directionsService.route({
-              origin: pathCoordinates[0],
-              destination: pathCoordinates[pathCoordinates.length - 1],
-              waypoints: pathCoordinates.slice(1, -1).map(coord => ({
-                location: coord,
-                stopover: true
-              })),
-              travelMode: google.maps.TravelMode.DRIVING
-            }, function (response, status) {
-              if (status === 'OK') {
-                directionsRenderer.setDirections(response);
-          
-                // ✅ 畫出行車距離文字
-                renderRouteUI(dayId, response);
-              } else {
-                console.error('❌ 規劃路線失敗：', status);
-              }
-            });
-          }
           
           
           
@@ -804,13 +783,19 @@ function openMapModal(dayId) {
 
   document.getElementById("mapModal").style.display = "flex";  // 顯示地圖彈出
 
+  // ✅ 當進入編輯模式，讓所有 attraction-card 加上 edit-mode
+  document.querySelectorAll(`.attraction-card[data-day-id="${dayId}"]`).forEach(card => {
+    card.classList.add("edit-mode");
+  });
+
   // TODO：你可以改成從 API 根據 dayId 抓景點座標並畫線
   // 這裡先顯示一張假地圖
   const map = new google.maps.Map(document.getElementById("map"), {
     center: { lat: 24.796, lng: 120.993 },  // 預設中心點（苗栗中間值）
     zoom: 13
   });
-  drawRouteOnMap(dayId, map);
+  window.currentMapInstance = map; // ✅ 每次更新最新地圖物件
+  initializeDayRouteUI(dayId, map);
 
 
     // ✅ 這裡初始化拖曳 有地圖才能改順序
@@ -830,10 +815,13 @@ function openMapModal(dayId) {
           });
       
           console.log("✅ 拖曳完成，新順序：", newOrder);
+
+          const map = window.currentMapInstance; // ✅ 拿到最新的地圖
       
-          drawRouteOnMap(dayId, map);
+          // 2. 更新整個地圖與 UI
+          initializeDayRouteUI(dayId, map);
       
-          drawRouteOnMap(dayId, (response) => {
+          getRouteData(dayId, (response) => {
             setTimeout(() => {
               renderRouteUI(dayId, response);
             }, 50);
@@ -867,6 +855,10 @@ function closeMapModal() {
   const attractionLists = document.querySelectorAll(".sortable-initialized");
   attractionLists.forEach(list => list.classList.remove("sortable-initialized"));
 
+  // ✅ 關閉編輯模式時移除效果
+  document.querySelectorAll(".attraction-card").forEach(card => {
+    card.classList.remove("edit-mode");
+});
 }
           
 // ✅ 加入景點到行程後，同步更新左側並保持展開
@@ -901,10 +893,8 @@ function addToTrip(attractionId, attractionName, hashtag, imageUrl) {
           document.getElementById("select-trip").value = selectedTripId;
           updateTripList();  // ✅ 重新展開選擇的行程
 
-          // ✨ 加入景點後即時顯示預估時間
-          getRouteData(selectedTripDayId, (response) => {
-            renderRouteUI(selectedTripDayId, response);
-          });
+          initializeDayRouteUI(selectedTripDayId, new google.maps.Map(document.createElement("div")));
+
         });
       } else {
         alert("加入失敗，請稍後再試！");
@@ -940,15 +930,8 @@ function addToTrip(attractionId, attractionName, hashtag, imageUrl) {
                   // ✅ 移除景點卡片
                   deletedLi.remove();
           
-                  // ✅ 移除所有舊的預估時間
-                  document.querySelectorAll(`#sortable-day-${dayId} .duration-info`).forEach(el => el.remove());
-          
-                  // ✅ 重新計算路線與時間
-                  getRouteData(dayId, (response) => {
-                    setTimeout(() => {
-                      renderRouteUI(dayId, response);
-                    }, 50);
-                  });
+                  initializeDayRouteUI(dayId, new google.maps.Map(document.createElement("div")));
+
                 }
               } else {
                 alert("刪除失敗，請稍後再試");
@@ -1050,6 +1033,76 @@ function addToTrip(attractionId, attractionName, hashtag, imageUrl) {
               durationLi.textContent = `預計車程：${durationText}`;
               listItems[i].after(durationLi);
             }
+          }
+          
+
+
+
+          function initializeDayRouteUI(dayId, map) {
+            // 🔁 清除舊的地圖線
+            if (window.currentDirectionsRenderer) {
+              window.currentDirectionsRenderer.setMap(null);
+            }
+          
+            const listItems = document.querySelectorAll(`#sortable-day-${dayId} li:not(.duration-info)`);
+            const pathCoordinates = [];
+          
+            listItems.forEach(item => {
+              const idStr = item.id.replace("attraction_", "");
+              const attrId = parseInt(idStr);
+              const data = window.attractionDataById[attrId];
+              if (data) {
+                pathCoordinates.push({ lat: data.lat, lng: data.lng });
+              }
+            });
+          
+            // 🟡 只有一個點 → 顯示 Marker
+            if (pathCoordinates.length === 1) {
+              new google.maps.Marker({
+                position: pathCoordinates[0],
+                map: map,
+                title: "景點位置"
+              });
+              map.setCenter(pathCoordinates[0]);
+              map.setZoom(15);
+              return;
+            }
+          
+            // 🔴 沒點就不處理
+            if (pathCoordinates.length < 1) return;
+          
+            // 🔵 多點 → 規劃路線 + 顯示距離 + ABC 標籤
+            const directionsService = new google.maps.DirectionsService();
+            const directionsRenderer = new google.maps.DirectionsRenderer({ map, suppressMarkers: false });
+            window.currentDirectionsRenderer = directionsRenderer;
+          
+            directionsService.route({
+              origin: pathCoordinates[0],
+              destination: pathCoordinates[pathCoordinates.length - 1],
+              waypoints: pathCoordinates.slice(1, -1).map(coord => ({
+                location: coord,
+                stopover: true
+              })),
+              travelMode: google.maps.TravelMode.DRIVING
+            }, function (response, status) {
+              if (status === 'OK') {
+                directionsRenderer.setDirections(response);
+          
+                // ✅ 更新預估時間
+                renderRouteUI(dayId, response);
+          
+                // ✅ 更新 ABC 標籤
+                const updatedList = document.querySelectorAll(`#sortable-day-${dayId} li:not(.duration-info)`);
+                updatedList.forEach((item, idx) => {
+                  const markerSpan = item.querySelector(".title-marker");
+                  if (markerSpan) {
+                    markerSpan.textContent = String.fromCharCode(65 + idx);
+                  }
+                });
+              } else {
+                console.error("❌ 路線規劃失敗：", status);
+              }
+            });
           }
           
 
