@@ -695,6 +695,7 @@
                       const attrLi = document.createElement("li");
                       attrLi.className = "list-group-item p-2 d-flex justify-content-between align-items-center attraction-card";
                       attrLi.id = `attraction_${attr.trip_day_attraction_id}`;
+                      attrLi.dataset.dayId = day.id;
                       
                       attrLi.innerHTML = `
                         <div class="drag-slide-icon">☰</div>
@@ -784,7 +785,7 @@ function openMapModal(dayId) {
   document.getElementById("mapModal").style.display = "flex";  // 顯示地圖彈出
 
   // ✅ 當進入編輯模式，讓所有 attraction-card 加上 edit-mode
-  document.querySelectorAll(".attraction-card").forEach(card => {
+  document.querySelectorAll(`.attraction-card[data-day-id="${dayId}"]`).forEach(card => {
     card.classList.add("edit-mode");
   });
 
