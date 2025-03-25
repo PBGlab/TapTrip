@@ -47,7 +47,6 @@ INSTALLED_APPS = [
     "attractions", # 自訂 APP
     "django_extensions",
     'maps_app',
-    'weather',
     'trips',
 
     # 第三方套件
