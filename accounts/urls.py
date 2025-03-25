@@ -13,4 +13,7 @@ urlpatterns = [
     path("api/user-status/", views.user_status, name="user_status"),
     path("updatepassword/", views.updatepassword, name="updatepassword"),
     path("accounts/", include("allauth.urls")),  # Google OAuth API
+    path('forgot-password/', views.forgot_password, name='forgot_password'), #忘記密碼
+    path('reset-password/<str:token>/', views.reset_password, name='reset_password') #重設密碼
+
 ]

@@ -1,4 +1,4 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render,redirect
 from django.contrib.auth import authenticate, login , logout
 from accounts.models import CustomUser
 from django.http import JsonResponse
@@ -163,4 +163,54 @@ def verify_email(request, token):
     user.save()
     return render(request, "email_verification_success.html")  # 成功頁面
 
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt  # 如果是前端 AJAX 可加上這個（開發用）
+from django.contrib import messages
+
+@csrf_exempt
+def reset_password(request, token):
+    try:
+        user = CustomUser.objects.get(email_verification_token=token)
+    except CustomUser.DoesNotExist:
+        messages.error(request, '連結無效或已過期，請重新請求找回密碼。')
+        return redirect('login')
+
+    if request.method == 'POST':
+        password = request.POST.get('password')
+        confirm = request.POST.get('confirm_password')
+        errors = {}
+
+        if not password or not confirm:
+            errors['password'] = '密碼欄位不得為空'
+        elif password != confirm:
+            errors['confirm_password'] = '兩次密碼輸入不一致'
+
+        if errors:
+            return JsonResponse({'success': False, 'errors': errors}, status=400)
+
+        user.set_password(password)
+        user.email_verification_token = None
+        user.save()
+
+        return JsonResponse({'success': True, 'message': '密碼已成功更新', 'redirect_url': '/login/'})
+
+    return render(request, 'reset_password.html', {'token': token})
+
+
+
+from .utils import send_reset_password_email
+
+@csrf_exempt
+def forgot_password(request):
+    if request.method == 'POST':
+        email = request.POST.get('email')
+        user = CustomUser.objects.filter(email=email).first()
+
+        if not user:
+            return JsonResponse({'success': False, 'message': '此 Email 未註冊'}, status=400)
+
+        send_reset_password_email(user)
+        return JsonResponse({'success': True, 'message': '密碼重設連結已寄出，請查看您的信箱！', 'redirect_url': '/login/'})
+
+    return render(request, 'forgot_password.html')
 

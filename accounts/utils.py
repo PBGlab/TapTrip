@@ -26,3 +26,29 @@ def send_verification_email(user):
     response = requests.post(api_url, json=data, headers=headers)
 
     return response.status_code == 201  # 201 表示成功發送
+
+
+def send_reset_password_email(user):
+    """ 使用 Brevo API 發送密碼重設信 """
+    user.generate_verification_token() 
+    reset_url = f"http://127.0.0.1:8000/reset-password/{user.email_verification_token}/"
+
+    api_url = "https://api.brevo.com/v3/smtp/email"
+    headers = {
+        "accept": "application/json",
+        "api-key": settings.BREVO_API_KEY,
+        "content-type": "application/json"
+    }
+    data = {
+        "sender": {"name": "TapTrip", "email": settings.DEFAULT_FROM_EMAIL},
+        "to": [{"email": user.email, "name": user.username}],
+        "subject": "TapTrip 密碼重設通知",
+        "htmlContent": f"""
+            <p>您請求了密碼重設，請點擊以下連結設定新密碼：</p>
+            <p><a href="{reset_url}">點此重設密碼</a></p>
+            <p>如果您沒有發出此請求，請忽略此信。</p>
+            <p>{reset_url}</p>
+        """
+    }
+    response = requests.post(api_url, json=data, headers=headers)
+    return response.status_code == 201
