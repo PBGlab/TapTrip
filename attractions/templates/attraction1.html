@@ -292,6 +292,43 @@
 
 }
 
+.attraction-card {
+  position: relative;
+  overflow: visible;
+  transition: padding-left 0.3s ease;
+}
+
+.attraction-card.edit-mode {
+  padding-left: 28px; /* 空出位置給 ☰ */
+}
+
+/* ☰ 拖曳圖標：白色圓角塊，滑入動畫 */
+.drag-slide-icon {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  transform: translate(-100%, -50%);
+  font-size: 1.1rem;
+  color: #333;
+  background: white;
+  border-radius: 6px;
+  padding: 4px 6px;
+  opacity: 0;
+  transition: all 0.3s ease;
+  cursor: grab;
+  z-index: 10;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+.attraction-card.edit-mode .drag-slide-icon {
+  transform: translate(0%, -50%);
+  opacity: 1;
+}
+.attraction-card.edit-mode:hover .drag-slide-icon {
+  box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+
+
 </style>
               
 
@@ -656,11 +693,15 @@
 
 
                       const attrLi = document.createElement("li");
-                      attrLi.className = "list-group-item p-2 d-flex justify-content-between align-items-center";
+                      attrLi.className = "list-group-item p-2 d-flex justify-content-between align-items-center attraction-card";
                       attrLi.id = `attraction_${attr.trip_day_attraction_id}`;
+                      
                       attrLi.innerHTML = `
+                        <div class="drag-slide-icon">☰</div>
+                      
                         <div class="d-flex align-items-center w-100">
-                          <img src="${attr.image_url}" alt="${attr.name}" class="attraction-image me-3">
+                          <img src="${attr.image_url}" alt="${attr.name}" class="attraction-image me-3" style="width: 60px; height: 60px; object-fit: cover; border-radius: 5px;">
+                      
                           <div class="flex-grow-1">
                             <h5 class="mb-1">
                               <span class="title-marker">${indexToLetter(i)}</span>
@@ -668,9 +709,11 @@
                             </h5>
                             <p class="text-muted mb-0">${attr.hashtag || "無標籤"}</p>
                           </div>
+                      
+                          <button class="btn btn-danger btn-sm ms-2" onclick="removeAttraction(${attr.trip_day_attraction_id})">刪除</button>
                         </div>
-                        <button class="btn btn-danger btn-sm" onclick="removeAttraction(${attr.trip_day_attraction_id})">刪除</button>
                       `;
+                      
                       attractionList.appendChild(attrLi);
                     });
                   } else {
@@ -740,6 +783,11 @@ function openMapModal(dayId) {
 
   document.getElementById("mapModal").style.display = "flex";  // 顯示地圖彈出
 
+  // ✅ 當進入編輯模式，讓所有 attraction-card 加上 edit-mode
+  document.querySelectorAll(".attraction-card").forEach(card => {
+    card.classList.add("edit-mode");
+  });
+
   // TODO：你可以改成從 API 根據 dayId 抓景點座標並畫線
   // 這裡先顯示一張假地圖
   const map = new google.maps.Map(document.getElementById("map"), {
@@ -807,6 +855,10 @@ function closeMapModal() {
   const attractionLists = document.querySelectorAll(".sortable-initialized");
   attractionLists.forEach(list => list.classList.remove("sortable-initialized"));
 
+  // ✅ 關閉編輯模式時移除效果
+  document.querySelectorAll(".attraction-card").forEach(card => {
+    card.classList.remove("edit-mode");
+});
 }
           
 // ✅ 加入景點到行程後，同步更新左側並保持展開
