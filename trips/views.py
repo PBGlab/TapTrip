@@ -76,7 +76,10 @@ def delete_trip(request, trip_id):
 
 
 
-#顯示所有行程
+from django.shortcuts import render
+from .models import Trip, TripDay, TripDayAttraction, TripLodging
+from attractions.models import Attraction
+
 def list_trips(request):
     draft_trips = Trip.objects.filter(user=request.user, status='draft')
 
@@ -91,34 +94,48 @@ def list_trips(request):
 
         days_data = []
         for day in trip_days:
-            attraction_count = TripDayAttraction.objects.filter(trip_day=day).count()  # ✅ 修正這裡的查詢方式
+            attractions = TripDayAttraction.objects.filter(trip_day=day).select_related("attraction").order_by("order")
+            attraction_list = []
+            for a in attractions:
+                attraction_list.append({
+                    "name": a.attraction.name,
+                    "city": a.attraction.city.name,
+                    "link": a.attraction.link,
+                    "image_url": a.attraction.image_url,
+                    "googlemap": a.attraction.googlemap,
+                    "hashtag": a.attraction.hashtag,
+                    "order": a.order,
+                })
+
             days_data.append({
                 "id": day.id,
                 "date": day.date,
-                "attraction_count": attraction_count
+                "attraction_count": len(attraction_list),
+                "attractions": attraction_list,
             })
 
-        # ✅ 修正 lodging 資料
-        lodgings = Lodging.objects.filter(trip=trip)  # `Lodging` 直接存 trip
+        # ✅ 透過中介表 TripLodging 拿到該行程的所有住宿
+        trip_lodgings = TripLodging.objects.filter(trip=trip).select_related("lodging")
         lodging_data = []
-        for lodging in lodgings:
+        for link in trip_lodgings:
+            l = link.lodging
             lodging_data.append({
-                "id": lodging.id,
-                "name": lodging.name,
-                "address": lodging.address,
-                "checkin": lodging.check_in,
-                "checkout": lodging.check_out,
-                "price": lodging.price,
-                "link": lodging.link,
-                "image": lodging.image
+                "id": l.id,
+                "name": l.name,
+                "address": l.address,
+                "checkin": l.check_in,
+                "checkout": l.check_out,
+                "price": l.price,
+                "link": l.link,
+                "image": l.image,
             })
 
         trip_data.append({
             "trip": trip,
             "total_days": total_days,
             "days": days_data,
-            "has_lodging": lodgings.exists(),
-            "lodgings": lodging_data
+            "has_lodging": bool(trip_lodgings),
+            "lodgings": lodging_data,
         })
 
     return render(request, "mytrips.html", {"trip_data": trip_data})
