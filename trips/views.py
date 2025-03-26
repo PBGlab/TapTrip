@@ -80,6 +80,7 @@ from django.shortcuts import render
 from .models import Trip, TripDay, TripDayAttraction, TripLodging
 from attractions.models import Attraction
 
+#行程總表
 def list_trips(request):
     draft_trips = Trip.objects.filter(user=request.user, status='draft')
 
@@ -139,6 +140,88 @@ def list_trips(request):
         })
 
     return render(request, "mytrips.html", {"trip_data": trip_data})
+
+
+from django.shortcuts import get_object_or_404, render, redirect
+from .models import Trip, TripLodging, TripDay, TripDayAttraction
+from django.contrib.auth.decorators import login_required
+
+#更改行程狀態 → 完成行程
+@login_required
+def complete_trip(request, trip_id):
+    
+    trip = get_object_or_404(Trip, id=trip_id, user=request.user)
+
+    if request.method == 'POST':
+        # ✅ 改變行程狀態
+        trip.status = 'completed'
+        trip.save()
+
+        # ✅ 同步更新 Lodging 狀態
+        trip_lodgings = TripLodging.objects.filter(trip=trip).select_related("lodging")
+        for tl in trip_lodgings:
+            lodging = tl.lodging
+            lodging.status = 'completed'
+            lodging.save()
+
+        # ✅ 轉向查看「已完成行程」頁面（避免重新送出表單）
+        return redirect('view_completed_trips')  # 請確保有設定這個 URL name
+
+    # 若不是 POST → 可考慮導回行程主頁或顯示錯誤
+    return redirect('mytrips')
+
+# 查看已完成的行程 
+@login_required
+def view_completed_trips(request):
+    completed_trips = Trip.objects.filter(user=request.user, status='completed')
+
+    trip_data = []
+    for trip in completed_trips:
+        trip_days = TripDay.objects.filter(trip=trip).order_by("date")
+        total_days = (trip.end_date - trip.start_date).days + 1
+
+        days_data = []
+        for day in trip_days:
+            attractions = TripDayAttraction.objects.filter(trip_day=day).select_related("attraction").order_by("order")
+            attraction_list = [{
+                "name": a.attraction.name,
+                "city": a.attraction.city.name,
+                "link": a.attraction.link,
+                "image_url": a.attraction.image_url,
+                "googlemap": a.attraction.googlemap,
+                "hashtag": a.attraction.hashtag,
+                "order": a.order,
+            } for a in attractions]
+
+            days_data.append({
+                "id": day.id,
+                "date": day.date,
+                "attraction_count": len(attraction_list),
+                "attractions": attraction_list,
+            })
+
+        # 住宿
+        trip_lodgings = TripLodging.objects.filter(trip=trip).select_related("lodging")
+        lodging_data = [{
+            "id": l.lodging.id,
+            "name": l.lodging.name,
+            "address": l.lodging.address,
+            "checkin": l.lodging.check_in,
+            "checkout": l.lodging.check_out,
+            "price": l.lodging.price,
+            "link": l.lodging.link,
+            "image": l.lodging.image,
+        } for l in trip_lodgings]
+
+        trip_data.append({
+            "trip": trip,
+            "total_days": total_days,
+            "days": days_data,
+            "has_lodging": bool(lodging_data),
+            "lodgings": lodging_data,
+        })
+
+    return render(request, 'complete_trips.html', {'trip_data': trip_data})
 
 
 from django.contrib.auth.decorators import login_required
@@ -228,12 +311,7 @@ def delete_attraction(request, attraction_id):
     return JsonResponse({"success": False, "error": "無效的請求"}, status=400)
 
 
-#完成行程
-def complete_trip(request, trip_id):
-    trip = get_object_or_404(Trip, id=trip_id, user=request.user)
-    trip.status = "completed"
-    trip.save()
-    return redirect('view_trip', trip_id=trip.id)
+    
 
 
 @csrf_exempt  # 或用 @login_required，如果你有登入驗證
@@ -253,3 +331,26 @@ def reorder_trip_day(request, day_id):
             return JsonResponse({"success": False, "error": str(e)})
     else:
         return JsonResponse({"error": "Invalid request"}, status=400)
+
+
+from .models import ExportedTrip
+
+#產生分享連結
+@login_required
+def generate_share_link(request, trip_id):
+    trip = get_object_or_404(Trip, id=trip_id, user=request.user)
+
+    # 如果已經存在，就不要重複產生
+    exported, created = ExportedTrip.objects.get_or_create(trip=trip)
+
+    share_url = request.build_absolute_uri(f'/share/{exported.share_token}/')
+    return JsonResponse({'share_url': share_url})
+
+from .utils import get_trip_detail_dict
+#導向分享連結頁面
+def shared_trip_view(request, token):
+    exported = get_object_or_404(ExportedTrip, share_token=token)
+    trip = exported.trip
+    trip_data = get_trip_detail_dict(trip)  # 你之前封裝好的資料整理函式
+
+    return render(request, 'shared_trip.html', {'trip_data': trip_data})
