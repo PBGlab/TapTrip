@@ -316,10 +316,10 @@
         </div>
         <div>
             <div class="more-info-btn-container">
-                <a class="main-btn more-info-btn" href="/create" target="_blank">
+                <a class="main-btn more-info-btn" href="/create">
                     新增行程
                 </a>
-                <a class="main-btn more-info-btn" href="/create" target="_blank">
+                <a class="main-btn more-info-btn" href="/trips/completed/">
                     歷史行程
                 </a>
             </div>
@@ -399,30 +399,27 @@
                             </h4>
                             <ul class="lodging-list">
                                 {% for lodging in item.lodgings %}
-                                    <li class="have-booking d-flex align-items-center">
-                                        <!-- 縮小的住宿圖片 -->
-                                        <div class="lodging-image">
-                                            <img src="{{ lodging.image }}" alt="{{ lodging.name }}">
+                                    <li class="have-booking d-flex align-items-center justify-content-between">
+                                        <!-- 縮小的住宿圖片和資訊 -->
+                                        <div class="d-flex align-items-center">
+                                            <div class="lodging-image" style="margin-right: 15px;">
+                                                <img src="{{ lodging.image }}" alt="{{ lodging.name }}" style="width: 100px; border-radius: 6px;">
+                                            </div>
+                                            <div class="lodging-info">
+                                                <strong>{{ lodging.name }}</strong><br>
+                                                地點: {{ lodging.address }}<br>
+                                                入住日期: {{ lodging.checkin }} | 退房日期: {{ lodging.checkout }}
+                                                <p class="reminder-message" style="color: red; font-size: 14px; margin-top: 5px;">
+                                                    **重要提示：住宿資訊僅供參考非正式預訂，請前往 Booking 網站完成實際訂房。**
+                                                </p>
+                                            </div>
                                         </div>
                                     
-                                        <!-- 住宿資訊 -->
-                                        <div class="lodging-info">
-                                            <strong>{{ lodging.name }}</strong> 
-                                            地點: {{ lodging.address }}
-                                            <br>入住日期: {{ lodging.checkin }} | 退房日期: {{ lodging.checkout }}
-                                            <p class="reminder-message" style="color: red; font-size: 14px;">
-                                            **重要提示：住宿資訊僅供參考非正式預訂，請前往 > Booking 網站完成實際訂房。**
-                                            </p>
+                                        <!-- 按鈕區 -->
+                                        <div class="single_form text-center">
+                                            <a href="{{ lodging.link }}" target="_blank" class="main-btn"><strong>前往訂房</strong></a>
                                         </div>
-                                        <!-- 右側：添加行程按鈕 -->
-                                        <div>
-                                            <a class="icon-btn" href="{{ lodging.link }}" target="_blank">
-                                                <i class="lni lni-chevron-right"></i>
-                                            </a>
-                                        </div>
-                                        
-
-                                    </li>     
+                                    </li>    
                                     <hr>   
                                 {% endfor %}
                             </ul>
@@ -437,12 +434,15 @@
                         {% endif %}
                     </div>
                 </div>
-                <!-- 行程管理按鈕 -->
-                <div class="btn-group">
-                    <button class="main-btn delete-btn" onclick="deleteTrip({{ item.trip.id }})">
-                    <strong>完成行程</strong>
-                    </button>
-                </div>    
+                <!-- 行程管理按鈕（完成行程） -->
+                <div class="btn-group mt-3">
+                    <form method="POST" action="{% url 'complete_trip' item.trip.id %}">
+                        {% csrf_token %}
+                        <button type="submit" class="main-btn success-btn">
+                            <strong>完成行程</strong>
+                        </button>
+                    </form>
+                </div>
             </div>
         {% endfor %}
     </div> <!-- container -->
