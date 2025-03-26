@@ -125,6 +125,18 @@
         .main-btn:hover {
             background-color: #113BE1;
         }
+        .trip_header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .trip_text {
+            display: flex;
+            flex-direction: column;
+        }
+        
     </style> 
 </head>
 
@@ -228,13 +240,21 @@
         {% for item in trip_data %}
         <div class="trip_section">
             <div class="trip_info">
-                <h3 class="trip_title">
-                    <i class="lni lni-map-marker"></i> {{ item.trip.name }}
-                </h3>
-                <p class="trip_time">
-                    <i class="lni lni-calendar"></i> 行程時間 {{ item.trip.start_date }} ~ {{ item.trip.end_date }}
-                </p>
+                <div class="trip_header" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap;">
+                    <div class="trip_text">
+                        <h3 class="trip_title">
+                            <i class="lni lni-map-marker"></i> {{ item.trip.name }}
+                        </h3>
+                        <p class="trip_time">
+                            <i class="lni lni-calendar"></i> 行程時間 {{ item.trip.start_date }} ~ {{ item.trip.end_date }}
+                        </p>
+                    </div>
+                    <a href="/booking/?checkin={{ item.trip.start_date|date:'Y-m-d' }}&checkout={{ item.trip.end_date|date:'Y-m-d' }}&trip={{ item.trip.name }}" class="main-btn">
+                        新增住宿
+                    </a>
+                </div>
             </div>
+            
             {% if item.lodgings %}
                 {% for lodging in item.lodgings %}
                     <div class="single_blog d-sm-flex mt-30" id="lodging-{{ lodging.id }}">
