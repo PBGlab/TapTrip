@@ -100,6 +100,35 @@
         #hotels-container > div {
         padding-bottom: 30px;
         }
+
+
+
+        .single_destination {
+        position: relative; /* 讓內部按鈕可以絕對定位 */
+        }
+
+        .btn-add-hotel {
+        position: absolute;
+        top: 12px;
+        right: 12px;
+        background-color: white;
+        color: #f59e0b;
+        border: 1px solid #fcd34d;
+        border-radius: 9999px;
+        padding: 6px 12px;
+        font-size: 14px;
+        font-weight: 500;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        cursor: pointer;
+        transition: background-color 0.2s ease;
+        }
+
+        .btn-add-hotel:hover {
+        background-color: #fff7d6;
+        }
     </style>
     <!-- ======= 修改位置 End ======= -->
 </head>
@@ -293,8 +322,11 @@
 
 
                     {% if request.user.is_authenticated %}
-                        <button class="main-btn book-hotel" onclick="bookHotel(this, ${hotelCount})">預訂</button>
-                    {% endif %}
+
+                    <button class="btn-add-hotel" onclick="bookHotel(this, ${hotelCount})" title="加入住宿清單">
+                        加入住宿
+                    </button>
+                        {% endif %}
 
                     <a class="more" href="${hotel.連結}"><i class="lni lni-chevron-right"></i></a>
                 </div>
