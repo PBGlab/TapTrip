@@ -249,7 +249,7 @@
                             <i class="lni lni-calendar"></i> 行程時間 {{ item.trip.start_date }} ~ {{ item.trip.end_date }}
                         </p>
                     </div>
-                    <a href="/booking/?checkin={{ item.trip.start_date|date:'Y-m-d' }}&checkout={{ item.trip.end_date|date:'Y-m-d' }}&trip={{ item.trip.name }}" class="main-btn">
+                    <a href="/booking/?checkin={{ item.trip.start_date|date:'Y-m-d' }}&checkout={{ item.trip.end_date|date:'Y-m-d' }}&trip={{ item.trip.name }}" class="main-btn" target="_blank" rel="noopener noreferrer">
                         新增住宿
                     </a>
                 </div>
