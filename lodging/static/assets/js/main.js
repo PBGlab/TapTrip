@@ -67,7 +67,7 @@ $(function () {
     event.preventDefault();
     $("html, body").animate({ scrollTop: 0 }, 1500);
   });
-  // $("select").niceSelect();
+  $("select").niceSelect();
   var wow = new WOW({ boxClass: "wow", mobile: false });
   wow.init();
 });
