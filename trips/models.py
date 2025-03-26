@@ -50,3 +50,14 @@ class TripLodging(models.Model):
 
     def __str__(self):
         return f"{self.trip.name} - {self.lodging.name} ({self.lodging.check_in} ~ {self.lodging.check_out})"
+    
+import uuid
+
+class ExportedTrip(models.Model):
+    trip = models.ForeignKey(Trip, on_delete=models.CASCADE)
+    share_token = models.CharField(max_length=64, unique=True, default=uuid.uuid4)
+    created_at = models.DateTimeField(auto_now_add=True)
+    expires_at = models.DateTimeField(null=True, blank=True)  
+
+    def __str__(self):
+        return f"分享連結：{self.trip.name} ({self.share_token})"
