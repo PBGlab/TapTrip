@@ -281,18 +281,21 @@
                         </div> <!-- single blog -->
                     {% endfor %}
                 </div>
-                <!-- 提醒標語 -->
-                <div class="reminder-container" style="margin-top: 20px; text-align: center;">
-                    <p class="reminder-message" style="color: red; font-size: 14px;">
-                        **重要提示：**本系統僅提供飯店查詢服務，非正式預訂，請前往 Booking 網站完成實際訂房。
-                    </p>
-                </div>                
+               
+                           
             {% else %}
                 <!-- 美化「尚未預定住宿」區塊 -->
                 <div class="no-booking">
                     <h4>尚未規劃住宿</h4>
                 </div>
+
             {% endif %}
+            <!-- 提醒標語 -->
+            <div class="reminder-container" style="margin-top: 20px; text-align: center;">
+                <p class="reminder-message" style="color: red; font-size: 14px;">
+                    **重要提示：**本系統僅提供飯店查詢服務，非正式預訂，請前往 Booking 網站完成實際訂房。
+                </p>
+            </div>     
 
             
         </div>
@@ -303,40 +306,40 @@
 <script>
     // ✅ 定義載入單一行程的住宿
     function loadLodgings(tripId) {
-        fetch(`/api/get_lodgings_by_trip/${tripId}/`)
-            .then(response => response.json())
-            .then(data => {
-                const container = document.getElementById(`lodging-list-${tripId}`);
-                container.innerHTML = "";  // 清空舊資料
+    fetch(`/api/get_lodgings_by_trip/${tripId}/`)
+        .then(response => response.json())
+        .then(data => {
+            const container = document.getElementById(`lodging-list-${tripId}`);
+            container.innerHTML = "";
 
-                data.lodgings.forEach(lodging => {
-                    const div = document.createElement("div");
-                    div.className = "single_blog d-sm-flex mt-30";
-                    div.id = `lodging-${lodging.id}`;
-                    div.innerHTML = `
-                        <div class="blog_image">
-                            <img src="${lodging.image}" alt="hotel image">
+            data.lodgings.forEach(lodging => {
+                const div = document.createElement("div");
+                div.className = "single_blog d-sm-flex mt-30";
+                div.id = `lodging-${lodging.id}`;
+                div.innerHTML = `
+                    <div class="blog_image">
+                        <img src="${lodging.image}" alt="hotel image">
+                    </div>
+                    <div class="blog_content blog_content_2 media-body">
+                        <h3 class="blog_title">
+                            <a href="${lodging.link}" target="_blank"><strong>${lodging.name}</strong></a>
+                        </h3>
+                        <p>入住日期：${lodging.check_in} | 退房日期：${lodging.check_out}</p>
+                        <p>地址: ${lodging.address}</p>
+                        <p class="price">${lodging.price}</p>
+                        <div class="btn-group">
+                            <a href="${lodging.link}" target="_blank" class="main-btn">查看飯店</a>
+                            <button class="main-btn delete-btn" onclick="deleteLodging(${lodging.id})">刪除飯店</button>
                         </div>
-                        <div class="blog_content blog_content_2 media-body">
-                            <h3 class="blog_title">
-                                <a href="${lodging.link}" target="_blank"><strong>${lodging.name}</strong></a>
-                            </h3>
-                            <p>入住日期：${lodging.check_in} | 退房日期：${lodging.check_out}</p>
-                            <p>地址: ${lodging.address}</p>
-                            <p class="price">${lodging.price}</p>
-                            <div class="btn-group">
-                                <a href="${lodging.link}" target="_blank" class="main-btn">查看飯店</a>
-                                <button class="main-btn delete-btn" onclick="deleteLodging(${lodging.id})">刪除飯店</button>
-                            </div>
-                        </div>
-                    `;
-                    container.appendChild(div);
-                });
-            })
-            .catch(err => {
-                console.error("載入住宿失敗：", err);
+                    </div>
+                `;
+                container.appendChild(div);
             });
-    }
+        })
+        .catch(err => {
+            console.error("載入失敗：", err);
+        });
+}
 
     // ✅ DOM 加載後，自動載入所有行程的住宿清單
     document.addEventListener("DOMContentLoaded", function () {
@@ -380,7 +383,7 @@
         loadLodgings(tripId);
         localStorage.removeItem("new_lodging_trip_id");  // 清除避免重複
     }
-});
+    });
 
 </script>
 
