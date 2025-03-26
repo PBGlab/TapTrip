@@ -256,29 +256,31 @@
             </div>
             
             {% if item.lodgings %}
-                {% for lodging in item.lodgings %}
-                    <div class="single_blog d-sm-flex mt-30" id="lodging-{{ lodging.id }}">
-                        <div class="blog_image">
-                            <img src="{{ lodging.image }}" alt="hotel image">
-                        </div>
-                        <div class="blog_content blog_content_2 media-body">
-                            <h3 class="blog_title">
-                                <a href="{{ lodging.link }}" target="_blank">
-                                    <strong>{{ lodging.name }}</strong>
-                                </a>
-                            </h3>
-                            <p>入住日期：{{ lodging.check_in }} | 退房日期：{{ lodging.check_out }}</p>
-                            <p>地址: {{ lodging.address }}</p>
-                            <p class="price">{{ lodging.price }}</p>
-                            
-                            <!-- 統一樣式按鈕 -->
-                            <div class="btn-group">
-                                <a href="{{ lodging.link }}" target="_blank" class="main-btn">查看飯店</a>
-                                <button class="main-btn delete-btn" onclick="deleteLodging({{ lodging.id }})">刪除飯店</button>
+                <div id="lodging-list-{{ item.trip.id }}">
+                    {% for lodging in item.lodgings %}
+                        <div class="single_blog d-sm-flex mt-30" id="lodging-{{ lodging.id }}">
+                            <div class="blog_image">
+                                <img src="{{ lodging.image }}" alt="hotel image">
                             </div>
-                        </div>
-                    </div> <!-- single blog -->
-                {% endfor %}
+                            <div class="blog_content blog_content_2 media-body">
+                                <h3 class="blog_title">
+                                    <a href="{{ lodging.link }}" target="_blank">
+                                        <strong>{{ lodging.name }}</strong>
+                                    </a>
+                                </h3>
+                                <p>入住日期：{{ lodging.check_in }} | 退房日期：{{ lodging.check_out }}</p>
+                                <p>地址: {{ lodging.address }}</p>
+                                <p class="price">{{ lodging.price }}</p>
+                                
+                                <!-- 統一樣式按鈕 -->
+                                <div class="btn-group">
+                                    <a href="{{ lodging.link }}" target="_blank" class="main-btn">查看飯店</a>
+                                    <button class="main-btn delete-btn" onclick="deleteLodging({{ lodging.id }})">刪除飯店</button>
+                                </div>
+                            </div>
+                        </div> <!-- single blog -->
+                    {% endfor %}
+                </div>
                 <!-- 提醒標語 -->
                 <div class="reminder-container" style="margin-top: 20px; text-align: center;">
                     <p class="reminder-message" style="color: red; font-size: 14px;">
@@ -299,11 +301,54 @@
     </div> <!-- container -->
 </section>
 <script>
+    // ✅ 定義載入單一行程的住宿
+    function loadLodgings(tripId) {
+        fetch(`/api/get_lodgings_by_trip/${tripId}/`)
+            .then(response => response.json())
+            .then(data => {
+                const container = document.getElementById(`lodging-list-${tripId}`);
+                container.innerHTML = "";  // 清空舊資料
+
+                data.lodgings.forEach(lodging => {
+                    const div = document.createElement("div");
+                    div.className = "single_blog d-sm-flex mt-30";
+                    div.id = `lodging-${lodging.id}`;
+                    div.innerHTML = `
+                        <div class="blog_image">
+                            <img src="${lodging.image}" alt="hotel image">
+                        </div>
+                        <div class="blog_content blog_content_2 media-body">
+                            <h3 class="blog_title">
+                                <a href="${lodging.link}" target="_blank"><strong>${lodging.name}</strong></a>
+                            </h3>
+                            <p>入住日期：${lodging.check_in} | 退房日期：${lodging.check_out}</p>
+                            <p>地址: ${lodging.address}</p>
+                            <p class="price">${lodging.price}</p>
+                            <div class="btn-group">
+                                <a href="${lodging.link}" target="_blank" class="main-btn">查看飯店</a>
+                                <button class="main-btn delete-btn" onclick="deleteLodging(${lodging.id})">刪除飯店</button>
+                            </div>
+                        </div>
+                    `;
+                    container.appendChild(div);
+                });
+            })
+            .catch(err => {
+                console.error("載入住宿失敗：", err);
+            });
+    }
+
+    // ✅ DOM 加載後，自動載入所有行程的住宿清單
+    document.addEventListener("DOMContentLoaded", function () {
+        {% for item in trip_data %}
+            loadLodgings({{ item.trip.id }});
+        {% endfor %}
+    });
+
+    // ✅ 刪除函式保留
     function deleteLodging(lodgingId) {
         if (!confirm("確定要刪除這間飯店嗎？")) return;
-    
-        console.log("🔍 成功刪除 lodging ID:", lodgingId);  // ✅ Debug: 檢查 ID 是否正確
-    
+
         fetch(`/delete_lodging/${lodgingId}/`, {
             method: "DELETE",
             headers: {
@@ -316,18 +361,29 @@
             if (data.success) {
                 let lodgingElement = document.getElementById(`lodging-${lodgingId}`);
                 if (lodgingElement) {
-                    lodgingElement.remove();  // ✅ 確保元素存在才執行刪除
+                    lodgingElement.remove();
                     alert("飯店已成功刪除！");
-                } else {
-                    console.error("❌ 找不到對應的 HTML 元素:", `lodging-${lodgingId}`);
                 }
             } else {
                 alert("刪除失敗：" + data.error);
             }
         })
         .catch(error => console.error("❌ 刪除錯誤:", error));
-    }    
-    </script>
+    }
+
+    // 📡 偵測其他分頁透過 localStorage 傳來的新住宿 trip_id
+    window.addEventListener("storage", function(event) {
+    if (event.key === "new_lodging_trip_id" && event.newValue) {
+        // ✅ 把 trip_id 從 "123_時間戳" 中取出
+        const tripId = event.newValue.split("_")[0];
+        console.log("📡 偵測到新住宿加入，更新 tripId =", tripId);
+        loadLodgings(tripId);
+        localStorage.removeItem("new_lodging_trip_id");  // 清除避免重複
+    }
+});
+
+</script>
+
     
 <!--====== BLOG PART ENDS ======-->
 

@@ -527,6 +527,9 @@
         .then(response => response.json())
         .then(data => {
             alert(data.message);
+
+            localStorage.setItem("new_lodging_trip_id", hiddenData.dataset.tripId + "_" + new Date().getTime());
+
         })
         .catch(error => console.error("❌ 錯誤:", error));
     }

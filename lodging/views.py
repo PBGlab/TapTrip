@@ -202,3 +202,16 @@ def delete_lodging(request, lodging_id):
             return JsonResponse({"success": False, "error": "找不到該住宿或沒有權限"}, status=404)
     
     return JsonResponse({"success": False, "error": "只允許 DELETE 請求"}, status=405)
+
+
+
+from django.http import JsonResponse
+from django.contrib.auth.decorators import login_required
+from .models import Lodging  # 依你的資料表調整
+
+@login_required
+def get_lodgings_by_trip(request, trip_id):
+    lodgings = Lodging.objects.filter(trip_id=trip_id).values(
+        'id', 'name', 'address', 'price', 'image', 'link', 'check_in', 'check_out'
+    )
+    return JsonResponse({'lodgings': list(lodgings)})
