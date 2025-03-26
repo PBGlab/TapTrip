@@ -88,7 +88,7 @@ def showhotel(request):
     children = request.GET.get("children", "0")
 
     # **取得當前使用者的行程**
-    user_trips = Trip.objects.filter(user=request.user) if request.user.is_authenticated else []
+    user_trips = Trip.objects.filter(user=request.user, status="draft") if request.user.is_authenticated else []
 
     return render(request, "showhotel.html", {
         "city": city,
