@@ -129,6 +129,34 @@
         .btn-add-hotel:hover {
         background-color: #fff7d6;
         }
+
+
+
+        .cta-reserve {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        background-color: #facc15;
+        color: #1f2937;
+        font-size: 14px;
+        font-weight: 500;
+        padding: 8px 16px;
+        border-radius: 9999px;
+        text-decoration: none;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+        transition: background-color 0.2s ease;
+        position: absolute;
+        bottom: 20px;
+        right: 20px;
+        }
+
+        .cta-reserve:hover {
+        background-color: #fcd34d;
+        }
+
+
+       
+
     </style>
     <!-- ======= 修改位置 End ======= -->
 </head>
@@ -285,6 +313,14 @@
                     <a href="${hotel.連結}">
                         <img src="${hotel.圖片}" alt="Hotel Image">
                     </a>
+
+                    {% if request.user.is_authenticated %}
+
+                    <button class="btn-add-hotel" onclick="bookHotel(this, ${hotelCount})" title="加入住宿清單">
+                        加入住宿
+                    </button>
+                        {% endif %}
+
                 </div>
                 <div class="destination_content">
                     <h4 class="title">
@@ -321,14 +357,12 @@
                     </div>
 
 
-                    {% if request.user.is_authenticated %}
 
-                    <button class="btn-add-hotel" onclick="bookHotel(this, ${hotelCount})" title="加入住宿清單">
-                        加入住宿
-                    </button>
-                        {% endif %}
 
-                    <a class="more" href="${hotel.連結}"><i class="lni lni-chevron-right"></i></a>
+                <a class="cta-reserve" href="${hotel.連結}" title="查看詳情">
+                前往預定
+                </a>
+
                 </div>
             </div>
             `;
