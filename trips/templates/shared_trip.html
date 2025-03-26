@@ -1,0 +1,150 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <title>TapTrip | 旅遊一指通</title>
+    <link rel="stylesheet" href="{% static 'lodging/assets/css/style.css' %}">
+    <link rel="stylesheet" href="{% static 'lodging/assets/css/bootstrap.4.5.2.min.css' %}">
+    <link rel="stylesheet" href="{% static 'lodging/assets/css/LineIcons.2.0.css' %}">
+    <link rel="shortcut icon" href="{% static 'lodging/assets/images/favicon.png' %}" type="image/png">
+    <style>
+        body { font-family: "Microsoft JhengHei", sans-serif; }
+        .trip_section { background-color:rgb(13, 40, 67); padding: 25px; border-radius: 12px; margin-bottom: 30px; box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1); }
+        .trip_info { text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5); color: white; }
+        .trip_info .trip_title, .trip_info .trip_time, .trip_info .separator, .trip_info i { color: white; }
+        .single_blog { background-color: #ffffff; padding: 15px; border-radius: 8px; box-shadow: 0px 2px 10px rgba(0, 0, 0, 0.1); margin-top: 20px; }
+        .blog_title { font-size: 20px; font-weight: 500; }
+        .have-booking { display: flex; align-items: center; gap: 10px; background-color: #F8F9FA; padding: 10px 15px; border-radius: 8px; margin-top: 10px; }
+        .lodging-image img { width: 100px; height: 100px; object-fit: cover; border-radius: 8px; }
+        .lodging-info { font-size: 18px; color: black; }
+        .main-btn {
+            background-color: #007bff;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 6px;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            transition: background-color 0.2s ease-in-out;
+            min-width: 100px;
+        }
+        .main-btn:hover {
+            background-color: #0056b3;
+        }
+        .no-booking {padding: 20px;text-align: center;border-radius: 10px;margin-top: 15px;}
+        header, footer {
+            background-color: #0d2843;
+            color: white;
+            padding: 15px 0;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+<header>
+    <a class="navbar-brand" href="{% if request.user.is_authenticated %}/home{% else %}/{% endif %}">
+        <img src="{% static 'lodging/assets/images/logo.png' %}" alt="Logo">
+    </a>
+</header>
+
+<section class="container pt-5 pb-5">
+    <div class="text-center mb-4">
+        <h2><strong>{{ trip_data.trip.name }}</strong></h2>
+        <p>由 <strong>{{ trip_data.trip.user.username }}</strong> 規劃的行程</p>
+    </div>
+
+    <div id="trip-{{ trip_data.trip.id }}" class="trip_section">
+        <div class="trip_header d-flex justify-content-between align-items-center">
+            <div class="trip_info">
+                <h3 class="trip_title">
+                    <i class="lni lni-map-marker"></i> <strong>{{ trip_data.trip.name }}</strong>
+                </h3>
+                <p class="trip_time">
+                    <i class="lni"></i> <strong>行程時間 {{ trip_data.trip.start_date }} ~ {{ trip_data.trip.end_date }}</strong>
+                    <span class="separator">  | <strong>行程天數總計 {{ trip_data.total_days }} 天</strong></span>
+                </p>
+            </div>
+        </div>
+
+        {% for day in trip_data.days %}
+        <div class="single_blog mt-30">
+            <div class="blog_content blog_content_2 media-body">
+                <h5 class="blog_title text-center">
+                    <strong>第 {{ forloop.counter }} 天</strong> |&nbsp;  {{ day.date }} - 安排了 {{ day.attraction_count }} 個景點
+                </h5>
+            </div>
+            {% if day.attractions %}
+            <div class="mt-2 w-100">
+                {% for attr in day.attractions %}
+                <div class="card mb-2 p-3" style="background-color:#f9f9f9; border-radius: 10px;">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div class="d-flex align-items-center" style="flex: 1;">
+                            <img src="{{ attr.image_url }}" alt="{{ attr.name }}"
+                                style="width:80px; height:80px; object-fit:cover; border-radius:8px; margin-right:15px;">
+                            <div>
+                                <strong>{{ forloop.counter }}. {{ attr.name }}</strong><br>
+                                <small>{{ attr.city }}</small>
+                                <span style="font-size: 13px; color: #888;">{{ attr.hashtag }}</span>
+                            </div>
+                        </div>
+                        <div class="text-right d-flex flex-column justify-content-center align-items-end" style="min-width: 130px;">
+                            <a href="{{ attr.googlemap }}" target="_blank" style="color:#007bff;"><strong>取得位置</strong></a>
+                            <a href="{{ attr.link }}" target="_blank" style="color:#f39c12;"><strong>完整資訊</strong></a>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+        </div>
+        {% endfor %}
+
+        <div class="single_blog d-sm-flex mt-30">
+            <div class="blog_content blog_content_2 media-body">
+                {% if trip_data.has_lodging %}
+                    <h4 class="booking-title">
+                        <strong>行程已預定的住宿：</strong>
+                    </h4>
+                        <ul class="lodging-list">
+                            {% for lodging in trip_data.lodgings %}
+                                <li class="have-booking d-flex align-items-center justify-content-between">
+                                    <!-- 縮小的住宿圖片和資訊 -->
+                                    <div class="d-flex align-items-center">
+                                        <div class="lodging-image" style="margin-right: 15px;">
+                                            <img src="{{ lodging.image }}" alt="{{ lodging.name }}" style="width: 100px; border-radius: 6px;">
+                                        </div>
+                                        <div class="lodging-info">
+                                            <strong>{{ lodging.name }}</strong><br>
+                                            地點: {{ lodging.address }}<br>
+                                            入住日期: {{ lodging.checkin }} | 退房日期: {{ lodging.checkout }}
+                                            <p class="reminder-message" style="color: red; font-size: 14px; margin-top: 5px;">
+                                                **重要提示：住宿資訊僅供參考非正式預訂，請前往 Booking 網站完成實際訂房。**
+                                            </p>
+                                        </div>
+                                    </div>
+                                    <!-- 按鈕區 -->
+                                    <div class="single_form text-center">
+                                        <a href="{{ lodging.link }}" target="_blank" class="main-btn">前往訂房</a>
+                                    </div>
+                                </li> 
+                                <hr>   
+                            {% endfor %}
+                        </ul>
+                {% else %}
+                    <div class="no-booking">
+                        <h4><strong>無規劃住宿</strong></h4>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</section>
+
+<footer>
+    <p>&copy; 2025 TapTrip 行程一指通 ｜ 旅程由你掌控</p>
+</footer>
+</body>
+</html>
