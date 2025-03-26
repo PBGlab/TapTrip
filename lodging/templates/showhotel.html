@@ -161,6 +161,74 @@
         }
 
 
+
+        .loading-wrapper {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;  /* ✅ 垂直置中整塊 */
+        min-height: 60vh;
+        padding: 20px;
+        gap: 24px;
+        text-align: center;
+        }
+
+
+
+        .loading-title {
+        font-size: 28px;
+        font-weight: bold;
+        color: #1f2937;
+        margin-bottom: 12px; /* ✅ 控制點點上方距離 */
+        }
+
+        .loading-title span {
+        color: #f59e0b;
+        }
+
+        .loading-dots {
+        font-size: 360px;     /* ✅ 巨大點點 */
+        line-height: 1;
+        font-weight: bold;
+        color: #facc15;
+        display: flex;
+        gap: 0.2em;
+        margin-bottom: 20px; /* ✅ 不要設太大 */
+        justify-content: center;
+        }
+
+        .loading-dots span {
+        animation: blink 1.5s infinite ease-in-out;
+        }
+
+        .loading-dots span:nth-child(2) {
+        animation-delay: 0.2s;
+        }
+
+        .loading-dots span:nth-child(3) {
+        animation-delay: 0.4s;
+        }
+
+        .retry-btn-wrapper {
+        margin-top: 0px;
+        padding-top: 0px;
+        }
+
+        @keyframes blink {
+        0%, 100% {
+            opacity: 0.2;
+            transform: translateY(0);
+        }
+        50% {
+            opacity: 1;
+            transform: translateY(-12px);
+        }
+        }
+
+        
+
+
+
        
 
     </style>
@@ -252,18 +320,29 @@
 <!--====== DESTINATION PART START ======-->
 <section id="packges" class="destination_area pt-130 pb-130">
     <div class="container">
-        <div class="row justify-content-center">
-            <div class="col-lg-6">
-                <div class="section_title text-center pb-25">
-                    <h3 class="title" id="hotel-title">正在載入{{ city }}飯店資料...</h3> <!-- 修改標題 -->
-                    <p id="hotel-subtitle">載入飯店資料中請稍候...</p> <!-- 入住/退房日期會在這行 -->
-                </div>
-            </div>
-        </div>
+
+
+        <div class="loading-wrapper" id="loading-message">
+
+            <h2 class="loading-title" id="hotel-title">
+              正在載入<span>{{ city }}</span>飯店資料
+            </h2>
+            <p class="loading-subtitle" id="hotel-subtitle">
+              入住日期：{{ checkin }} | 退房日期：{{ checkout }}
+            </p>
+
+            <div class="loading-dots">
+                <span>.</span><span>.</span><span>.</span>
+              </div>
+
+
+
+          </div>
+
 
         <!-- 動態插入飯店結果 -->
         <div class="row" id="hotels-container">
-            <p id="loading-message">努力加載中...</p> <!-- 初始 Loading 訊息 -->
+            <!-- <p id="loading-message">努力加載中...</p> 初始 Loading 訊息 -->
         </div>
 
         <!-- 再次查詢按鈕 -->
@@ -272,7 +351,10 @@
                 <a href="/booking" class="main-btn">再次查詢</a>
             </div>
         </div>
+
+
     </div>
+
 </section>
 
 <script>
