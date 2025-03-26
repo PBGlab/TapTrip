@@ -61,6 +61,45 @@
         .footer_area {
             margin-top: auto;
         }   
+
+
+        .trip-selection .trip-select {
+        width: 66%;
+        height: 42px;             /* 高度一致 */
+        padding: 8px 12px;        /* 控制左右留白 */
+        font-size: 15px;
+        line-height: normal;        /* 讓文字垂直置中 */
+        border: 1px solid #ccc;
+        background-color: #fff;
+        box-sizing: border-box;
+        vertical-align: middle;   /* 補強文字置中 */
+        }
+
+        
+        .single_destination {
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+        min-height: 450px;
+
+        }
+
+        .destination_content {
+        flex-grow: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between; /* 標題在上、按鈕在下 */
+        padding: 20px;
+        background-color: #fffde6; /* 如果你真的想讓背景變黃色（目前看起來是這樣） */
+        }
+
+        .book-hotel {
+        margin-top: auto;
+        }
+
+        #hotels-container > div {
+        padding-bottom: 30px;
+        }
     </style>
     <!-- ======= 修改位置 End ======= -->
 </head>
@@ -240,7 +279,7 @@
                     
                     <!-- 選擇行程 (trip_id) -->
                     <div class="trip-selection">
-                        <select id="select_trip_id_${hotelCount}">
+                        <select id="select_trip_id_${hotelCount}" class="trip-select">
                             {% if user_trips %}
                                 <option value="">請選擇行程</option>
                                 {% for trip in user_trips %}
@@ -263,6 +302,9 @@
             `;
 
             resultContainer.appendChild(hotelItem);
+
+            // **✨ 對新增的 select 套用 niceSelect**
+            $(`#select_trip_id_${hotelCount}`).niceSelect();
 
             // **即時更新 hidden_data 內的 trip_id**
             let tripField = document.getElementById(`select_trip_id_${hotelCount}`);
