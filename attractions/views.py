@@ -31,7 +31,7 @@ def showattractions(request):
             ],
         })
 
-    return render(request, "attraction2.html", {"cities": cities})  # ✅ 初始頁面為 `attraction2.html`
+    return render(request, "attraction2.html", {"cities": cities}) 
 
 
 
