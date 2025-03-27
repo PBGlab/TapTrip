@@ -28,7 +28,7 @@ SECRET_KEY = os.environ.get("DJANGO_SECRET_KEY", "local_dev_secret_key")
 DEBUG = os.environ.get("DJANGO_DEBUG", "True") == "True"
 
 
-ALLOWED_HOSTS = ['taptrip2025.com','www.taptrip2025.com','localhost','127.0.0.1']
+ALLOWED_HOSTS = ['taptrip2025.com','www.taptrip2025.com','localhost','127.0.0.1','13.236.187.118']
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 
 
@@ -213,4 +213,6 @@ AUTHENTICATION_BACKENDS = (
 
 
 
-
+# Celery 使用 Redis
+CELERY_BROKER_URL = 'redis://localhost:6379/0'
+CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'

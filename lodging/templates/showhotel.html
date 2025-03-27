@@ -358,46 +358,67 @@
 </section>
 
 <script>
+let hasFinished = false; // ✅ 全域變數！在 DOMContentLoaded 外層！
+
 document.addEventListener("DOMContentLoaded", function () {
-    console.log("✅ DOM fully loaded！");
     const urlParams = new URLSearchParams(window.location.search);
-    const checkInValue = urlParams.get("checkin") || "未提供";
-    const checkOutValue = urlParams.get("checkout") || "未提供";
+    const city = urlParams.get("city") || "未知地點";
+    const checkIn = urlParams.get("checkin") || "";
+    const checkOut = urlParams.get("checkout") || "";
 
     let resultContainer = document.getElementById("hotels-container");
     let hotelTitle = document.getElementById("hotel-title");
     let hotelSubtitle = document.getElementById("hotel-subtitle");
     let loadingMessage = document.getElementById("loading-message");
+
     let firstDataReceived = false;
     let hotelCount = 0;
+    let hasFinished = false;
 
-    // ✅ 改用 sessionStorage 來防止重複連線
     if (!sessionStorage.getItem("sseStarted")) {
         sessionStorage.setItem("sseStarted", "true");
         const sse = new EventSource("/stream-hotels" + window.location.search);
-        console.log("📡 開啟唯一 EventSource");
+        console.log("📡 SSE 開啟連線中...");
 
         sse.onmessage = function (event) {
             console.log("📩 收到資料：", event.data);
             try {
-                let data = JSON.parse(event.data);
+                if (!event.data || !event.data.trim().startsWith("{")) return;
+                const data = JSON.parse(event.data);
+
                 if (data.status === "start") {
                     console.log("🚀", data.message);
                     return;
                 }
 
-                let hotel = data;
+                if (data.status === "loading") {
+                    console.log("⏳", data.message);
+                    return;
+                }
+
+                if (data.status === "error") {
+                    console.error("❌", data.message);
+                    if (loadingMessage) loadingMessage.innerText = data.message;
+                    return;
+                }
+
+                if (!data.名稱) {
+                    console.warn("⚠️ 忽略非飯店資料：", data);
+                    return;
+                }
+
                 hotelCount += 1;
 
                 if (!firstDataReceived) {
-                    document.title = `飯店查詢結果 ${checkInValue} - ${checkOutValue}`;
-                    hotelTitle.innerText = `${urlParams.get("city") || "未知地點"} 飯店搜尋結果`;
-                    hotelSubtitle.innerText = `入住日期：${checkInValue} | 退房日期：${checkOutValue}`;
+                    document.title = `${city} 飯店搜尋結果`;
+                    hotelTitle.innerText = `${city} 飯店搜尋結果`;
+                    hotelSubtitle.innerText = `入住日期：${checkIn} | 退房日期：${checkOut}`;
                     firstDataReceived = true;
-                    if (loadingMessage) loadingMessage.remove();
+                    if (loadingMessage) loadingMessage.innerText = ""; // ✅ 清掉錯誤訊息
                 }
 
-                let hotelItem = document.createElement("div");
+                const hotel = data;
+                const hotelItem = document.createElement("div");
                 hotelItem.classList.add("col-lg-4", "col-md-6", "wow", "fadeIn");
                 hotelItem.setAttribute("data-wow-duration", "1.3s");
                 hotelItem.setAttribute("data-wow-delay", "0.2s");
@@ -405,129 +426,53 @@ document.addEventListener("DOMContentLoaded", function () {
                 hotelItem.innerHTML = `
                     <div class="single_destination mt-30">
                         <div class="destination_image">
-                            <a href="${hotel.連結}">
+                            <a href="${hotel.連結}" target="_blank">
                                 <img src="${hotel.圖片}" alt="Hotel Image">
                             </a>
-                            {% if request.user.is_authenticated %}
-                            <button class="btn-add-hotel" onclick="bookHotel(this, ${hotelCount})" title="加入住宿清單">
-                                加入住宿
-                            </button>
-                            {% endif %}
                         </div>
                         <div class="destination_content">
-                            <h4 class="title"><a href="${hotel.連結}"><strong>${hotel.名稱}</strong></a></h4>
+                            <h4 class="title"><a href="${hotel.連結}" target="_blank"><strong>${hotel.名稱}</strong></a></h4>
                             <p class="price">${hotel.地址}</p>
                             <p>${hotel.價格}</p>
-                            <div class="hidden_data"
-                                data-name="${hotel.名稱}"
-                                data-location="${hotel.地址}"
-                                data-rating="${hotel.評價}"
-                                data-price="${hotel.價格}"
-                                data-image="${hotel.圖片}"
-                                data-link="${hotel.連結}"
-                                data-checkin="${checkInValue}"
-                                data-checkout="${checkOutValue}"
-                                data-trip-id="">
-                            </div>
-                            <div class="trip-selection">
-                                <select id="select_trip_id_${hotelCount}" class="trip-select">
-                                    {% if user_trips %}
-                                        <option value="">請選擇行程</option>
-                                        {% for trip in user_trips %}
-                                            <option value="{{ trip.id }}">{{ trip.name }}</option>
-                                        {% endfor %}
-                                    {% else %}
-                                        <option value="">尚未建立任何行程</option>
-                                    {% endif %}
-                                </select>
-                            </div>
-                            <a class="cta-reserve" href="${hotel.連結}" target="_blank" rel="noopener noreferrer">
-                                前往預定
-                            </a>
                         </div>
                     </div>
                 `;
 
                 resultContainer.appendChild(hotelItem);
-                $(`#select_trip_id_${hotelCount}`).niceSelect();
-
-                let tripField = document.getElementById(`select_trip_id_${hotelCount}`);
-                if (tripField) {
-                    tripField.addEventListener("change", function () {
-                        let allHiddenData = document.querySelectorAll(".hidden_data");
-                        allHiddenData.forEach(hiddenData => {
-                            if (hiddenData.dataset.name === `${hotel.名稱}`) {
-                                hiddenData.dataset.tripId = tripField.value || "";
-                            }
-                        });
-                    });
-                }
-
                 let wow = new WOW({ live: false });
                 wow.sync();
-            } catch (err) {
-                console.warn("⚠️ 無法解析 JSON：", event.data);
-            }
-        };
 
-        sse.onerror = function (e) {
-            if (sse.readyState === EventSource.CLOSED) {
-                console.log("📴 SSE 已正常關閉");
-            } else {
-                console.error("❌ SSE 錯誤：", e);
+            } catch (err) {
+                console.error("❌ JSON 解析錯誤：", err.message);
+                if (loadingMessage) loadingMessage.innerText = "資料解析失敗，請稍後再試";
             }
-            sessionStorage.removeItem("sseStarted");
         };
-        
 
         sse.addEventListener("done", () => {
-            console.log("✅ 資料全部接收完成");
+            console.log("✅ 所有資料已接收完畢！");
+            hasFinished = true;
+            sse.close();
             sessionStorage.removeItem("sseStarted");
+            if (loadingMessage) loadingMessage.remove();
         });
-    }
 
-    window.bookHotel = function(button, hotelCount) {
-        let hotelContainer = button.closest('.single_destination');
-        let hiddenData = hotelContainer.querySelector('.hidden_data');
-        let tripField = hotelContainer.querySelector(`#select_trip_id_${hotelCount}`);
+        sse.onerror = function (e) {
+            console.log("📛 onerror 觸發！hasFinished =", hasFinished, " readyState =", sse.readyState);
+            if (hasFinished) {
+                console.log("📴 SSE 已正常結束，不顯示錯誤");
+                return;
+            }
 
-        if (!tripField || !tripField.value) {
-            alert("請選擇行程！");
-            return;
-        }
-
-        hiddenData.dataset.tripId = tripField.value;
-        console.log("✅ 已更新 trip_id:", hiddenData.dataset.tripId);
-
-        let hotelData = {
-            name: hiddenData.dataset.name,
-            address: hiddenData.dataset.location,
-            rating: hiddenData.dataset.rating,
-            price: hiddenData.dataset.price,
-            image: hiddenData.dataset.image,
-            link: hiddenData.dataset.link,
-            checkin: hiddenData.dataset.checkin,
-            checkout: hiddenData.dataset.checkout,
-            trip_id: hiddenData.dataset.tripId
+            console.error("🚨 SSE 連線錯誤：", e);
+            if (loadingMessage) loadingMessage.innerText = "連線錯誤，請重新查詢。";
+            sessionStorage.removeItem("sseStarted");
         };
-
-        fetch("/book_hotel/", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "X-CSRFToken": "{{ csrf_token }}"
-            },
-            body: JSON.stringify(hotelData)
-        })
-        .then(res => res.json())
-        .then(data => {
-            alert(data.message);
-            localStorage.setItem("new_lodging_trip_id", hiddenData.dataset.tripId + "_" + new Date().getTime());
-        })
-        .catch(error => console.error("❌ 發送失敗:", error));
-    };
+    }
 });
 </script>
+
+
+
 
 
 

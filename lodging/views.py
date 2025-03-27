@@ -16,6 +16,8 @@ from django.conf import settings
 from django.http import JsonResponse
 
 import threading
+from lodging.tasks import run_booking_scraper
+
 
 def booking(request):
     print("🔥 booking view 啟動！")
@@ -76,53 +78,58 @@ def booking(request):
 
 
 from django.http import StreamingHttpResponse
+import os
 import json
+import time
 
+def clean_filename(text):
+    import re
+    # ✅ 僅移除特殊字元，保留「臺」不轉換
+    return re.sub(r"[^\w\u4e00-\u9fa5]", "", text)
 
 def stream_hotels(request):
-    print("🧵 stream_hotels() 啟動，執行緒 ID:", threading.get_ident())
     city = request.GET.get('city')
-    checkin = request.GET.get('checkin')
-    checkout = request.GET.get('checkout')
-    adults = request.GET.get('adults')
-    children = request.GET.get('children')
+    if not city:
+        error_msg = {"status": "error", "message": "缺少必要參數：city"}
+        return StreamingHttpResponse(
+            f"data: {json.dumps(error_msg, ensure_ascii=False)}\n\n",
+            content_type='text/event-stream; charset=utf-8'
+        )
 
+    safe_city = clean_filename(city)
+    file_path = f"/tmp/hotel-result-{safe_city}.json"
 
     def event_stream():
-        yield f"data: {json.dumps({'status': 'start', 'message': f'正在查詢 {city} 的飯店資訊'})}\n\n"  # ⬅️ 先丟一筆初始資料給前端
+        yield f"data: {{\"status\": \"start\", \"message\": \"開始載入 {city} 的飯店\"}}\n\n"
+
         try:
-            for hotel in scrape_booking(city, checkin, checkout, adults, children):
-                json_data = json.dumps(hotel, ensure_ascii=False)
-                print(f"[stream-hotels] 傳送飯店：{hotel['名稱']}")
-                yield f"data: {json_data}\n\n"
-            yield "event: done\ndata: 完成載入\n\n"
+            while not os.path.exists(file_path):
+                loading_msg = {"status": "loading", "message": f"等待 {city} 飯店資料產生中..."}
+                yield f"data: {json.dumps(loading_msg, ensure_ascii=False)}\n\n"
+                time.sleep(1)
+
+            if not os.path.exists(file_path):
+                error_msg = {"status": "error", "message": "找不到結果檔案，請稍後再試"}
+                yield f"data: {json.dumps(error_msg, ensure_ascii=False)}\n\n"
+                return
+
+            with open(file_path, "r", encoding="utf-8") as f:
+                hotels = json.load(f)
+
+            for hotel in hotels:
+                yield f"data: {json.dumps(hotel, ensure_ascii=False)}\n\n"
+
+            yield "event: done\ndata: 飯店資料載入完畢\n\n"
+
         except Exception as e:
-            print(f"[stream-hotels] 錯誤：{str(e)}")
-            yield f"event: error\ndata: 發生錯誤：{str(e)}\n\n"
+            error_msg = {"status": "error", "message": f"發生錯誤：{str(e)}"}
+            yield f"data: {json.dumps(error_msg, ensure_ascii=False)}\n\n"
 
-    return StreamingHttpResponse(event_stream(), content_type='text/event-stream')
+    response = StreamingHttpResponse(event_stream())
+    response['Content-Type'] = 'text/event-stream'
+    response.charset = 'utf-8'
+    return response
 
-
-from trips.models import Trip  # 確保你有 import Trip
-
-def showhotel(request):
-    city = request.GET.get("city", "")
-    checkin = request.GET.get("checkin", "")
-    checkout = request.GET.get("checkout", "")
-    adults = request.GET.get("adults", "1")
-    children = request.GET.get("children", "0")
-
-    # **取得當前使用者的行程**
-    user_trips = Trip.objects.filter(user=request.user, status="draft") if request.user.is_authenticated else []
-
-    return render(request, "showhotel.html", {
-        "city": city,
-        "checkin": checkin,
-        "checkout": checkout,
-        "adults": adults,
-        "children": children,
-        "user_trips": user_trips,  # ✅ 把行程傳到前端
-    })
 
 
 
@@ -240,3 +247,27 @@ def get_lodgings_by_trip(request, trip_id):
         'id', 'name', 'address', 'price', 'image', 'link', 'check_in', 'check_out'
     )
     return JsonResponse({'lodgings': list(lodgings)})
+
+from django.shortcuts import render
+from trips.models import Trip
+
+def showhotel(request):
+    city = request.GET.get("city", "")
+    checkin = request.GET.get("checkin", "")
+    checkout = request.GET.get("checkout", "")
+    adults = request.GET.get("adults", "1")
+    children = request.GET.get("children", "0")
+
+    print(f"🚀 準備啟動 Celery 任務：{city}, {checkin}, {checkout}, {adults}, {children}")  # ← 新增這行
+    run_booking_scraper.delay(city, checkin, checkout, adults, children)
+    # 取得使用者草稿行程
+    user_trips = Trip.objects.filter(user=request.user, status="draft") if request.user.is_authenticated else []
+    
+    return render(request, "showhotel.html", {
+        "city": city,
+        "checkin": checkin,
+        "checkout": checkout,
+        "adults": adults,
+        "children": children,
+        "user_trips": user_trips,
+    })
