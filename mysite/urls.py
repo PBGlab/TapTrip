@@ -27,5 +27,5 @@ urlpatterns = [
     path('', include('lodging.urls')),  # 將所有 lodging 的路由引入
     path('', include('attractions.urls')),  # 將所有 attractions 的路由引入
     path('', include('trips.urls')),  # 將所有 trips 的路由引入
-    path("maps/", include("maps_app.urls")),  # 讓 `/maps/` 指向 maps_app
+    
 ]

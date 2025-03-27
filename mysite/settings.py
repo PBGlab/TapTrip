@@ -46,7 +46,6 @@ INSTALLED_APPS = [
     "lodging", # 自訂 APP
     "attractions", # 自訂 APP
     "django_extensions",
-    'maps_app',
     'trips',
     'shared', # 共享"assets"用
 
