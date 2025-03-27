@@ -19,3 +19,5 @@ __pycache__/
 # 忽略ssl金鑰
 *.pem
 
+google-chrome-stable_current_amd64.deb
+*.deb
