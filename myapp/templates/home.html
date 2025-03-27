@@ -1,3 +1,4 @@
+{% load static %}
 <head>
     <meta charset="utf-8">
     
@@ -8,28 +9,28 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
     <!--====== Favicon Icon ======-->
-    <link rel="shortcut icon" href="/static/assets/images/favicon.png" type="image/png">
+    <link rel="shortcut icon" href="{% static 'assets/images/favicon.png' %}" type="image/png">
     
-    <link rel="stylesheet" href="/static/assets/css/magnific-popup.css">
-    <link rel="stylesheet" href="/static/assets/css/slick.css">
+    <link rel="stylesheet" href="{% static 'assets/css/magnific-popup.css' %}">
+    <link rel="stylesheet" href="{% static 'assets/css/slick.css' %}">
         
     <!--====== Animate CSS ======-->
-    <link rel="stylesheet" href="/static/assets/css/animate.css">
+    <link rel="stylesheet" href="{% static 'assets/css/animate.css' %}">
         
     <!--====== Nice Select CSS ======-->
-    <link rel="stylesheet" href="/static/assets/css/nice-select.css">
+    <link rel="stylesheet" href="{% static 'assets/css/nice-select.css' %}">
         
     <!--====== Line Icons CSS ======-->
-    <link rel="stylesheet" href="/static/assets/css/LineIcons.2.0.css">
+    <link rel="stylesheet" href="{% static 'assets/css/LineIcons.2.0.css' %}">
         
     <!--====== Bootstrap CSS ======-->
-    <link rel="stylesheet" href="/static/assets/css/bootstrap.4.5.2.min.css">
+    <link rel="stylesheet" href="{% static 'assets/css/bootstrap.4.5.2.min.css' %}">
     
     <!--====== Default CSS ======-->
-    <link rel="stylesheet" href="/static/assets/css/default.css">
+    <link rel="stylesheet" href="{% static 'assets/css/default.css' %}">
     
     <!--====== Style CSS ======-->
-    <link rel="stylesheet" href="/static/assets/css/style.css">
+    <link rel="stylesheet" href="{% static 'assets/css/style.css' %}">
     
     <!--====== 自訂樣式 ======-->
     <style>
@@ -112,7 +113,7 @@
                     <div class="col-lg-12">
                         <nav class="navbar navbar-expand-lg">
                             <a class="navbar-brand" href="#home">
-                                <img src="/static/assets/images/logo.png" alt="Logo">
+                                <img src="{% static 'assets/images/logo.png' %}" alt="Logo">
                             </a>
                             <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
                                 <span class="toggler-icon"></span>
@@ -385,7 +386,7 @@
                 <div class="row">
                     <div class="col-lg-4 col-md-6 order-md-1 order-lg-1">
                         <div class="footer_about mt-50">
-                            <a href="{% if request.user.is_authenticated %}/home{% else %}/{% endif %}"><img src="/static/assets/images/logo.png" alt="logo"></a>
+                            <a href="{% if request.user.is_authenticated %}/home{% else %}/{% endif %}"><img src="{% static 'assets/images/logo.png' %}" alt="logo"></a>
                             <p>TapTrip 一站式智能旅遊規劃平台，結合行程安排、天氣提醒、地圖導航與住宿管理，讓自由行更輕鬆、高效、無憂！</p>
                         </div> <!-- footer about -->
                     </div>
@@ -427,34 +428,34 @@
 
 
     <!--====== Jquery js ======-->
-    <script src="/static/assets/js/vendor/jquery-1.12.4.min.js"></script>
-    <script src="/static/assets/js/vendor/modernizr-3.7.1.min.js"></script>
+    <script src="{% static 'assets/js/vendor/jquery-1.12.4.min.js' %}"></script>
+    <script src="{% static 'assets/js/vendor/modernizr-3.7.1.min.js' %}"></script>
     
     <!--====== Bootstrap js ======-->
-    <script src="/static/assets/js/popper.min.js"></script>
-    <script src="/static/assets/js/bootstrap.4.5.2.min.js"></script>
+    <script src="{% static 'assets/js/popper.min.js' %}"></script>
+    <script src="{% static 'assets/js/bootstrap.4.5.2.min.js' %}"></script>
 	
-	<script src="/static/assets/js/slick.min.js"></script>
-	<script src="/static/assets/js/ajax-contact.js"></script>
-	<script src="/static/assets/js/jquery.magnific-popup.min.js"></script>
+	<script src="{% static 'assets/js/slick.min.js' %}"></script>
+	<script src="{% static 'assets/js/ajax-contact.js' %}"></script>
+	<script src="{% static 'assets/js/jquery.magnific-popup.min.js' %}"></script>
 
     
     <!--====== Scrolling Nav js ======-->
-    <script src="/static/assets/js/jquery.easing.min.js"></script>
-    <script src="/static/assets/js/scrolling-nav.js"></script>
+    <script src="{% static 'assets/js/jquery.easing.min.js' %}"></script>
+    <script src="{% static 'assets/js/scrolling-nav.js' %}"></script>
     
     <!--====== Counter Up js ======-->
-    <script src="/static/assets/js/waypoints.min.js"></script>
-    <script src="/static/assets/js/jquery.counterup.min.js"></script>
+    <script src="{% static 'assets/js/waypoints.min.js' %}"></script>
+    <script src="{% static 'assets/js/jquery.counterup.min.js' %}"></script>
     
     <!--====== Nice Select js ======-->
-    <script src="/static/assets/js/jquery.nice-select.min.js"></script>
+    <script src="{% static 'assets/js/jquery.nice-select.min.js' %}"></script>
     
     <!--====== WOW js ======-->
-    <script src="/static/assets/js/wow.min.js"></script>
+    <script src="{% static 'assets/js/wow.min.js' %}"></script>
     
     <!--====== Main js ======-->
-    <script src="/static/assets/js/main.js"></script>        
+    <script src="{% static 'assets/js/main_myapp.js' %}"></script>        
         
 </body>
 

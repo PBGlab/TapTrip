@@ -4,10 +4,10 @@
 <head>
     <meta charset="UTF-8">
     <title>TapTrip | 旅遊一指通</title>
-    <link rel="stylesheet" href="{% static 'lodging/assets/css/style.css' %}">
-    <link rel="stylesheet" href="{% static 'lodging/assets/css/bootstrap.4.5.2.min.css' %}">
-    <link rel="stylesheet" href="{% static 'lodging/assets/css/LineIcons.2.0.css' %}">
-    <link rel="shortcut icon" href="{% static 'lodging/assets/images/favicon.png' %}" type="image/png">
+    <link rel="stylesheet" href="{% static 'assets/css/style.css' %}">
+    <link rel="stylesheet" href="{% static 'assets/css/bootstrap.4.5.2.min.css' %}">
+    <link rel="stylesheet" href="{% static 'assets/css/LineIcons.2.0.css' %}">
+    <link rel="shortcut icon" href="{% static 'assets/images/favicon.png' %}" type="image/png">
     <style>
         body { font-family: "Microsoft JhengHei", sans-serif; }
         .trip_section { background-color:rgb(13, 40, 67); padding: 25px; border-radius: 12px; margin-bottom: 30px; box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1); }
@@ -46,7 +46,7 @@
 <body>
 <header>
     <a class="navbar-brand" href="{% if request.user.is_authenticated %}/home{% else %}/{% endif %}">
-        <img src="{% static 'lodging/assets/images/logo.png' %}" alt="Logo">
+        <img src="{% static 'assets/images/logo.png' %}" alt="Logo">
     </a>
 </header>
 

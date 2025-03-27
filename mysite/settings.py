@@ -48,6 +48,7 @@ INSTALLED_APPS = [
     "django_extensions",
     'maps_app',
     'trips',
+    'shared', # 共享"assets"用
 
     # 第三方套件
     'allauth',
@@ -155,8 +156,7 @@ USE_TZ = True
 STATIC_URL = "static/"
 
 STATICFILES_DIRS = [
-    ("lodging", os.path.join(BASE_DIR, "lodging/static")),
-    ("myapp", os.path.join(BASE_DIR, "myapp/static")),
+    BASE_DIR / "shared/static",  
 ]
 
 # Default primary key field type
