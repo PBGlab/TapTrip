@@ -6,7 +6,11 @@ from django.views.decorators.csrf import csrf_exempt
 from lodging.models import Lodging
 import json
 
+
+from django.contrib.auth.decorators import login_required
+
 #建立行程
+@login_required
 def create_trip(request):
     if request.method == "POST":
         name = request.POST.get("name", "").strip()
