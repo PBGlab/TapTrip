@@ -28,12 +28,13 @@ def login_view(request):
 
         if errors:
             return JsonResponse({"success": False, "errors": errors}, status=400)
-
+    
         # ✅ 登入成功
         login(request, user)
-        return JsonResponse({"success": True, "redirect_url": "/home", "username": user.username})  # 帶 `username` 回應 JSON
+        next_url = request.POST.get('next') or request.GET.get('next') or '/home'
+        return JsonResponse({"success": True, "redirect_url": next_url, "username": user.username})
 
-    # ✅ GET 請求時回傳 `login.html`
+    # ✅ GET 請求時回傳 login.html
     return render(request, 'login.html')
 
 #更改密碼功能
