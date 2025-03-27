@@ -5,6 +5,8 @@
 
 <head>
     <meta charset="utf-8">
+
+   
     
     <!--====== Title ======-->
     <title>尋找飯店</title>
@@ -42,6 +44,44 @@
 
         
         
+
+   
+
+    <!--====== Jquery js ======-->
+   
+    <script src="{% static 'assets/js/vendor/jquery-1.12.4.min.js' %}"></script>
+    <script src="{% static 'assets/js/vendor/modernizr-3.7.1.min.js' %}"></script>
+    
+    <!--====== Bootstrap js ======-->
+    <script src="{% static 'assets/js/popper.min.js' %}"></script>
+    <script src="{% static 'assets/js/bootstrap.4.5.2.min.js' %}"></script>
+	
+	<script src="{% static 'assets/js/slick.min.js' %}"></script>
+	<script src="{% static 'assets/js/ajax-contact.js' %}"></script>
+	<script src="{% static 'assets/js/jquery.magnific-popup.min.js' %}"></script>
+
+    
+    <!--====== Scrolling Nav js ======-->
+    <script src="{% static 'assets/js/jquery.easing.min.js' %}"></script>
+    <script src="{% static 'assets/js/scrolling-nav.js' %}"></script>
+    
+    <!--====== Counter Up js ======-->
+    <script src="{% static 'assets/js/waypoints.min.js' %}"></script>
+    <script src="{% static 'assets/js/jquery.counterup.min.js' %}"></script>
+    
+    <!--====== Nice Select js ======-->
+    <script src="{% static 'assets/js/jquery.nice-select.min.js' %}"></script>
+    
+    <!--====== WOW js ======-->
+    <script src="{% static 'assets/js/wow.min.js' %}"></script>
+    
+    <!--====== Main js ======-->
+    <script src="{% static 'assets/js/main.js' %}"></script>
+
+
+
+    
+
 
 
 </head>
@@ -108,18 +148,7 @@
                                         <a class="page-scroll" href="/login/">登入</a>
                                     </li>
                                     
-                                    <script>
-                                        document.addEventListener("DOMContentLoaded", function () {
-                                            fetch("/api/user-status/", { credentials: "include" })  // 確保傳送 cookies
-                                                .then(response => response.json())
-                                                .then(data => {
-                                                    let userMenu = document.getElementById("user-menu");
-                                                    if (data.is_authenticated) {
-                                                        userMenu.innerHTML = `<a href="/logout/">${data.username}（登出）</a>`;
-                                                    }
-                                                });
-                                        });
-                                    </script>                                    
+                                 
                                 </ul>
                             </div> <!-- navbar collapse -->
                         </nav> <!-- navbar -->
@@ -206,50 +235,7 @@
             </div> <!-- row -->
         </div> <!-- container -->
     </section>
-    <script>
-        $(document).ready(function() {
-            $("form").on("submit", function(event) {
-                event.preventDefault(); // 先阻止表單提交
-        
-                let form = $(this);
-                let formData = form.serialize(); // 將表單數據轉成 URL 編碼格式
-                let checkin = $("input[name='checkin']").val();
-                let checkout = $("input[name='checkout']").val();
-        
-                if (!checkin || !checkout) {
-                    alert("請選擇入住和退房日期");
-                    return;
-                }
-        
-                let checkinDate = new Date(checkin);
-                let checkoutDate = new Date(checkout);
-        
-                if (isNaN(checkinDate) || isNaN(checkoutDate)) {
-                    alert("請輸入有效的日期格式");
-                    return;
-                }
-        
-                if (checkinDate >= checkoutDate) {
-                    alert("入住日期必須早於退房日期");
-                    return;
-                }
-        
-                // 使用 AJAX 傳遞資料給後端驗證
-                $.ajax({
-                    url: "/booking/",
-                    type: "POST",
-                    data: formData,
-                    success: function(response) {
-                        window.location.href = response.redirect_url; // 成功則跳轉
-                    },
-                    error: function(xhr) {
-                        let errorMessage = xhr.responseJSON?.error || "發生錯誤，請稍後再試";
-                        alert(errorMessage);
-                    }
-                });
-            });
-        });
-        </script>
+
         
 
     <!--====== CONTACT PART ENDS ======-->
@@ -317,38 +303,65 @@
     <!--====== PART ENDS ======-->
 
 
+<script>
+    // 原生 JS，可以提早放在 <head>，但這裡統一放底部也沒問題
+    document.addEventListener("DOMContentLoaded", function () {
+        fetch("/api/user-status/", { credentials: "include" })
+            .then(response => response.json())
+            .then(data => {
+                let userMenu = document.getElementById("user-menu");
+                if (data.is_authenticated) {
+                    userMenu.innerHTML = `<a href="/logout/">${data.username}（登出）</a>`;
+                }
+            });
+    });
+
+    // jQuery 安全寫法：只包一次
+    window.addEventListener("load", function () {
+        $("form").on("submit", function (event) {
+            event.preventDefault();
+
+            let form = $(this);
+            let formData = form.serialize();
+            let checkin = $("input[name='checkin']").val();
+            let checkout = $("input[name='checkout']").val();
+
+            if (!checkin || !checkout) {
+                alert("請選擇入住和退房日期");
+                return;
+            }
+
+            let checkinDate = new Date(checkin);
+            let checkoutDate = new Date(checkout);
+
+            if (isNaN(checkinDate) || isNaN(checkoutDate)) {
+                alert("請輸入有效的日期格式");
+                return;
+            }
+
+            if (checkinDate >= checkoutDate) {
+                alert("入住日期必須早於退房日期");
+                return;
+            }
+
+            $.ajax({
+                url: "/booking/",
+                type: "POST",
+                data: formData,
+                success: function(response) {
+                    window.location.href = response.redirect_url;
+                },
+                error: function(xhr) {
+                    let errorMessage = xhr.responseJSON?.error || "發生錯誤，請稍後再試";
+                    alert(errorMessage);
+                }
+            });
+        });
+    });
+</script>
 
 
 
-    <!--====== Jquery js ======-->
-    <script src="{% static 'assets/js/vendor/jquery-1.12.4.min.js' %}"></script>
-    <script src="{% static 'assets/js/vendor/modernizr-3.7.1.min.js' %}"></script>
-    
-    <!--====== Bootstrap js ======-->
-    <script src="{% static 'assets/js/popper.min.js' %}"></script>
-    <script src="{% static 'assets/js/bootstrap.4.5.2.min.js' %}"></script>
-	
-	<script src="{% static 'assets/js/slick.min.js' %}"></script>
-	<script src="{% static 'assets/js/ajax-contact.js' %}"></script>
-	<script src="{% static 'assets/js/jquery.magnific-popup.min.js' %}"></script>
-
-    
-    <!--====== Scrolling Nav js ======-->
-    <script src="{% static 'assets/js/jquery.easing.min.js' %}"></script>
-    <script src="{% static 'assets/js/scrolling-nav.js' %}"></script>
-    
-    <!--====== Counter Up js ======-->
-    <script src="{% static 'assets/js/waypoints.min.js' %}"></script>
-    <script src="{% static 'assets/js/jquery.counterup.min.js' %}"></script>
-    
-    <!--====== Nice Select js ======-->
-    <script src="{% static 'assets/js/jquery.nice-select.min.js' %}"></script>
-    
-    <!--====== WOW js ======-->
-    <script src="{% static 'assets/js/wow.min.js' %}"></script>
-    
-    <!--====== Main js ======-->
-    <script src="{% static 'assets/js/main.js' %}"></script>
 </body>
 
 </html>

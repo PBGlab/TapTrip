@@ -358,165 +358,160 @@
 </section>
 
 <script>
-    document.addEventListener("DOMContentLoaded", function () {
-        // **從 URL 取得 check-in、check-out 和 city**
-        const urlParams = new URLSearchParams(window.location.search);
-        const checkInValue = urlParams.get("checkin") || "未提供";
-        const checkOutValue = urlParams.get("checkout") || "未提供";
+document.addEventListener("DOMContentLoaded", function () {
+    console.log("✅ DOM fully loaded！");
+    const urlParams = new URLSearchParams(window.location.search);
+    const checkInValue = urlParams.get("checkin") || "未提供";
+    const checkOutValue = urlParams.get("checkout") || "未提供";
 
-        let eventSource = new EventSource("/stream-hotels" + window.location.search);
-        let resultContainer = document.getElementById("hotels-container");
-        let hotelTitle = document.getElementById("hotel-title"); // 取得標題元素
-        let hotelSubtitle = document.getElementById("hotel-subtitle");
-        let loadingMessage = document.getElementById("loading-message");
+    let resultContainer = document.getElementById("hotels-container");
+    let hotelTitle = document.getElementById("hotel-title");
+    let hotelSubtitle = document.getElementById("hotel-subtitle");
+    let loadingMessage = document.getElementById("loading-message");
+    let firstDataReceived = false;
+    let hotelCount = 0;
 
-        let firstDataReceived = false; // 標記是否收到第一筆資料
+    // ✅ 改用 sessionStorage 來防止重複連線
+    if (!sessionStorage.getItem("sseStarted")) {
+        sessionStorage.setItem("sseStarted", "true");
+        const sse = new EventSource("/stream-hotels" + window.location.search);
+        console.log("📡 開啟唯一 EventSource");
 
-        let hotelCount = 0;
-        eventSource.onmessage = function(event) {
-            hotelCount += 1;
-            let hotel = JSON.parse(event.data);
-
-            // **收到第一筆資料時，更新標題**
-            if (!firstDataReceived) {
-                document.title = `飯店查詢結果 ${checkInValue} - ${checkOutValue}`; // 更新瀏覽器標題
-                hotelTitle.innerText = `${urlParams.get("city") || "未知地點"} 飯店搜尋結果`; // 更新主標題
-                hotelSubtitle.innerText = `入住日期：${checkInValue} | 退房日期：${checkOutValue}`; // 更新副標題
-                firstDataReceived = true;
-
-                // 移除載入中訊息
-                if (loadingMessage) {
-                    loadingMessage.remove();
+        sse.onmessage = function (event) {
+            console.log("📩 收到資料：", event.data);
+            try {
+                let data = JSON.parse(event.data);
+                if (data.status === "start") {
+                    console.log("🚀", data.message);
+                    return;
                 }
-            }
 
-            let hotelItem = document.createElement("div");
-            hotelItem.classList.add("col-lg-4", "col-md-6", "wow", "fadeIn");
-            hotelItem.setAttribute("data-wow-duration", "1.3s");
-            hotelItem.setAttribute("data-wow-delay", "0.2s");
+                let hotel = data;
+                hotelCount += 1;
 
-            hotelItem.innerHTML = `
-            <div class="single_destination mt-30">
-                <div class="destination_image">
-                    <a href="${hotel.連結}">
-                        <img src="${hotel.圖片}" alt="Hotel Image">
-                    </a>
+                if (!firstDataReceived) {
+                    document.title = `飯店查詢結果 ${checkInValue} - ${checkOutValue}`;
+                    hotelTitle.innerText = `${urlParams.get("city") || "未知地點"} 飯店搜尋結果`;
+                    hotelSubtitle.innerText = `入住日期：${checkInValue} | 退房日期：${checkOutValue}`;
+                    firstDataReceived = true;
+                    if (loadingMessage) loadingMessage.remove();
+                }
 
-                    {% if request.user.is_authenticated %}
+                let hotelItem = document.createElement("div");
+                hotelItem.classList.add("col-lg-4", "col-md-6", "wow", "fadeIn");
+                hotelItem.setAttribute("data-wow-duration", "1.3s");
+                hotelItem.setAttribute("data-wow-delay", "0.2s");
 
-                    <button class="btn-add-hotel" onclick="bookHotel(this, ${hotelCount})" title="加入住宿清單">
-                        加入住宿
-                    </button>
-                        {% endif %}
-
-                </div>
-                <div class="destination_content">
-                    <h4 class="title">
-                        <a href="${hotel.連結}"><strong>${hotel.名稱}</strong></a>
-                    </h4>
-                    <p class="price">${hotel.地址}</p>
-                    <p>${hotel.價格}</p>
-
-                    <!-- 隱藏飯店資訊，當按鈕點擊時讀取 -->
-                    <div class="hidden_data"
-                        data-name="${hotel.名稱}"
-                        data-location="${hotel.地址}"
-                        data-rating="${hotel.評價}"
-                        data-price="${hotel.價格}"
-                        data-image="${hotel.圖片}"
-                        data-link="${hotel.連結}"
-                        data-checkin="${checkInValue}"
-                        data-checkout="${checkOutValue}"
-                        data-trip-id="">
-                    </div>
-                    
-                    <!-- 選擇行程 (trip_id) -->
-                    <div class="trip-selection">
-                        <select id="select_trip_id_${hotelCount}" class="trip-select">
-                            {% if user_trips %}
-                                <option value="">請選擇行程</option>
-                                {% for trip in user_trips %}
-                                    <option value="{{ trip.id }}">{{ trip.name }}</option>
-                                {% endfor %}
-                            {% else %}
-                                <option value="">尚未建立任何行程</option>
+                hotelItem.innerHTML = `
+                    <div class="single_destination mt-30">
+                        <div class="destination_image">
+                            <a href="${hotel.連結}">
+                                <img src="${hotel.圖片}" alt="Hotel Image">
+                            </a>
+                            {% if request.user.is_authenticated %}
+                            <button class="btn-add-hotel" onclick="bookHotel(this, ${hotelCount})" title="加入住宿清單">
+                                加入住宿
+                            </button>
                             {% endif %}
-                        </select>
+                        </div>
+                        <div class="destination_content">
+                            <h4 class="title"><a href="${hotel.連結}"><strong>${hotel.名稱}</strong></a></h4>
+                            <p class="price">${hotel.地址}</p>
+                            <p>${hotel.價格}</p>
+                            <div class="hidden_data"
+                                data-name="${hotel.名稱}"
+                                data-location="${hotel.地址}"
+                                data-rating="${hotel.評價}"
+                                data-price="${hotel.價格}"
+                                data-image="${hotel.圖片}"
+                                data-link="${hotel.連結}"
+                                data-checkin="${checkInValue}"
+                                data-checkout="${checkOutValue}"
+                                data-trip-id="">
+                            </div>
+                            <div class="trip-selection">
+                                <select id="select_trip_id_${hotelCount}" class="trip-select">
+                                    {% if user_trips %}
+                                        <option value="">請選擇行程</option>
+                                        {% for trip in user_trips %}
+                                            <option value="{{ trip.id }}">{{ trip.name }}</option>
+                                        {% endfor %}
+                                    {% else %}
+                                        <option value="">尚未建立任何行程</option>
+                                    {% endif %}
+                                </select>
+                            </div>
+                            <a class="cta-reserve" href="${hotel.連結}" target="_blank" rel="noopener noreferrer">
+                                前往預定
+                            </a>
+                        </div>
                     </div>
+                `;
 
+                resultContainer.appendChild(hotelItem);
+                $(`#select_trip_id_${hotelCount}`).niceSelect();
 
-
-
-                <a class="cta-reserve" href="${hotel.連結}" target="_blank" rel="noopener noreferrer">
-                前往預定
-                </a>
-
-                </div>
-            </div>
-            `;
-
-            resultContainer.appendChild(hotelItem);
-
-            // **✨ 對新增的 select 套用 niceSelect**
-            $(`#select_trip_id_${hotelCount}`).niceSelect();
-
-            // **即時更新 hidden_data 內的 trip_id**
-            let tripField = document.getElementById(`select_trip_id_${hotelCount}`);
-
-            if (tripField) {
-                tripField.addEventListener("change", function () {
-                    let allHiddenData = document.querySelectorAll(".hidden_data"); // 取得所有隱藏的飯店資訊
-
-                    allHiddenData.forEach(hiddenData => {
-                        if(hiddenData.dataset.name === `${hotel.名稱}`) {
-                            hiddenData.dataset.tripId = tripField.value || ""; // 更新 data-trip-id
-                        }
+                let tripField = document.getElementById(`select_trip_id_${hotelCount}`);
+                if (tripField) {
+                    tripField.addEventListener("change", function () {
+                        let allHiddenData = document.querySelectorAll(".hidden_data");
+                        allHiddenData.forEach(hiddenData => {
+                            if (hiddenData.dataset.name === `${hotel.名稱}`) {
+                                hiddenData.dataset.tripId = tripField.value || "";
+                            }
+                        });
                     });
-                    
-                    console.log(`✅ 已更新 #select_trip_id_${hotelCount} 的 hidden_data trip_id:`, tripField.value);
-                });
+                }
+
+                let wow = new WOW({ live: false });
+                wow.sync();
+            } catch (err) {
+                console.warn("⚠️ 無法解析 JSON：", event.data);
             }
-
-            // **只對新元素應用 WOW.js，不影響整個版面**
-            let wow = new WOW({ live: false });
-            wow.sync();
         };
 
-        eventSource.onerror = function() {
-            console.error("查詢飯店結果顯示完成");
-            eventSource.close();
+        sse.onerror = function (e) {
+            if (sse.readyState === EventSource.CLOSED) {
+                console.log("📴 SSE 已正常關閉");
+            } else {
+                console.error("❌ SSE 錯誤：", e);
+            }
+            sessionStorage.removeItem("sseStarted");
         };
-    });
+        
 
-    function bookHotel(button, hotelCount) {
-        let hotelContainer = button.closest('.single_destination');  // 取得該飯店區塊
-        let hiddenData = hotelContainer.querySelector('.hidden_data');  // 取得該飯店的隱藏資訊
-        let tripField = hotelContainer.querySelector(`#select_trip_id_${hotelCount}`);  // 取得該飯店的行程選單
-    
+        sse.addEventListener("done", () => {
+            console.log("✅ 資料全部接收完成");
+            sessionStorage.removeItem("sseStarted");
+        });
+    }
+
+    window.bookHotel = function(button, hotelCount) {
+        let hotelContainer = button.closest('.single_destination');
+        let hiddenData = hotelContainer.querySelector('.hidden_data');
+        let tripField = hotelContainer.querySelector(`#select_trip_id_${hotelCount}`);
+
         if (!tripField || !tripField.value) {
             alert("請選擇行程！");
             return;
         }
-    
-        // ✅ 只更新這間飯店的 `hidden_data`
+
         hiddenData.dataset.tripId = tripField.value;
-        console.log("✅ 已更新 hidden_data 的 trip_id:", hiddenData.dataset.tripId);
-    
+        console.log("✅ 已更新 trip_id:", hiddenData.dataset.tripId);
+
         let hotelData = {
-            name: hiddenData.dataset.name || "",
-            address: hiddenData.dataset.location || "",
-            rating: hiddenData.dataset.rating || "",
-            price: hiddenData.dataset.price || "",
-            image: hiddenData.dataset.image || "",
-            link: hiddenData.dataset.link || "",
-            checkin: hiddenData.dataset.checkin,  
+            name: hiddenData.dataset.name,
+            address: hiddenData.dataset.location,
+            rating: hiddenData.dataset.rating,
+            price: hiddenData.dataset.price,
+            image: hiddenData.dataset.image,
+            link: hiddenData.dataset.link,
+            checkin: hiddenData.dataset.checkin,
             checkout: hiddenData.dataset.checkout,
-            trip_id: hiddenData.dataset.tripId  // ✅ 現在 `trip_id` 是來自該飯店的 `hidden_data`
+            trip_id: hiddenData.dataset.tripId
         };
-    
-        console.log("✅ 即將發送的 hotelData:", hotelData);
-    
-        fetch("/book_hotel/", { 
+
+        fetch("/book_hotel/", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
@@ -524,17 +519,18 @@
             },
             body: JSON.stringify(hotelData)
         })
-        .then(response => response.json())
+        .then(res => res.json())
         .then(data => {
             alert(data.message);
-
             localStorage.setItem("new_lodging_trip_id", hiddenData.dataset.tripId + "_" + new Date().getTime());
-
         })
-        .catch(error => console.error("❌ 錯誤:", error));
-    }
-
+        .catch(error => console.error("❌ 發送失敗:", error));
+    };
+});
 </script>
+
+
+
 
 <!--====== DESTINATION PART ENDS ======-->
 

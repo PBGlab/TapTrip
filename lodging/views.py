@@ -11,8 +11,15 @@ from datetime import datetime
 from django.shortcuts import render, redirect
 from django.http import JsonResponse
 from datetime import datetime
+from django.conf import settings 
+
+from django.http import JsonResponse
+
+import threading
 
 def booking(request):
+    print("🔥 booking view 啟動！")
+
     if request.method == 'POST':
         city = request.POST.get('city')
         checkin = request.POST.get('checkin')
@@ -22,18 +29,24 @@ def booking(request):
 
         errors = {}
 
-        # 檢查日期格式
         try:
             checkin_date = datetime.strptime(checkin, '%Y-%m-%d')
             checkout_date = datetime.strptime(checkout, '%Y-%m-%d')
-
             if checkin_date >= checkout_date:
                 errors['date_error'] = "入住日期必須早於退房日期"
         except ValueError:
             errors['date_error'] = "日期格式錯誤，請選擇有效日期"
 
-        # 如果有錯誤，返回 `booking.html` 並顯示錯誤訊息
+        # ✅ 組出 redirect 目的地（無論哪種請求都會用到）
+        redirect_url = f'/showhotel/?city={city}&checkin={checkin}&checkout={checkout}&adults={adults}&children={children}'
+
+        # ✅ 如果有錯誤，處理回傳格式
         if errors:
+            # 如果是 AJAX 請求，就回傳 JSON
+            if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+                return JsonResponse({'error': errors['date_error']}, status=400)
+
+            # 否則就是 HTML 表單，照舊回原畫面
             return render(request, 'booking.html', {
                 "cities": City.objects.all(),
                 "checkin": checkin,
@@ -42,10 +55,13 @@ def booking(request):
                 "errors": errors
             })
 
-        # 沒有錯誤，則重定向到 `showhotel.html`
-        return redirect(f'/showhotel/?city={city}&checkin={checkin}&checkout={checkout}&adults={adults}&children={children}')
+        # ✅ 沒錯誤，根據請求方式回傳
+        if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+            return JsonResponse({'redirect_url': redirect_url})
 
-    # GET 請求，提供預設值
+        return redirect(redirect_url)
+
+    # GET 請求（初始進入 booking 頁面）
     checkin = request.GET.get('checkin', '')
     checkout = request.GET.get('checkout', '')
     trip_name = request.GET.get('trip', '')
@@ -55,25 +71,34 @@ def booking(request):
         "checkin": checkin,
         "checkout": checkout,
         "trip_name": trip_name,
-        "errors": {}  # 預設無錯誤
+        "errors": {}
     })
+
 
 from django.http import StreamingHttpResponse
 import json
 
 
 def stream_hotels(request):
+    print("🧵 stream_hotels() 啟動，執行緒 ID:", threading.get_ident())
     city = request.GET.get('city')
     checkin = request.GET.get('checkin')
     checkout = request.GET.get('checkout')
     adults = request.GET.get('adults')
     children = request.GET.get('children')
 
+
     def event_stream():
-        for hotel in scrape_booking(city, checkin, checkout, adults, children):
-            json_data = json.dumps(hotel)
-            print(hotel)
-            yield f"data: {json_data}\n\n"
+        yield f"data: {json.dumps({'status': 'start', 'message': f'正在查詢 {city} 的飯店資訊'})}\n\n"  # ⬅️ 先丟一筆初始資料給前端
+        try:
+            for hotel in scrape_booking(city, checkin, checkout, adults, children):
+                json_data = json.dumps(hotel, ensure_ascii=False)
+                print(f"[stream-hotels] 傳送飯店：{hotel['名稱']}")
+                yield f"data: {json_data}\n\n"
+            yield "event: done\ndata: 完成載入\n\n"
+        except Exception as e:
+            print(f"[stream-hotels] 錯誤：{str(e)}")
+            yield f"event: error\ndata: 發生錯誤：{str(e)}\n\n"
 
     return StreamingHttpResponse(event_stream(), content_type='text/event-stream')
 

@@ -11,4 +11,4 @@ urlpatterns = [
     path("delete_lodging/<int:lodging_id>/", views.delete_lodging, name="delete_lodging"), #刪除飯店路由
     path('api/get_lodgings_by_trip/<int:trip_id>/', views.get_lodgings_by_trip, name='get_lodgings_by_trip'),
 
-]
+]   
