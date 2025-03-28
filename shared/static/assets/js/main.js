@@ -13,22 +13,22 @@ $(function () {
   //     $(".header_navbar img").attr("src", "/static/assets/images/logo2.png");
   //   }
   // });
-  var scrollLink = $(".page-scroll");
-  $(window).scroll(function () {
-    var scrollbarLocation = $(this).scrollTop();
-    scrollLink.each(function () {
-      const target = $(this.hash);
-      if (target.length) {
-        var sectionOffset = target.offset().top - 73;
-        if (sectionOffset <= scrollbarLocation) {
-          $(this).parent().addClass("active");
-          $(this).parent().siblings().removeClass("active");
-        }
-      } else {
-        console.warn("⚠️ 無法定位 hash 對象：", this.hash);
-      }
-    });
-  });
+  // var scrollLink = $(".page-scroll");
+  // $(window).scroll(function () {
+  //   var scrollbarLocation = $(this).scrollTop();
+  //   scrollLink.each(function () {
+  //     const target = $(this.hash);
+  //     if (target.length) {
+  //       var sectionOffset = target.offset().top - 73;
+  //       if (sectionOffset <= scrollbarLocation) {
+  //         $(this).parent().addClass("active");
+  //         $(this).parent().siblings().removeClass("active");
+  //       }
+  //     } else {
+  //       console.warn("⚠️ 無法定位 hash 對象：", this.hash);
+  //     }
+  //   });
+  // });
   $(".navbar-nav a").on("click", function () {
     $(".navbar-collapse").removeClass("show");
   });
