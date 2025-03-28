@@ -213,3 +213,6 @@ AUTHENTICATION_BACKENDS = (
 
 #設定 @login_required 登入畫面
 LOGIN_URL = '/login/'  
+
+
+BASE_URL = os.getenv("BASE_URL")

@@ -4,7 +4,8 @@ from django.conf import settings
 def send_verification_email(user):
     """ 使用 Brevo API 發送 Email 驗證信 """
     user.generate_verification_token()  # 產生驗證 Token
-    verification_url = f"http://127.0.0.1:8000/verify/{user.email_verification_token}"
+    # 驗證信
+    verification_url = f"{settings.BASE_URL}/verify/{user.email_verification_token}"
 
     api_url = "https://api.brevo.com/v3/smtp/email"
     headers = {
@@ -31,8 +32,9 @@ def send_verification_email(user):
 def send_reset_password_email(user):
     """ 使用 Brevo API 發送密碼重設信 """
     user.generate_verification_token() 
-    reset_url = f"http://127.0.0.1:8000/reset-password/{user.email_verification_token}/"
-
+    # 密碼重設信
+    reset_url = f"{settings.BASE_URL}/reset-password/{user.email_verification_token}/"
+    print(reset_url)
     api_url = "https://api.brevo.com/v3/smtp/email"
     headers = {
         "accept": "application/json",
