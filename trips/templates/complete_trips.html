@@ -209,6 +209,12 @@
         .more-info-btn-container {
             text-align: center; /* ✅ 讓內部的按鈕水平置中 */
         }
+
+        #blog {
+            min-height: 65vh; /* 撐滿整個視窗高度 */
+            display: flex;
+            align-items: center;   /* 垂直置中 */
+        }
     </style> 
 </head>
 
@@ -265,10 +271,10 @@
                                     </li>
                                     
                                     <li class="nav-item">
-                                        <a class="page-scroll" href="/lodging">住宿管理</a>   <!-- 路由尚未完善 -->
+                                        <a class="page-scroll" href="/lodging">住宿管理</a>   
                                     </li>
                                     <li class="nav-item">
-                                        <a class="page-scroll" href="/trips">我的行程</a>  <!-- 路由尚未完善 -->
+                                        <a class="page-scroll" href="/trips">我的行程</a>  
                                     </li>
                                     <li class="nav-item" id="user-menu">
                                         <a class="page-scroll" href="/login/">登入</a>
@@ -303,10 +309,17 @@
         <!-- 標題區域 -->
         <div class="row justify-content-center">
             <div class="col-lg-6">
+                {% if trip_data %}
                 <div class="section_title text-center pb-25">
                     <h3 class="title">🎉已完成規劃，準備出發</h3>
                     <p>Trip planning complete, ready to go!</p>
                 </div>
+                {% else %}
+                <div class="section_title text-center pb-25">
+                    <h3 class="title">目前還沒有已完成的行程</h3>
+                    <p>You haven't finished planning any trips.</p>
+                </div>
+                {% endif %}
             </div>
         </div>
         <div>
