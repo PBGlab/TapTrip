@@ -9,7 +9,10 @@ import re
 
 
 
+
+
 def scrape_booking(city, checkin, checkout, adults, children):
+
     url = f"https://www.booking.com/searchresults.zh-tw.html?ss={city}&checkin={checkin}&checkout={checkout}&group_adults={adults}&group_children={children}"
     options = webdriver.ChromeOptions()
     options.add_argument("--headless")
@@ -19,7 +22,10 @@ def scrape_booking(city, checkin, checkout, adults, children):
     options.add_argument("--user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.5735.110 Safari/537.36")
 
     driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
+  
     driver.get(url)
+    
+    
 
     hotels = []
     try:
@@ -55,5 +61,6 @@ def scrape_booking(city, checkin, checkout, adults, children):
     except Exception as e:
         print(f"頁面載入錯誤: {e}")
     finally:
+        
         driver.quit()
     # return hotels
