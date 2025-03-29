@@ -27,7 +27,7 @@ SECRET_KEY = "django-insecure-b0iu&uj@f7+gzjq6fwla04496)gmdgw8g1llb88ye&fej^dq1=
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['taptrip2025.com','www.taptrip2025.com']
+ALLOWED_HOSTS = ['taptrip2025.com','www.taptrip2025.com','127.0.0.1']
 
 
 # Application definition
@@ -112,8 +112,16 @@ WSGI_APPLICATION = "mysite.wsgi.application"
 
 DATABASES = {
     "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': os.getenv('DB_NAME'),
+        'USER': os.getenv('DB_USER'),
+        'PASSWORD': os.getenv('DB_PASSWORD'),
+        'HOST': os.getenv('DB_HOST'),
+        'PORT': os.getenv('DB_PORT'),
+
+        
+        # "ENGINE": "django.db.backends.sqlite3",
+        # "NAME": BASE_DIR / "db.sqlite3",
     }
 }
 

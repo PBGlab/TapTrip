@@ -21,9 +21,16 @@ def scrape_booking(city, checkin, checkout, adults, children):
     options.add_argument("--disable-dev-shm-usage")
     options.add_argument("--user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.5735.110 Safari/537.36")
 
+    #proxy
+    options.add_argument("--proxy-server=socks5://127.0.0.1:1080")
+
+
+
     driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
   
     driver.get(url)
+    #爬蟲使用的網域 210.209.244.174
+    print(driver.page_source)
     
     
 

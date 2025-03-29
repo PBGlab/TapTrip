@@ -11,7 +11,7 @@ class Lodging(models.Model):
     trip = models.ForeignKey("trips.Trip", on_delete=models.CASCADE)  
     name = models.CharField(max_length=255)  
     rating = models.CharField(max_length=10, blank=True)  
-    link = models.URLField(blank=True)  
+    link = models.URLField(blank=True,max_length=1000)  
     price = models.CharField(max_length=50, blank=True)  
     address = models.CharField(max_length=255, blank=True)  
     image = models.URLField(blank=True)  
