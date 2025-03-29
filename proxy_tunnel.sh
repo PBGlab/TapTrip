@@ -1,3 +1,5 @@
+# 執行bash proxy_tunnel.sh
+
 #!/bin/bash
 
 # 簡單開通 SOCKS5 通道，需手動輸入 style 的密碼
