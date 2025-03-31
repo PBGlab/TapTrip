@@ -63,17 +63,6 @@
         }   
 
 
-        .trip-selection .trip-select {
-        width: 66%;
-        height: 42px;             /* 高度一致 */
-        padding: 8px 12px;        /* 控制左右留白 */
-        font-size: 15px;
-        line-height: normal;        /* 讓文字垂直置中 */
-        border: 1px solid #ccc;
-        background-color: #fff;
-        box-sizing: border-box;
-        vertical-align: middle;   /* 補強文字置中 */
-        }
 
         
         .single_destination {
@@ -84,14 +73,6 @@
 
         }
 
-        .destination_content {
-        flex-grow: 1;
-        display: flex;
-        flex-direction: column;
-        justify-content: space-between; /* 標題在上、按鈕在下 */
-        padding: 20px;
-        background-color: #fffde6; /* 如果你真的想讓背景變黃色（目前看起來是這樣） */
-        }
 
         .book-hotel {
         margin-top: auto;
@@ -107,27 +88,78 @@
         position: relative; /* 讓內部按鈕可以絕對定位 */
         }
 
-.btn-add-hotel {
-    display: inline-block;
-    align-self: flex-end;
-    margin-top: auto;
-    background-color: white;
-    color: #f59e0b;
-    border: 1px solid #fcd34d;
-    border-radius: 9999px;
-    padding: 6px 12px;
-    font-size: 14px;
-    font-weight: 500;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-    cursor: pointer;
-    transition: background-color 0.2s ease;
+
+
+.destination_content {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 16px 20px;
+    background-color: #fff;
+    font-size: 15px;
 }
 
-        .btn-add-hotel:hover {
-        background-color: #facc15;  /* 預設黃色底 */
-        color: #ffffff;             /* 深灰字 */
+.destination_content h4.title {
+    font-size: 18px;
+    font-weight: bold;
+    margin-bottom: 8px;
+    line-height: 1.4;
+}
 
-        }
+.destination_content .price {
+    font-size: 14px;
+    color: #444;
+    margin-bottom: 6px;
+}
+
+.destination_content p {
+    margin-bottom: 10px;
+    line-height: 1.5;
+}
+
+/* 將下拉選單與加入按鈕並排 & 對齊底線 */
+.trip-selection {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    margin-top: auto;
+    padding-top: 10px;
+}
+/* 左側選單佔 60% */
+.trip-selection .trip-select {
+    flex-basis: 60%;
+    flex-shrink: 0;
+    height: 40px;
+    padding: 6px 12px;
+    font-size: 14px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    box-sizing: border-box;
+}
+
+/* 按鈕統一高度並對齊 */
+/* 右側按鈕佔 40% */
+.trip-selection .btn-add-hotel {
+    flex-basis: 40%;
+    flex-shrink: 0;
+    height: 40px;
+    padding: 0 16px;
+    font-size: 14px;
+    background-color: #facc15;
+    color: white;
+    border: 1px solid #fcd34d;
+    border-radius: 5px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-sizing: border-box;
+}
+
+.trip-selection .btn-add-hotel:hover {
+    background-color: white;
+    color: #f59e0b;
+}
 
 
 
@@ -370,8 +402,9 @@
                             <option value="">請選擇行程</option>
                             ${options}
                         </select>
+                         <button class="btn-add-hotel" onclick="bookHotel(this, ${hotelCount})" title="加入住宿清單">加入住宿</button>
                     </div>
-                    <button class="btn-add-hotel" onclick="bookHotel(this, ${hotelCount})" title="加入住宿清單">加入住宿</button>
+                    
                 `;
             }
 
