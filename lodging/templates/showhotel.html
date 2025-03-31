@@ -97,18 +97,18 @@
     justify-content: space-between;
     padding: 16px 20px;
     background-color: #fff;
-    font-size: 15px;
+    font-size: 24px !important;
 }
 
 .destination_content h4.title {
-    font-size: 18px;
+    font-size: 36px !important;
     font-weight: bold;
     margin-bottom: 8px;
     line-height: 1.4;
 }
 
 .destination_content .price {
-    font-size: 14px;
+    font-size: 24px !important;
     color: #444;
     margin-bottom: 6px;
 }
@@ -116,6 +116,16 @@
 .destination_content p {
     margin-bottom: 10px;
     line-height: 1.5;
+}
+
+.destination_content h4.title,
+.destination_content h4.title a,
+.destination_content h4.title strong {
+    font-size: 30px !important;
+    font-weight: bold;
+    line-height: 1.4;
+    color: #222;
+    text-decoration: none;
 }
 
 /* 將下拉選單與加入按鈕並排 & 對齊底線 */
@@ -128,16 +138,19 @@
 }
 /* 左側選單佔 60% */
 .trip-selection .trip-select {
+    text-align: center;  /* ✅ 讓選項文字居中 */
     flex-basis: 60%;
-    flex-shrink: 0;
     height: 40px;
-    padding: 6px 12px;
-    font-size: 14px;
+    padding: 0 12px; /* ✅ 左右間距 */
+    font-size: 15px; /* ✅ 字體大一點 */
+    line-height: 1.2;
+    text-align: center; /* ✅ 水平置中選項文字 */
     border: 1px solid #ccc;
     border-radius: 5px;
     box-sizing: border-box;
+    appearance: none; /* ✅ 移除預設箭頭樣式 */
+    line-height: 40px
 }
-
 /* 按鈕統一高度並對齊 */
 /* 右側按鈕佔 40% */
 .trip-selection .btn-add-hotel {
