@@ -78,7 +78,8 @@ def stream_hotels(request):
     return StreamingHttpResponse(event_stream(), content_type='text/event-stream')
 
 
-from trips.models import Trip  # 確保你有 import Trip
+from django.utils.safestring import mark_safe
+import json
 
 def showhotel(request):
     city = request.GET.get("city", "")
@@ -90,14 +91,20 @@ def showhotel(request):
     # **取得當前使用者的行程**
     user_trips = Trip.objects.filter(user=request.user, status="draft") if request.user.is_authenticated else []
 
-    return render(request, "showhotel.html", {
+    context = {
         "city": city,
         "checkin": checkin,
         "checkout": checkout,
         "adults": adults,
         "children": children,
-        "user_trips": user_trips,  # ✅ 把行程傳到前端
-    })
+        "user_trips": user_trips,
+        "user_is_authenticated": request.user.is_authenticated,  # ✅ 傳登入狀態給 JS
+        "user_trips_json": mark_safe(json.dumps([
+            {"id": trip.id, "name": trip.name} for trip in user_trips
+        ])),  # ✅ 傳給 JS 做 <option> 用
+    }
+
+    return render(request, "showhotel.html", context)
 
 
 

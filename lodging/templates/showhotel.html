@@ -107,24 +107,21 @@
         position: relative; /* 讓內部按鈕可以絕對定位 */
         }
 
-        .btn-add-hotel {
-        position: absolute;
-        top: 12px;
-        right: 12px;
-        background-color: white;
-        color: #f59e0b;
-        border: 1px solid #fcd34d;
-        border-radius: 9999px;
-        padding: 6px 12px;
-        font-size: 14px;
-        font-weight: 500;
-        box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-        display: flex;
-        align-items: center;
-        gap: 6px;
-        cursor: pointer;
-        transition: background-color 0.2s ease;
-        }
+.btn-add-hotel {
+    display: inline-block;
+    align-self: flex-end;
+    margin-top: auto;
+    background-color: white;
+    color: #f59e0b;
+    border: 1px solid #fcd34d;
+    border-radius: 9999px;
+    padding: 6px 12px;
+    font-size: 14px;
+    font-weight: 500;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
 
         .btn-add-hotel:hover {
         background-color: #facc15;  /* 預設黃色底 */
@@ -134,31 +131,6 @@
 
 
 
-
-        .cta-reserve {
-        display: inline-flex;
-        align-items: center;
-        gap: 6px;
-        background-color: #facc15;  /* 預設黃色底 */
-        color: #ffffff;             /* 深灰字 */
-        font-size: 14px;
-        font-weight: 500;
-        padding: 8px 16px;
-        border-radius: 9999px;
-        text-decoration: none;
-        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
-        transition: all 0.2s ease;
-        position: absolute;
-        bottom: 20px;
-        right: 20px;
-        border: 1px solid transparent;
-        }
-
-        .cta-reserve:hover {
-        background-color: #ffffff;   /* 滑鼠移上去變白色 */
-        color: #fcd34d;              /* 黑字 */
-        border: 1px solid #facc15;   /* 加一圈黃邊 */
-        }
 
 
 
@@ -360,6 +332,8 @@
 <script>
     document.addEventListener("DOMContentLoaded", function () {
         // **從 URL 取得 check-in、check-out 和 city**
+        const userIsAuthenticated = {{ user_is_authenticated|yesno:"true,false" }};
+        const user_trips = {{ user_trips_json }};
         const urlParams = new URLSearchParams(window.location.search);
         const checkInValue = urlParams.get("checkin") || "未提供";
         const checkOutValue = urlParams.get("checkout") || "未提供";
@@ -377,17 +351,28 @@
             hotelCount += 1;
             let hotel = JSON.parse(event.data);
 
-            // **收到第一筆資料時，更新標題**
+            // 第一次進資料時更新畫面
             if (!firstDataReceived) {
-                document.title = `飯店查詢結果 ${checkInValue} - ${checkOutValue}`; // 更新瀏覽器標題
-                hotelTitle.innerText = `${urlParams.get("city") || "未知地點"} 飯店搜尋結果`; // 更新主標題
-                hotelSubtitle.innerText = `入住日期：${checkInValue} | 退房日期：${checkOutValue}`; // 更新副標題
+                document.title = `飯店查詢結果 ${checkInValue} - ${checkOutValue}`;
+                hotelTitle.innerText = `${urlParams.get("city") || "未知地點"} 飯店搜尋結果`;
+                hotelSubtitle.innerText = `入住日期：${checkInValue} | 退房日期：${checkOutValue}`;
                 firstDataReceived = true;
+                if (loadingMessage) loadingMessage.remove();
+            }
 
-                // 移除載入中訊息
-                if (loadingMessage) {
-                    loadingMessage.remove();
-                }
+            // ⬇️ 如果已登入，產生下拉與按鈕
+            let tripSelectHTML = "";
+            if (userIsAuthenticated && user_trips.length > 0) {
+                const options = user_trips.map(trip => `<option value="${trip.id}">${trip.name}</option>`).join("");
+                tripSelectHTML = `
+                    <div class="trip-selection">
+                        <select id="select_trip_id_${hotelCount}" class="trip-select">
+                            <option value="">請選擇行程</option>
+                            ${options}
+                        </select>
+                    </div>
+                    <button class="btn-add-hotel" onclick="bookHotel(this, ${hotelCount})" title="加入住宿清單">加入住宿</button>
+                `;
             }
 
             let hotelItem = document.createElement("div");
@@ -396,91 +381,66 @@
             hotelItem.setAttribute("data-wow-delay", "0.2s");
 
             hotelItem.innerHTML = `
-            <div class="single_destination mt-30">
-                <div class="destination_image">
-                    <a href="${hotel.連結}">
-                        <img src="${hotel.圖片}" alt="Hotel Image">
-                    </a>
-
-                    {% if request.user.is_authenticated %}
-
-                    <button class="btn-add-hotel" onclick="bookHotel(this, ${hotelCount})" title="加入住宿清單">
-                        加入住宿
-                    </button>
-                        {% endif %}
-
-                </div>
-                <div class="destination_content">
-                    <h4 class="title">
-                        <a href="${hotel.連結}"><strong>${hotel.名稱}</strong></a>
-                    </h4>
-                    <p class="price">${hotel.地址}</p>
-                    <p>${hotel.價格}</p>
-
-                    <!-- 隱藏飯店資訊，當按鈕點擊時讀取 -->
-                    <div class="hidden_data"
-                        data-name="${hotel.名稱}"
-                        data-location="${hotel.地址}"
-                        data-rating="${hotel.評價}"
-                        data-price="${hotel.價格}"
-                        data-image="${hotel.圖片}"
-                        data-link="${hotel.連結}"
-                        data-checkin="${checkInValue}"
-                        data-checkout="${checkOutValue}"
-                        data-trip-id="">
+                <div class="single_destination mt-30">
+                    <div class="destination_image">
+                        <a href="${hotel.連結}" target="_blank">
+                            <img src="${hotel.圖片}" alt="Hotel Image">
+                        </a>
+                        
                     </div>
-                    
-                    <!-- 選擇行程 (trip_id) -->
-                    <div class="trip-selection">
-                        <select id="select_trip_id_${hotelCount}" class="trip-select">
-                            {% if user_trips %}
-                                <option value="">請選擇行程</option>
-                                {% for trip in user_trips %}
-                                    <option value="{{ trip.id }}">{{ trip.name }}</option>
-                                {% endfor %}
-                            {% else %}
-                                <option value="">尚未建立任何行程</option>
-                            {% endif %}
-                        </select>
+                    <div class="destination_content">
+                        <h4 class="title">
+                            <a href="${hotel.連結}" target="_blank"><strong>${hotel.名稱}</strong></a>
+                        </h4>
+                        <p class="price">${hotel.地址}</p>
+                        <p>${hotel.價格}</p>
+
+                        <div class="hidden_data"
+                            data-name="${hotel.名稱}"
+                            data-location="${hotel.地址}"
+                            data-rating="${hotel.評價}"
+                            data-price="${hotel.價格}"
+                            data-image="${hotel.圖片}"
+                            data-link="${hotel.連結}"
+                            data-checkin="${checkInValue}"
+                            data-checkout="${checkOutValue}"
+                            data-trip-id="">
+                        </div>
+
+                        
+
+                        
+
+                        ${tripSelectHTML}
+
                     </div>
-
-
-
-
-                <a class="cta-reserve" href="${hotel.連結}" target="_blank" rel="noopener noreferrer">
-                前往預定
-                </a>
-
                 </div>
-            </div>
             `;
 
             resultContainer.appendChild(hotelItem);
 
-            // **✨ 對新增的 select 套用 niceSelect**
-            $(`#select_trip_id_${hotelCount}`).niceSelect();
+            // niceSelect 初始化
+            if (userIsAuthenticated) {
+                $(`#select_trip_id_${hotelCount}`).niceSelect();
 
-            // **即時更新 hidden_data 內的 trip_id**
-            let tripField = document.getElementById(`select_trip_id_${hotelCount}`);
-
-            if (tripField) {
-                tripField.addEventListener("change", function () {
-                    let allHiddenData = document.querySelectorAll(".hidden_data"); // 取得所有隱藏的飯店資訊
-
-                    allHiddenData.forEach(hiddenData => {
-                        if(hiddenData.dataset.name === `${hotel.名稱}`) {
-                            hiddenData.dataset.tripId = tripField.value || ""; // 更新 data-trip-id
-                        }
+                let tripField = document.getElementById(`select_trip_id_${hotelCount}`);
+                if (tripField) {
+                    tripField.addEventListener("change", function () {
+                        let allHiddenData = document.querySelectorAll(".hidden_data");
+                        allHiddenData.forEach(hiddenData => {
+                            if (hiddenData.dataset.name === `${hotel.名稱}`) {
+                                hiddenData.dataset.tripId = tripField.value || "";
+                            }
+                        });
+                        console.log(`✅ 已更新 select_trip_id_${hotelCount} 的 trip_id`, tripField.value);
                     });
-                    
-                    console.log(`✅ 已更新 #select_trip_id_${hotelCount} 的 hidden_data trip_id:`, tripField.value);
-                });
+                }
             }
 
-            // **只對新元素應用 WOW.js，不影響整個版面**
             let wow = new WOW({ live: false });
             wow.sync();
         };
+
 
         eventSource.onerror = function() {
             console.error("查詢飯店結果顯示完成");
