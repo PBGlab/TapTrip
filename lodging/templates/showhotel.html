@@ -128,6 +128,33 @@
     text-decoration: none;
 }
 
+.destination_image {
+    position: relative;
+    overflow: hidden;
+    cursor: pointer; /* ✅ 游標變手指 */
+}
+
+.destination_image a::after {
+    content: "點我前往訂房 🔗";
+    position: absolute;
+    bottom: 12px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: rgba(0, 0, 0, 0.6);
+    color: white;
+    padding: 6px 12px;
+    font-size: 14px;
+    border-radius: 8px;
+    opacity: 0;
+    transition: opacity 0.3s;
+    pointer-events: none;
+}
+
+.destination_image:hover a::after {
+    opacity: 1;
+}
+
+
 /* 將下拉選單與加入按鈕並排 & 對齊底線 */
 .trip-selection {
     display: flex;
