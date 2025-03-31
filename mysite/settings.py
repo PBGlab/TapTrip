@@ -33,6 +33,7 @@ DEBUG = True
 
 ALLOWED_HOSTS = ['taptrip2025.com','www.taptrip2025.com','127.0.0.1','13.236.187.118',]
 
+LOGIN_URL = '/accounts/login/'
 
 # Application definition
 

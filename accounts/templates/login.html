@@ -177,7 +177,7 @@
             </div> <!-- row -->
 
             <div class="contact_form">
-                <form id="login-form">
+                <form id="login-form" method="post" action="{% url 'login' %}?next={{ request.GET.next }}">
                     {% csrf_token %}
                     <div class="row">
                         <div class="col-lg-12 mb-3">
@@ -218,6 +218,7 @@
                 </form>
                 
                 <script>
+                    const nextValue = new URLSearchParams(window.location.search).get('next') || '/home';
                     document.getElementById("login-form").addEventListener("submit", function(event) {
                         event.preventDefault();  // 阻止表單刷新
                     
@@ -230,7 +231,7 @@
                         document.getElementById("error-email").innerText = "";
                         document.getElementById("error-password").innerText = "";
                     
-                        fetch("/login/", {
+                        fetch(`/login/?next=${encodeURIComponent(nextValue)}`, {
                             method: "POST",
                             headers: { "X-CSRFToken": csrfToken },
                             body: formData

@@ -85,6 +85,7 @@ from .models import Trip, TripDay, TripDayAttraction, TripLodging
 from attractions.models import Attraction
 
 #行程總表
+@login_required(login_url='/login/')
 def list_trips(request):
     draft_trips = Trip.objects.filter(user=request.user, status='draft')
 
