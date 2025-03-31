@@ -599,7 +599,7 @@
         });
         
         
-          // ✅ DOM 載入後先抓左側行程資料，並正確渲染下拉選單與隱藏的行程卡片
+          //  DOM 載入後先抓左側行程資料，並正確渲染下拉選單與隱藏的行程卡片
           
           document.addEventListener("DOMContentLoaded", function () {
             loadTrips();
@@ -615,7 +615,7 @@
         
         function loadTrips(callback) {
           
-          window.attractionDataById = {};  // ✅ 放這裡，表示每次重抓行程時清空舊資料
+          window.attractionDataById = {};  // 示每次重抓行程時清空舊資料
           fetch("/api/trips/")
             .then(response => response.json())
             .then(data => {
@@ -626,7 +626,7 @@
               const noTripsMessage = document.getElementById("no-trips-message");
         
               const urlParams = new URLSearchParams(window.location.search);
-              const selectedTripId = urlParams.get("selected_trip");  // ✅ 這裡宣告了 selectedTripId
+              const selectedTripId = urlParams.get("selected_trip");  //  宣告 selectedTripId
         
               tripSelect.innerHTML = '<option value="">請選擇行程</option>';
               tripList.innerHTML = '';
@@ -639,15 +639,13 @@
                 tripSelect.style.display = "block";
               }
         
-              // ✅ 建立下拉選單與行程列表
+              // 建立下拉選單與行程列表
               data.trips.forEach(trip => {
                 const option = document.createElement("option");
                 option.value = trip.id;
                 option.textContent = trip.name;
                 tripSelect.appendChild(option);
 
-  
-        
                 trip.days.forEach(day => {
                   const dayLi = document.createElement("li");
                   dayLi.className = "list-group-item trip-day";
@@ -726,12 +724,12 @@
                   dayLi.appendChild(attractionList);
                   tripList.appendChild(dayLi);
 
-                  // ✅ 每次載入完當日行程，就初始化地圖資料（不顯示真正地圖）
+                  //  每次載入完當日行程，就初始化地圖資料（不顯示真正地圖）
                   initializeDayRouteUI(day.id, new google.maps.Map(document.createElement("div")));
       
 
                 });
-                // ✅ 🔽 加在這裡就對了！
+              
                 const $tripSelect = $('#select-trip');
                 if ($tripSelect.next('.nice-select').length) {
                   $tripSelect.niceSelect('destroy');
@@ -739,20 +737,20 @@
                 $tripSelect.niceSelect();
               });
         
-              // ✅ 把這段放進 .then() 裡！
+              // 
               if (selectedTripId) {
                 tripSelect.value = selectedTripId;
-                setTimeout(updateTripList, 100);  // ✅ 展開目前選中的行程
+                setTimeout(updateTripList, 100);  //  展開目前選中的行程
               }
         
-              if (callback) callback();  // ✅ 若有 callback 就執行
-            }); // ✅ 關閉 .then()
-        }       // ✅ 關閉 loadTrips()
+              if (callback) callback();  // 
+            }); //  關閉 .then()
+        }       //  關閉 loadTrips()
         
                 
         
 
-          // ✅ 下拉選單改變 → 顯示對應的行程日
+          //  下拉選單改變 → 顯示對應的行程日
           function updateTripList() {
               const selectedTripId = document.getElementById("select-trip").value;
               console.log("✅ 正在展開 tripId =", selectedTripId);
@@ -771,34 +769,29 @@
           
           
 
-// 🔵 開啟地圖彈出框並載入 Google Maps
+//  開啟地圖彈出框並載入 Google Maps
 function openMapModal(dayId) {
 
-  // ✅ 隱藏搜尋結果區塊
+  //  隱藏搜尋結果區塊
   const resultContainer = document.getElementById("result-container");
   if (resultContainer) {
     resultContainer.style.display = "none";
   }
-
-
   document.getElementById("mapModal").style.display = "flex";  // 顯示地圖彈出
 
-  // ✅ 當進入編輯模式，讓所有 attraction-card 加上 edit-mode
+  //  當進入編輯模式，讓所有 attraction-card 加上 edit-mode
   document.querySelectorAll(`.attraction-card[data-day-id="${dayId}"]`).forEach(card => {
     card.classList.add("edit-mode");
   });
-
-  // TODO：你可以改成從 API 根據 dayId 抓景點座標並畫線
-  // 這裡先顯示一張假地圖
+  // 從 API 根據 dayId 抓景點座標並畫線
+  // 顯示地圖
   const map = new google.maps.Map(document.getElementById("map"), {
     center: { lat: 24.796, lng: 120.993 },  // 預設中心點（苗栗中間值）
     zoom: 13
   });
-  window.currentMapInstance = map; // ✅ 每次更新最新地圖物件
+  window.currentMapInstance = map; //  每次更新最新地圖物件
   initializeDayRouteUI(dayId, map);
-
-
-    // ✅ 這裡初始化拖曳 有地圖才能改順序
+    //  這裡初始化拖曳 有地圖才能改順序
     const attractionList = document.getElementById(`sortable-day-${dayId}`);
     if (attractionList && !attractionList.classList.contains("sortable-initialized")) {
       new Sortable(attractionList, {
@@ -806,28 +799,22 @@ function openMapModal(dayId) {
         filter: ".duration-info", // 排除預估時間行
         onEnd: function (evt) {
           const listItems = evt.to.querySelectorAll("li:not(.duration-info)");
-      
           const newOrder = [];
           listItems.forEach(item => {
             const idStr = item.id;
             const attractionId = parseInt(idStr.replace("attraction_", ""));
             newOrder.push(attractionId);
           });
-      
           console.log("✅ 拖曳完成，新順序：", newOrder);
-
-          const map = window.currentMapInstance; // ✅ 拿到最新的地圖
-      
+          const map = window.currentMapInstance; //  拿到最新的地圖
           // 2. 更新整個地圖與 UI
           initializeDayRouteUI(dayId, map);
-      
           getRouteData(dayId, (response) => {
             setTimeout(() => {
               renderRouteUI(dayId, response);
             }, 50);
           });
-
-          // ✅ 更新 title-marker (A/B/C...)
+          // 更新 title-marker (A/B/C...)
           listItems.forEach((item, idx) => {
             const markerSpan = item.querySelector(".title-marker");
             if (markerSpan) {
@@ -836,18 +823,13 @@ function openMapModal(dayId) {
           });
         }
       });
-      
-    
       attractionList.classList.add("sortable-initialized");
     }
-
-
-
     // 設定全域變數，供 saveRouteOrder() 使用
     window.currentEditingDayId = dayId;
 }
 
-// 🔵 關閉地圖彈出框
+//  關閉地圖彈出框
 function closeMapModal() {
   document.getElementById("mapModal").style.display = "none";
 
@@ -861,7 +843,7 @@ function closeMapModal() {
 });
 }
           
-// ✅ 加入景點到行程後，同步更新左側並保持展開
+// 加入景點到行程後，同步更新左側並保持展開
 function addToTrip(attractionId, attractionName, hashtag, imageUrl) {
   const selectedTripDayId = document.getElementById(`trip-date-${attractionId}`).value;
   const selectedTripId = document.getElementById("select-trip").value;  // ✅ 記住當前選擇的行程
@@ -889,9 +871,9 @@ function addToTrip(attractionId, attractionName, hashtag, imageUrl) {
       if (data.success) {
         alert("成功將景點加入行程！");
         loadTrips(() => {
-          // ✅ 確保行程不會被收起
+          //  確保行程不會被收起
           document.getElementById("select-trip").value = selectedTripId;
-          updateTripList();  // ✅ 重新展開選擇的行程
+          updateTripList();  //  重新展開選擇的行程
 
           initializeDayRouteUI(selectedTripDayId, new google.maps.Map(document.createElement("div")));
 
@@ -907,7 +889,7 @@ function addToTrip(attractionId, attractionName, hashtag, imageUrl) {
 
 
           
-          // ✅ 刪除景點函式
+          //  刪除景點函式
           function removeAttraction(attractionId) {
             if (!confirm("確定要刪除此景點嗎？")) return;
           
@@ -927,7 +909,7 @@ function addToTrip(attractionId, attractionName, hashtag, imageUrl) {
                   const dayIdStr = parentUl.id.replace("sortable-day-", "");
                   const dayId = parseInt(dayIdStr);
           
-                  // ✅ 移除景點卡片
+                  //  移除景點卡片
                   deletedLi.remove();
           
                   initializeDayRouteUI(dayId, new google.maps.Map(document.createElement("div")));
@@ -949,7 +931,7 @@ function addToTrip(attractionId, attractionName, hashtag, imageUrl) {
 
           //儲存路線
           function saveRouteOrder() {
-            // ✅ 抓出目前開啟的 dayId（可以用全域變數或暫存 DOM 來記住）
+            //  抓出目前開啟的 dayId（可以用全域變數或暫存 DOM 來記住）
             const dayId = window.currentEditingDayId;
           
             const list = document.getElementById(`sortable-day-${dayId}`);
@@ -973,8 +955,8 @@ function addToTrip(attractionId, attractionName, hashtag, imageUrl) {
               .then(data => {
                 if (data.success) {
                   alert("✅ 順序儲存成功！");
-                  closeMapModal();  // ✅ 關掉地圖
-                  loadTrips();      // ✅ 重新抓一次資料（包含順序）
+                  closeMapModal();  //  關掉地圖
+                  loadTrips();      //  重新抓一次資料（包含順序）
                 } else {
                   alert("❌ 儲存失敗！");
                 }
@@ -1039,7 +1021,7 @@ function addToTrip(attractionId, attractionName, hashtag, imageUrl) {
 
 
           function initializeDayRouteUI(dayId, map) {
-            // 🔁 清除舊的地圖線
+            //  清除舊的地圖線
             if (window.currentDirectionsRenderer) {
               window.currentDirectionsRenderer.setMap(null);
             }
@@ -1056,7 +1038,7 @@ function addToTrip(attractionId, attractionName, hashtag, imageUrl) {
               }
             });
           
-            // 🟡 只有一個點 → 顯示 Marker
+            //  只有一個點 → 顯示 Marker
             if (pathCoordinates.length === 1) {
               new google.maps.Marker({
                 position: pathCoordinates[0],
@@ -1068,10 +1050,10 @@ function addToTrip(attractionId, attractionName, hashtag, imageUrl) {
               return;
             }
           
-            // 🔴 沒點就不處理
+            // 沒點就不處理
             if (pathCoordinates.length < 1) return;
           
-            // 🔵 多點 → 規劃路線 + 顯示距離 + ABC 標籤
+            //  多點 → 規劃路線 + 顯示距離 + ABC 標籤
             const directionsService = new google.maps.DirectionsService();
             const directionsRenderer = new google.maps.DirectionsRenderer({ map, suppressMarkers: false });
             window.currentDirectionsRenderer = directionsRenderer;
@@ -1088,10 +1070,10 @@ function addToTrip(attractionId, attractionName, hashtag, imageUrl) {
               if (status === 'OK') {
                 directionsRenderer.setDirections(response);
           
-                // ✅ 更新預估時間
+                //  更新預估時間
                 renderRouteUI(dayId, response);
           
-                // ✅ 更新 ABC 標籤
+                //  更新 ABC 標籤
                 const updatedList = document.querySelectorAll(`#sortable-day-${dayId} li:not(.duration-info)`);
                 updatedList.forEach((item, idx) => {
                   const markerSpan = item.querySelector(".title-marker");
